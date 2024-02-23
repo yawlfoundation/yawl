@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -201,7 +201,7 @@ public class visualiser extends AbstractPageBean {
 
         _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
         DynamicForm df = (DynamicForm) getBean("DynFormFactory");
-        String title = "YAWL 3.0 - Edit Work Item";
+        String title = "YAWL 4.5.1 - Edit Work Item";
         String header = "Edit Work Item: " + selectedWIR.getCaseID();
         if (df.makeForm(title, header, _sb.getTaskSchema(selectedWIR), selectedWIR)) {
             _sb.setVisualiserReferred(true);

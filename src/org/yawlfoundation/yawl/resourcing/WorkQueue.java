@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -219,11 +219,13 @@ public class WorkQueue {
      * Removes a workitem from the queue
      * @param item the workitem to remove
      */
-    public void remove(WorkItemRecord item) {
+    public boolean remove(WorkItemRecord item) {
+        WorkItemRecord removed = null;
         if (item != null && _workitems.containsKey(item.getID())) {
-            _workitems.remove(item.getID());
+            removed = _workitems.remove(item.getID());
             persistThis();
-        }    
+        }
+        return removed != null;
     }
 
 
@@ -246,6 +248,14 @@ public class WorkQueue {
             _workitems.clear();
             persistThis() ;
         }    
+    }
+
+
+    public void refresh(WorkItemRecord wir) {
+        if (_workitems.containsKey(wir.getID())) {
+            _workitems.put(wir.getID(), wir);
+            persistThis();
+        }
     }
 
 
@@ -275,7 +285,7 @@ public class WorkQueue {
     public int getQueueSize() { return _workitems.size() ; }
 
 
-    /** returns the apropriate String identifier for the queue type passed */
+    /** returns the appropriate String identifier for the queue type passed */
     public static String getQueueName(int qType) {
         String result ;
         switch (qType) {

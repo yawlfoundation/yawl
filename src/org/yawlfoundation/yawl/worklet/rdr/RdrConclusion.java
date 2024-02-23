@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -29,12 +29,12 @@ import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
 import java.util.*;
 
 /**
- *  This class represents the conclusion primitives of an RdrNode rule.
+ *  This class represents the conclusion primitives of an RdrNode.
  *
  *  @author Michael Adams
  *  v0.8, 04-09/2006
  */
-public class RdrConclusion {
+public class RdrConclusion implements Cloneable {
 
     private long id;                      // for hibernate
     private List<RdrPrimitive> _primitives;
@@ -116,18 +116,40 @@ public class RdrConclusion {
     public List<RdrPrimitive> getPrimitives() { return _primitives; }
 
 
-
+    @Override
     public boolean equals(Object o) {
-        if (_primitives == null) return false;
         if (o instanceof RdrConclusion) {
             RdrConclusion other = (RdrConclusion) o;
-            return other._primitives != null && _primitives.equals(other._primitives);
+            if (_primitives == null && other._primitives == null) {
+                return true;
+            }
+            if (_primitives == null || other._primitives == null) {
+                return false;
+            }
+            if (_primitives.size() != other._primitives.size()) {
+                return false;
+            }
+            for (int i=0; i < _primitives.size(); i++) {
+                if (! _primitives.get(i).equals(other._primitives.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
         return false;
     }
 
+
+    @Override
     public int hashCode() {
-        return _primitives != null ? _primitives.hashCode() : 17 * 31;
+        return _primitives != null ? _primitives.hashCode() : super.hashCode();
+    }
+
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        super.clone();
+        return new RdrConclusion(this.toElement());
     }
 
 
@@ -189,19 +211,22 @@ public class RdrConclusion {
 
 
     private void parseSteps(Element eConc) {
-        Map<Integer, Element> sortedMap = new TreeMap<Integer, Element>();
-        for (Element step : eConc.getChildren()) {
-            Integer i;
-            if (step.getName().equals("step")) {                    // version 2
-                i = Integer.parseInt(step.getAttributeValue("index"));
+        if (eConc != null) {
+            Map<Integer, Element> sortedMap = new TreeMap<Integer, Element>();
+            for (Element step : eConc.getChildren()) {
+                Integer i;
+                if (step.getName().equals("step")) {                    // version 2
+                    i = Integer.parseInt(step.getAttributeValue("index"));
+                }
+                else {
+                    i = Integer.parseInt(step.getName().substring(1));  // "_1"
+                }
+                sortedMap.put(i, step);
             }
-            else {
-                i = Integer.parseInt(step.getName().substring(1));  // "_1"
-            }
-            sortedMap.put(i, step);
+            rationaliseSteps(sortedMap);
         }
-        rationaliseSteps(sortedMap);
     }
+
 
     private void rationaliseSteps(Map<Integer, Element> sortedMap) {
         _primitives = new ArrayList<RdrPrimitive>();
@@ -212,6 +237,5 @@ public class RdrConclusion {
             _primitives.add(new RdrPrimitive(i++, action, target));
         }
     }
-
 
 }

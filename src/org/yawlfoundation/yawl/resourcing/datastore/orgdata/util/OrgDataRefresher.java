@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata.util;
 
+import org.apache.log4j.LogManager;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
@@ -103,6 +104,7 @@ public class OrgDataRefresher {
 
     class RefreshRunnable implements Runnable {
         public void run() {
+            LogManager.getLogger(this.getClass()).debug("--> Refresh Org Data starts");
             ResourceDataSet orgDataSet = _rm.getOrgDataSet();
             Map<String, QueueSet> qMap = saveQueueSets(orgDataSet);
             boolean authenticatesExternally = orgDataSet.isUserAuthenticationExternal();
@@ -114,6 +116,7 @@ public class OrgDataRefresher {
             orgDataSet.setExternalUserAuthentication(authenticatesExternally);
             orgDataSet.setAllowExternalOrgDataMods(allowExternalMods);
             _rm.setOrgDataRefreshing(false);
+            LogManager.getLogger(this.getClass()).debug("Refresh Org Data ends <---");
         }
 
         Map<String, QueueSet> saveQueueSets(ResourceDataSet orgDataSet) {

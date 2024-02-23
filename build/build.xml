@@ -32,12 +32,9 @@
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
 
-    <property name="app.version" value="3.0.1"/>
+    <property name="app.version" value="5.0"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
-
-    <property name="ant.build.javac.source" value="${java.target.version}"/>
-    <property name="ant.build.javac.target" value="${java.target.version}"/>
 
     <!--
         Tomcat root (environment setting takes priority over build.properties value)
@@ -105,6 +102,7 @@
         !!Include all JARs used here in alphabetical property name order!!
 
         Postfix comments indicate the services that use each jar, as follows:
+          - bal: Load Balancer Servlet
           - dbd: Database driver
           - dss: DigitalSignature Service
           - eng: the Engine
@@ -132,7 +130,11 @@
     <!-- dss -->
     <property name="bcprov" value="bcprov-jdk15-139.jar"/>
     <!-- dss -->
+    <property name="byte-buddy" value="byte-buddy-1.12.23.jar"/>
+    <!-- hbn -->
     <property name="c3p0" value="c3p0-0.9.2.1.jar"/>
+    <!-- hbn -->
+    <property name="classmate" value="classmate-1.5.1.jar"/>
     <!-- hbn -->
     <property name="collections-generic" value="collections-generic-4.01.jar"/>
     <!-- prl -->
@@ -160,55 +162,71 @@
     <!-- jsf, dss, mss -->
     <property name="commonsLang" value="commons-lang-2.3.jar"/>
     <!-- mul -->
+    <property name="commonsLang3" value="commons-lang3-3.6.jar"/>
+    <!-- bal -->
     <property name="commonsLogging" value="commons-logging-1.1.1.jar"/>
     <!-- mul -->
+    <property name="commonsMath3" value="commons-math3-3.6.1.jar"/>
+    <!-- bal -->
     <property name="commonsPool" value="commons-pool-1.5.4.jar"/>
+    <!-- bal -->
+    <property name="commonsVfs" value="commons-vfs2-2.1.jar"/>
     <!-- sch -->
     <property name="concurrent" value="concurrent-1.3.4.jar"/>
     <!-- prl -->
     <property name="derby" value="derbyclient.jar"/>
     <!-- dbd -->
-    <property name="dom4j" value="dom4j-1.6.1.jar"/>
-    <!-- hbn -->
     <property name="ecore" value="ecore.jar"/>
     <!-- eng, xsd -->
     <property name="ehcache" value="ehcache-core-2.4.3.jar"/>
     <!-- hbn -->
+    <property name="guava" value="guava-21.0.jar"/>
+    <!-- bal -->
     <property name="h2" value="h2-1.3.176.jar"/>
     <!-- mul -->
-    <property name="hibernate-c3p0" value="hibernate-c3p0-4.3.11.Final.jar"/>
+    <property name="hawkular" value="hawkular.jar"/>
+    <!-- bal -->
+    <property name="hibernate-c3p0" value="hibernate-c3p0-5.6.14.Final.jar"/>
     <!-- mul -->
-    <property name="hibernate-core" value="hibernate-core-4.3.11.Final.jar"/>
+    <property name="hibernate-core" value="hibernate-core-5.6.14.Final.jar"/>
     <!-- mul -->
     <property name="hibernate-commons"
-              value="hibernate-commons-annotations-4.0.5.Final.jar"/>
+              value="hibernate-commons-annotations-5.1.2.Final.jar"/>
     <!-- mul -->
-    <property name="hibernate-ehcache" value="hibernate-ehcache-4.3.11.Final.jar"/>
+    <property name="hibernate-ehcache" value="hibernate-ehcache-5.6.14.Final.jar"/>
     <!-- hbn -->
     <property name="hibernate-jpa" value="hibernate-jpa-2.1-api-1.0.0.Final.jar"/>
     <!-- hbn -->
     <property name="hsql" value="hsqldb.jar"/>
     <!-- hbn -->
-    <property name="jandex" value="jandex-1.1.0.Final.jar"/>
+    <property name="istack" value="istack-commons-runtime-4.1.1.jar"/>
+    <!-- hbn -->
+    <property name="jandex" value="jandex-2.4.2.Final.jar"/>
+    <!-- eng, hbn -->
+    <property name="jakarta-xml" value="jakarta.xml.bind-api-3.0.1.jar"/>
     <!-- dbd -->
-    <property name="javaAssist" value="javassist-3.18.1-GA.jar"/>
-    <!--off-->
+    <property name="javax-activation" value="javax.activation-api-1.2.0.jar"/>
+    <!--hbn-->
+    <property name="javax-persistence" value="javax.persistence-api-2.2.jar"/>
+    <!--hbn-->
     <property name="jaxb1" value="jaxb1-impl.jar"/>
     <!--off-->
-    <property name="jaxb-api" value="jaxb-api.jar"/>
-    <!--off-->
+    <property name="jaxb-api" value="jaxb-api-2.3.1.jar"/>
+    <!--off,hbn-->
     <property name="jaxb-impl" value="jaxb-impl.jar"/>
     <!--off-->
+    <property name="jaxb-runtime" value="jaxb-runtime-2.3.1.jar"/>
+    <!--off,hbn-->
     <property name="jaxb-xjc" value="jaxb-xjc.jar"/>
     <!-- hbn -->
     <property name="jaxen" value="jaxen-1.1.6.jar"/>
     <!-- eng, sch -->
     <property name="jaxrpc" value="jaxrpc.jar"/>
     <!-- hbn -->
-    <property name="jboss-logging" value="jboss-logging-3.3.0.Final.jar"/>
+    <property name="jboss-logging" value="jboss-logging-3.4.3.Final.jar"/>
     <!-- hbn -->
     <property name="jboss-transaction"
-              value="jboss-transaction-api_1.2_spec-1.0.0.Final.jar"/>
+              value="jboss-transaction-api_1.2_spec-1.1.1.Final.jar"/>
     <!-- off -->
     <property name="jdom1" value="jdom.jar"/>
     <!-- hbn -->
@@ -264,13 +282,13 @@
     <!-- prl -->
     <property name="junit" value="junit-4.10.jar"/>
     <!-- mul -->
-    <property name="log4j-api" value="log4j-api-2.3.jar"/>
+    <property name="log4j-api" value="log4j-api-2.18.0.jar"/>
     <!-- mul -->
-    <property name="log4j-core" value="log4j-core-2.3.jar"/>
+    <property name="log4j-core" value="log4j-core-2.18.0.jar"/>
     <!-- mul -->
-    <property name="log4j-bridge" value="log4j-1.2-api-2.3.jar"/>
+    <property name="log4j-bridge" value="log4j-1.2-api-2.17.1.jar"/>
     <!-- mul -->
-    <property name="log4j-slf4j" value="log4j-slf4j-impl-2.3.jar"/>
+    <property name="log4j-slf4j" value="log4j-slf4j-impl-2.17.1.jar"/>
     <!-- launcher -->
     <property name="macify" value="macify-1.4.jar"/>
     <!-- mul -->
@@ -282,11 +300,13 @@
     <!-- sml -->
     <property name="mysql" value="mysql-connector-java-5.1.22-bin.jar"/>
     <!-- off -->
+    <property name="openforecast" value="OpenForecast-0.5.0.jar"/>
+    <!-- bal -->
     <property name="orderfulfillment" value="orderfulfillment.jar"/>
     <!-- dbd -->
     <property name="oracle" value="ojdbc6_9.jar"/>
     <!-- dbd -->
-    <property name="postgres8" value="postgresql-9.0-801.jdbc4.jar"/>
+    <property name="postgres8" value="postgresql-42.2.8.jar"/>
     <!-- dbd -->
     <property name="saaj" value="saaj.jar"/>
     <!-- wsi -->
@@ -300,7 +320,7 @@
     <!-- mul -->
     <property name="servlet" value="servlet-api.jar"/>
     <!-- mul -->
-    <property name="simplemail" value="simple-java-mail-v1.8.jar"/>
+    <property name="simplemail" value="simple-java-mail-4.4.5.jar"/>
     <!-- sml -->
     <property name="slf4j" value="slf4j-api-1.7.12.jar"/>
     <!-- hbn -->
@@ -406,11 +426,12 @@
         since these are reused for both shared and dedicated Tomcat builds
     -->
     <property name="persistence.libs"
-              value="${antlr} ${commonsCollections} ${dom4j} ${ehcache}
+              value="${antlr} ${commonsCollections} ${byte-buddy} ${classmate} ${ehcache}
                      ${hibernate-c3p0} ${hibernate-core} ${hibernate-commons}
                      ${hibernate-ehcache} ${hibernate-jpa} hibernate.cfg.xml
-                     ${javaAssist} ${jboss-logging} ${jboss-transaction} ${c3p0}
-                     ${slf4j} ${mchange} ${jandex}"/>
+                     ${istack} ${jandex} ${jboss-logging} ${jboss-transaction}
+                     ${javax-activation} ${javax-persistence} ${jaxb-api} ${jaxb-runtime}
+                     ${c3p0} ${slf4j} ${mchange}"/>
 
     <property name="xsd.libs"
               value="${common} ${ecore}"/>
@@ -432,7 +453,7 @@
               value="${saxon} ${saxondom} ${saxonapi} ${saxonjdom}"/>
 
     <property name="simplemail.libs"
-              value="${mailapi} ${simplemail} ${smtp}"/>
+              value="${mailapi} ${simplemail} ${smtp} ${slf4j}"/>
 
     <property name="scheduling.libs"
               value="${json} ${commonsDbcp} ${commonsPool} ${jaxen} ${ucp}
@@ -455,12 +476,14 @@
 
     <property name="webapp_yawl.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs} ${xerces}
-                     ${dbClient} ${saxon.libs} ${commonsLang} ${commonsCodec} ${jaxen}"/>
+                     ${dbClient} ${saxon.libs} ${commonsLang} ${commonsCodec} ${jaxen}
+                     ${jakarta-xml}"/>
 
     <property name="webapp_resourceService.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs}
-                     ${dbClient} ${jsf.libs} ${commonsLang} ${commonsCodec}
+                     ${dbClient} ${commonsLang} ${commonsCodec}
                      ${xerces} ${saxon.libs}"/>
+<!--    ${jsf.libs}-->
 
     <property name="webapp_workletService.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs}
@@ -505,7 +528,8 @@
                       ${dbClient} ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_documentStore.libs"
-              value="${persistence.libs} ${dbClient} ${commonsCodec} ${log4j.libs}"/>
+              value="${persistence.libs} ${dbClient} ${commonsCodec}
+                     ${jdom} ${xerces} ${log4j.libs}"/>
 
     <property name="webapp_procletService.libs"
               value="${persistence.libs} ${commonsCodec} ${proclet.libs}
@@ -558,7 +582,6 @@
     <path id="cp.persist">
         <pathelement location="${lib.dir}/${antlr}"/>
         <pathelement location="${lib.dir}/${commonsCollections}"/>
-        <pathelement location="${lib.dir}/${dom4j}"/>
         <pathelement location="${lib.dir}/${ehcache}"/>
         <pathelement location="${lib.dir}/${hibernate-c3p0}"/>
         <pathelement location="${lib.dir}/${hibernate-core}"/>
@@ -638,9 +661,21 @@
         <pathelement location="${lib.dir}/${jung-visualization}"/>
     </path>
 
+    <path id="cp.balancer">
+        <pathelement location="${lib.dir}/${commonsLang3}"/>
+        <pathelement location="${lib.dir}/${commonsMath3}"/>
+        <pathelement location="${lib.dir}/${commonsVfs}"/>
+        <pathelement location="${lib.dir}/${guava}"/>
+        <pathelement location="${lib.dir}/${hawkular}"/>
+        <pathelement location="${lib.dir}/${openforecast}"/>
+    </path>
+
     <path id="cp.etc">
         <pathelement location="${lib.dir}/${twitter4j}"/>
         <pathelement location="${lib.dir}/${macify}"/>
+        <pathelement location="${lib.dir}/jolokia-client-java-1.2.3.jar"/>
+        <pathelement location="${lib.dir}/json-simple-1.1.1.jar"/>
+        <pathelement location="${lib.dir}/${jakarta-xml}"/>
     </path>
 
     <!--
@@ -670,9 +705,9 @@
     <target name="updateBuildProperties">
         <propertyfile file="${build.dir}/build.properties">
             <entry key="${target}.build.number" type="int" default="0" operation="+"
-                    pattern="0000"/>
+                   pattern="0000"/>
             <entry key="${target}.build.date" type="date" value="now"
-                    pattern="yyyy-MM-dd HH.mm.ss"/>
+                   pattern="yyyy-MM-dd HH.mm.ss"/>
         </propertyfile>
     </target>
 
@@ -681,10 +716,10 @@
         <propCopy name="build.number" from="${app.prefix}.build.number"/>
         <propCopy name="build.date" from="${app.prefix}.build.date"/>
         <manifest file="${manifestFile}">
-            <attribute name="Specification-Vendor" value="The YAWL Foundation" />
-            <attribute name="Specification-Version" value="${app.version}" />
-            <attribute name="Implementation-Version" value="${build.number}" />
-            <attribute name="Implementation-Date" value="${build.date}" />
+            <attribute name="Specification-Vendor" value="The YAWL Foundation"/>
+            <attribute name="Specification-Version" value="${app.version}"/>
+            <attribute name="Implementation-Version" value="${build.number}"/>
+            <attribute name="Implementation-Date" value="${build.date}"/>
             <attribute name="Compile-OS" value="${os.name}"/>
             <attribute name="Compile-OSVersion" value="${os.version}"/>
             <attribute name="Compiled-By" value="${user.name}"/>
@@ -692,11 +727,11 @@
     </target>
 
     <macrodef name="propCopy">
-      <attribute name="name"/>
-      <attribute name="from"/>
-      <sequential>
-        <property name="@{name}" value="${@{from}}"/>
-      </sequential>
+        <attribute name="name"/>
+        <attribute name="from"/>
+        <sequential>
+            <property name="@{name}" value="${@{from}}"/>
+        </sequential>
     </macrodef>
 
 
@@ -732,8 +767,8 @@
                      build_Standalone,
                      build_sourcecode,
                      build_YResourceServiceClient.jar,
-                     build_controlPanel.jar,
-                     javadoc">
+                     build_controlPanel.jar">
+
     </target>
 
     <!--
@@ -755,9 +790,9 @@
 
             <!-- titles, headers & footers -->
             <doctitle>
-                <![CDATA[<h1>YAWL Environment version 3.0</h1>]]></doctitle>
+                <![CDATA[<h1>YAWL Environment version 4.5</h1>]]></doctitle>
             <bottom>
-                <![CDATA[<i>Copyright &#169; 2004-2014 The YAWL Foundation.</i>]]></bottom>
+                <![CDATA[<i>Copyright &#169; 2004-2021 The YAWL Foundation.</i>]]></bottom>
 
             <!-- custom tags -->
             <tag name="date" scope="all" description="Created/Last Date:"/>
@@ -769,7 +804,7 @@
             <link offline="false" href="http://www.jdom.org/docs/apidocs/"/>
             <link offline="false" href="http://www.bouncycastle.org/docs/mdocs1.5/"/>
             <link offline="false"
-                  href="http://simple-java-mail.googlecode.com/svn/trunk/javadoc/users/"/>
+                  href="http://www.javadoc.io/doc/org.simplejavamail/simple-java-mail/4.4.5/"/>
 
             <!-- referenced class paths -->
             <classpath refid="cp.standard"/>
@@ -798,7 +833,7 @@
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
             <fileset dir="${lib.dir}"
-                     includes="${persistence.libs} ${xsd.libs} ${jdom}
+                     includes="${persistence.libs} ${xsd.libs} ${jdom} ${jakarta-xml}
                                ${saxon.libs} ${xerces} ${commonsLang} ${dbClient}
                                ${commonsCodec} ${jaxen} ${log4j.libs} ${junit}"
                      excludes="hibernate.cfg.xml"/>
@@ -921,8 +956,8 @@
 
     <target name="compile" depends="init, configureDatabaseAccess">
         <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}"
-               deprecation="true" verbose="true" includeantruntime="true"
-               bootclasspath="${java.boot.classpath}" encoding="UTF-8">
+               deprecation="true" verbose="false" includeantruntime="true"
+               encoding="UTF-8">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
@@ -935,6 +970,7 @@
             <classpath refid="cp.simplemail"/>
             <classpath refid="cp.scheduling"/>
             <classpath refid="cp.proclet"/>
+            <classpath refid="cp.balancer"/>
             <classpath refid="cp.etc"/>
         </javac>
 
@@ -944,12 +980,16 @@
         </copy>
 
         <copy todir="${classes.dir}">
-            <fileset dir="${src.dir}" includes="**/*.hbm.xml"/>
+            <fileset dir="${src.dir}"
+                     includes="**/*.hbm.xml **/cost/xsd/*.xsd  **/worklet/rdr/xsd/*.xsd
+                               **/ldap_schema/*"/>
         </copy>
 
         <jar destfile="${output.dir}/yawl-lib-${app.version}.jar">
             <fileset dir="${classes.dir}"
-                     includes="**/*.class **/unmarshal/*.xsd **/*.hbm.xml"
+                     includes="**/*.class **/unmarshal/*.xsd **/*.hbm.xml
+                               **/cost/xsd/*.xsd **/worklet/rdr/xsd/*.xsd
+                               **/ldap_schema/*"
                      excludes="org/yawlfoundation/yawl/engine/gui/**/*
                                org/yawlfoundation/yawl/controlpanel/**/*"/>
             <manifest>
@@ -957,6 +997,8 @@
             </manifest>
         </jar>
         <checksum file="${output.dir}/yawl-lib-${app.version}.jar"/>
+        <copy todir="${build.dir}/jar"
+              file="${output.dir}/yawl-lib-${app.version}.jar"/>
 
         <!-- copy in non-java files from source (ie. files that don't need compiling) -->
         <copy todir="${classes.dir}">
@@ -1113,7 +1155,7 @@
             <param name="target" value="${engine.app.name}"/>
         </antcall>
 
-        <property name="manifestFile" value="${engine.app.name}.mf" />
+        <property name="manifestFile" value="${engine.app.name}.mf"/>
         <antcall target="writeManifest" inheritall="false">
             <param name="manifestFile" value="${manifestFile}"/>
             <param name="app.prefix" value="yawl"/>
@@ -1137,12 +1179,13 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${engine.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    includes="*.jar *.xml *.properties"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
         <delete dir="${temp.dir}/${engine.app.name}" deleteonexit="true"/>
-        <delete file="${manifestFile}" />
+        <delete file="${manifestFile}"/>
     </target>
 
     <target name="build_engine_SharedTomcat" unless="tomcat.isDedicated">
@@ -1214,6 +1257,7 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${wsInvoker.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -1292,6 +1336,7 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${smsInvoker.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -1366,6 +1411,9 @@
             <fileset dir="${classes.dir}${packageRoot}/worklet/rdr"
                      includes="*.class *.xml"/>
         </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/rdrutil">
+            <fileset dir="${classes.dir}${packageRoot}/worklet/rdrutil"/>
+        </copy>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/selection">
             <fileset dir="${classes.dir}${packageRoot}/worklet/selection"
                      includes="*.class *.xml"/>
@@ -1384,8 +1432,14 @@
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}"
               file="${build.dir}/${worklet.app.name}/welcome/welcome.htm"/>
-        <copy todir="${temp.dir}/${worklet.app.name}/repository">
-            <fileset dir="${build.dir}/${worklet.app.name}/repository"/>
+        <copy todir="${temp.dir}/${worklet.app.name}/samples/parents">
+            <fileset dir="${build.dir}/${worklet.app.name}/samples/parents"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}/samples/worklets">
+            <fileset dir="${build.dir}/${worklet.app.name}/samples/worklets"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}/samples/worklets/rules">
+            <fileset dir="${build.dir}/${worklet.app.name}/samples/worklets/rules"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}/graphics">
             <fileset dir="${build.dir}/${worklet.app.name}/welcome/graphics"/>
@@ -1424,6 +1478,7 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${worklet.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -1519,7 +1574,9 @@
         <!-- 2. copy resourcing classes to relevant dirs -->
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/resourcing">
             <fileset dir="${classes.dir}${packageRoot}/resourcing"
-                     includes="**/*.class **/*.xml **/YawlUI.properties"/>
+                     includes="**/*.class **/*.xml **/YawlUI.properties
+                               **/ldap_schema/*"/>
+<!--                     excludes="**/jsf/*"/>-->
         </copy>
 
         <!-- 2b. Copy required resourcing support files into dir root -->
@@ -1538,21 +1595,21 @@
               file="${graphics.dir}/yawl.swf"/>
 
         <!-- 2c(i). Copy in resources for jsps -->
-        <copy todir="${temp.dir}/${resource.app.name}/resources">
-            <fileset dir="${build.dir}/${resource.app.name}/resources"/>
-        </copy>
+<!--        <copy todir="${temp.dir}/${resource.app.name}/resources">-->
+<!--            <fileset dir="${build.dir}/${resource.app.name}/resources"/>-->
+<!--        </copy>-->
 
         <!-- 2d. Copy in jsps -->
-        <copy todir="${temp.dir}/${resource.app.name}">
-            <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf/jsp"
-                     includes="*.jsp *.jspf *.html"/>
-        </copy>
+<!--        <copy todir="${temp.dir}/${resource.app.name}">-->
+<!--            <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf/jsp"-->
+<!--                     includes="*.jsp *.jspf *.html"/>-->
+<!--        </copy>-->
         <copy file="${classes.dir}${packageRoot}/resourcing/datastore/orgdata/LDAPSource.properties"
               todir="${temp.dir}/${resource.app.name}/WEB-INF/classes"/>
-        <copy todir="${temp.dir}/${resource.app.name}/WEB-INF">
-            <fileset dir="${build.dir}/${resource.app.name}/jsf_xml"
-                     includes="*.xml"/>
-        </copy>
+<!--        <copy todir="${temp.dir}/${resource.app.name}/WEB-INF">-->
+<!--            <fileset dir="${build.dir}/${resource.app.name}/jsf_xml"-->
+<!--                     includes="*.xml"/>-->
+<!--        </copy>-->
         <propertyfile file="${build.dir}/${resource.app.name}/version.properties">
             <entry key="Version" value="${app.version}"/>
             <entry key="BuiltBy" value="${user.name}"/>
@@ -1582,6 +1639,7 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${resource.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -1611,6 +1669,7 @@
             <param name="target" value="${off.app.name}"/>
         </antcall>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   locations="${checksums.dir}/locations.xml"
                    appname="${off.app.name}"/>
         <delete dir="${temp.dir}/${off.app.name}" deleteonexit="true"/>
     </target>
@@ -1823,6 +1882,7 @@
         <checksum file="${output.dir}/${monitor.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${monitor.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2009,8 +2069,15 @@
         <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/engine/interfce/interfaceA">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"
+                     includes="InterfaceA_EnvironmentBasedClient.class"/>
+        </copy>
         <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/cost">
             <fileset dir="${classes.dir}${packageRoot}/cost"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}/xsd">
+            <fileset dir="${src.dir}${packageRoot}/cost/xsd"/>
         </copy>
         <copy todir="${temp.dir}/${cost.app.name}/WEB-INF">
             <fileset file="${build.dir}/${cost.app.name}/web.xml"/>
@@ -2020,6 +2087,7 @@
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${cost.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2089,6 +2157,7 @@
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${twitter.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2106,6 +2175,43 @@
         <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_twitterService.libs}"/>
         </copy>
+    </target>
+
+    <!--
+         Build the Load Balancer servlet
+     -->
+
+    <target name="build_balancer.war"
+            depends="compile, build_balancer_SharedTomcat">
+
+        <copy todir="${temp.dir}/balancer/WEB-INF"
+              file="${build.dir}/balancer/web.xml"/>
+
+        <jar destfile="${output.dir}/balancer.war">
+            <fileset dir="${temp.dir}/balancer"/>
+        </jar>
+        <!--<checkSums rootdir="${basedir}" todir="${checksums.dir}"-->
+        <!--appname="${twitter.app.name}"-->
+        <!--locations="${checksums.dir}/locations.xml"-->
+        <!--excludes="WEB-INF/lib/* classes/org/*-->
+        <!--log4j2.xml hibernate.properties"/>-->
+
+        <!--<antcall target="updateBuildProperties">-->
+        <!--<param name="target" value="${twitter.app.name}"/>-->
+        <!--</antcall>-->
+
+        <delete dir="${temp.dir}/balancer" deleteonexit="true"/>
+    </target>
+
+    <target name="build_balancer_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/balancer/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/balancer/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_testService.libs}"/>
+        </copy>
+        <copy todir="${temp.dir}/balancer/WEB-INF/lib"
+              file="${output.dir}/yawl-lib-${app.version}.jar"/>
     </target>
 
     <!--
@@ -2151,10 +2257,11 @@
         <jar destfile="${output.dir}/${mail.app.name}.war">
             <fileset dir="${temp.dir}/${mail.app.name}"/>
         </jar>
-        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${mail.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/*
-                             log4j2.xml hibernate.properties"/>
+<!--        <checkSums rootdir="${basedir}" todir="${checksums.dir}"-->
+<!--                   appname="${mail.app.name}"-->
+<!--                   locations="${checksums.dir}/locations.xml"-->
+<!--                   excludes="WEB-INF/lib/* classes/org/*-->
+<!--                             log4j2.xml hibernate.properties"/>-->
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${mail.app.name}"/>
@@ -2225,8 +2332,8 @@
             <fileset dir="${build.dir}/${scheduling.app.name}/properties"/>
             <fileset dir="${build.dir}/${scheduling.app.name}/schema"/>
         </copy>
-        <copy todir="${temp.dir}/${mail.app.name}/WEB-INF"
-               file="${build.dir}/${mail.app.name}/web.xml"/>
+        <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF"
+              file="${build.dir}/${scheduling.app.name}/web.xml"/>
 
         <war destfile="${output.dir}/${scheduling.app.name}.war"
              webxml="${build.dir}/${scheduling.app.name}/web.xml">
@@ -2234,6 +2341,7 @@
         </war>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${scheduling.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2312,6 +2420,7 @@
         <checksum file="${output.dir}/${digitalSignature.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${digitalSignature.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2383,6 +2492,7 @@
         <checksum file="${output.dir}/${mailSender.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${mailSender.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2418,13 +2528,16 @@
                      includes="YAWLServiceReference.class YVerifiable.class"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/engine/interfce">
-            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"
-                     includes="YHttpServlet.class"/>
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/engine/interfce/interfaceA">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"
+                     includes="InterfaceA_EnvironmentBasedClient.class"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="StringUtil.class CharsetFilter.class Sessions*.class
-                          PasswordEncryptor.class HibernateEngine.class"/>
+                          JDOMUtil.class PasswordEncryptor.class HibernateEngine.class"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF">
             <fileset file="${build.dir}/${docStore.app.name}/web.xml"/>
@@ -2435,6 +2548,7 @@
         <checksum file="${output.dir}/${docStore.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${docStore.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2502,6 +2616,7 @@
         <checksum file="${output.dir}/${proclet.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${proclet.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2561,6 +2676,8 @@
         </jar>
         <copy todir="${output.dir}"
               file="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"/>
+        <copy todir="${build.dir}/jar"
+              file="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"/>
     </target>
 
 
@@ -2570,12 +2687,13 @@
               file="${src.dir}${packageRoot}/controlpanel/update/mandatory.xml"/>
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
-            <fileset dir="${lib.dir}" includes="${macify} ${commonsCodec}"/>
+            <fileset dir="${lib.dir}" includes="${macify} ${commonsCodec} ${commonsIO}"/>
         </unzip>
         <jar destfile="${output.dir}/YawlControlPanel-${app.version}.jar"
              basedir="${classes.dir}"
              includes="org/yawlfoundation/yawl/controlpanel/**/*
                        org/yawlfoundation/yawl/util/StringUtil.class
+                       org/yawlfoundation/yawl/util/HttpUtil.class
                        org/yawlfoundation/yawl/util/CheckSummer.class
                        org/yawlfoundation/yawl/util/PasswordEncryptor.class
                        org/yawlfoundation/yawl/util/StartMenuUpdater.class
@@ -2593,7 +2711,18 @@
                                org/apache/commons/codec/binary/BaseNCodec.class
                                org/apache/commons/codec/binary/BaseNCodec$Context.class
                                org/apache/commons/codec/binary/Base64.class
-                               org/apache/commons/codec/binary/StringUtils.class"/>
+                               org/apache/commons/codec/binary/StringUtils.class
+                               org/apache/commons/io/*.class
+                               org/apache/commons/io/filefilter/DirectoryFileFilter.class
+                               org/apache/commons/io/filefilter/FalseFileFilter.class
+                               org/apache/commons/io/filefilter/FileFilterUtils.class
+                               org/apache/commons/io/filefilter/IOFileFilter.class
+                               org/apache/commons/io/filefilter/SuffixFileFilter.class
+                               org/apache/commons/io/filefilter/TrueFileFilter.class
+                               org/apache/commons/io/output/ByteArrayOutputStream.class
+                               org/apache/commons/io/output/StringBuilderWriter.class
+                               org/apache/commons/io/output/NullOutputStream.class"
+            />
             <manifest>
                 <attribute name="Created-By" value="The YAWL Foundation"/>
                 <attribute name="Implementation-Version"
@@ -2603,10 +2732,141 @@
             </manifest>
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   locations="${checksums.dir}/locations.xml"
                    appname="controlpanel"/>
+        <copy todir="${build.dir}/jar"
+              file="${output.dir}/YawlControlPanel-${app.version}.jar"/>
         <antcall target="updateBuildProperties">
             <param name="target" value="controlpanel"/>
         </antcall>
+    </target>
+
+
+    <!-- Build the Demo Service WAR -->
+    <target name="build_DemoService" depends="compile">
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/elements">
+            <fileset dir="${classes.dir}/${packageRoot}/elements"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/elements/data">
+            <fileset dir="${classes.dir}/${packageRoot}/elements/data"
+                     includes="YParameter.class YVariable.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/engine">
+            <fileset dir="${classes.dir}/${packageRoot}/engine"
+                     includes="YSpecification.class YSpecificationID.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/engine/interfce">
+            <fileset dir="${classes.dir}/${packageRoot}/engine/interfce"
+                     includes="AuthenticationConfig.class Interface_Client.class
+                               Marshaller.class ServletUtils.class
+                               SpecificationData.class TaskInformation.class
+                               WorkItemRecord.class YParametersSchema.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/engine/interfce/interfaceB">
+            <fileset dir="${classes.dir}/${packageRoot}/engine/interfce/interfaceB"
+                     includes="IBControllerCache.class
+                               InterfaceB_EnvironmentBasedClient.class
+                               InterfaceB_EnvironmentBasedServer.class
+                               InterfaceB_EnvironmentBasedServer$EventHandler.class
+                               InterfaceBWebsideController.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/exceptions">
+            <fileset dir="${classes.dir}/${packageRoot}/exceptions"
+                     includes="Y*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/logging">
+            <fileset dir="${classes.dir}/${packageRoot}/logging"
+                     includes="YLogDataItem.class YLogDataItemList.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/schema">
+            <fileset dir="${classes.dir}/${packageRoot}/schema"
+                     includes="YSchemaVersion.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/unmarshal">
+            <fileset dir="${classes.dir}/${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/demoService">
+            <fileset dir="${classes.dir}/${packageRoot}/demoService"/>
+        </copy>
+
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/util">
+            <fileset dir="${classes.dir}/${packageRoot}/util"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF"
+              file="${build.dir}/demoService/web.xml"/>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes"
+              file="${classes.dir}/log4j2.xml"/>
+        <copy todir="${temp.dir}/demoService/WEB-INF/lib">
+            <fileset dir="${lib.dir}"
+                     includes="${jdom} ${commonsCodec} ${xerces} log4j*"/>
+        </copy>
+
+        <jar destfile="${output.dir}/demoService.war">
+            <fileset dir="${temp.dir}/demoService"/>
+        </jar>
+        <delete dir="${temp.dir}/demoService"/>
+
+    </target>
+
+    <!-- Uncomment next two lines to build to previous java version -->
+<!--    <property name="ant.build.javac.source" value="1.8"/>-->
+<!--    <property name="ant.build.javac.target" value="1.8"/>-->
+
+
+    <target name="build_stateless.jar" depends="compile">
+        <tstamp/>
+        <copy todir="${classes.dir}${packageRoot}/unmarshal"
+              file="${src.dir}${packageRoot}/stateless/unmarshal/YAWL_Schema4.0.xsd"/>
+        <jar destfile="${output.dir}/yawlstateless-${app.version}.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/stateless/**/*
+                       org/yawlfoundation/yawl/unmarshal/YAWL_Schema4.0.xsd
+                       org/yawlfoundation/yawl/unmarshal/YMetaData.class
+                       org/yawlfoundation/yawl/util/StringUtil.class
+                       org/yawlfoundation/yawl/util/XNode*.class
+                       org/yawlfoundation/yawl/authentication/YClient.class
+                       org/yawlfoundation/yawl/elements/YSpecVersion.class
+                       org/yawlfoundation/yawl/elements/YAttributeMap.class
+                       org/yawlfoundation/yawl/elements/YVerifiable.class
+                       org/yawlfoundation/yawl/elements/YNetElement.class
+                       org/yawlfoundation/yawl/elements/e2wfoj/*
+                       org/yawlfoundation/yawl/engine/YSpecificationID.class
+                       org/yawlfoundation/yawl/engine/YNetData.class
+                       org/yawlfoundation/yawl/engine/time/YTimedObject.class
+                       org/yawlfoundation/yawl/engine/time/YTimerVariable.class
+                       org/yawlfoundation/yawl/engine/time/YTimer*.class
+                       org/yawlfoundation/yawl/engine/time/YWorkItemTimer*.class
+                       org/yawlfoundation/yawl/engine/YWorkItemStatus.class
+                       org/yawlfoundation/yawl/engine/WorkItemCompletion.class
+                       org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
+                       org/yawlfoundation/yawl/schema/XSDType.class
+                       org/yawlfoundation/yawl/schema/YSchemaVersion*.class
+                       org/yawlfoundation/yawl/schema/internal/*
+                       org/yawlfoundation/yawl/schema/ErrorHandler.class
+                       org/yawlfoundation/yawl/schema/SchemaHandler.class
+                       org/yawlfoundation/yawl/exceptions/*
+                       org/yawlfoundation/yawl/logging/YLogDataItem.class
+                       org/yawlfoundation/yawl/logging/YLogDataItemList.class
+                       org/yawlfoundation/yawl/util/DynamicValue.class
+                       org/yawlfoundation/yawl/util/JDOMUtil.class
+                       org/yawlfoundation/yawl/util/YNetElementDocoParser.class
+                       org/yawlfoundation/yawl/util/SaxonErrorListener.class
+                       org/yawlfoundation/yawl/util/PluginLoaderUtil.class
+                       org/yawlfoundation/yawl/util/YVerificationHandler.class
+                       org/yawlfoundation/yawl/util/YPluginLoader.class
+                       org/yawlfoundation/yawl/util/YBuildProperties.class
+                       org/yawlfoundation/yawl/util/YPredicateParser.class
+                       org/yawlfoundation/yawl/util/DOMUtil.class"
+            excludes="org/yawlfoundation/yawl/elements/e2wfoj/E2WFOJNet.class">
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+                <attribute name="Implementation-Version"
+                           value="${app.version} ${TODAY}"/>
+            </manifest>
+        </jar>
     </target>
 
 
@@ -2883,20 +3143,21 @@
         <delete dir="${temp.dir}/analyze"/>
         <mkdir dir="${temp.dir}/analyze"/>
         <copy todir="${temp.dir}/analyze">
-             <fileset dir="${lib.dir}"/>
-             <fileset dir="${output.dir}" includes="*.war *.jar"/>
+            <fileset dir="${lib.dir}"/>
+            <fileset dir="${output.dir}" includes="*.war *.jar"/>
         </copy>
         <move todir="${temp.dir}/analyze">
-          <fileset dir="${temp.dir}/analyze"/>
-          <mapper type="glob" from="*.war" to="*.jar"/>
+            <fileset dir="${temp.dir}/analyze"/>
+            <mapper type="glob" from="*.war" to="*.jar"/>
         </move>
 
         <jaranalyzer srcdir="${temp.dir}/analyze"
                      destfile="${analyzer.dir}/dependencies.xml"
                      summaryclass="com.kirkk.analyzer.textui.XMLUISummary"
-                     packageFilter="java.*;javax.*;" />
+                     packageFilter="java.*;javax.*;"/>
 
-        <xslt in="${analyzer.dir}/dependencies.xml" out="${analyzer.dir}/dependencies.html"
+        <xslt in="${analyzer.dir}/dependencies.xml"
+              out="${analyzer.dir}/dependencies.html"
               style="${analyzer.dir}/jaranalyzer.xsl"/>
 
         <delete dir="${temp.dir}/analyze" deleteonexit="true"/>

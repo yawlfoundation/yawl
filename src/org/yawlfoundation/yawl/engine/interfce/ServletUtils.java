@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -39,6 +39,12 @@ import java.util.Map;
  * 
  */
 public class ServletUtils {
+
+    public static  void sendResponse(HttpServletResponse resp, String result)
+            throws IOException {
+        finalizeResponse(prepareResponse(resp), result);
+    }
+
 
     public static OutputStreamWriter prepareResponse(HttpServletResponse response) throws IOException {
         response.setContentType("text/xml; charset=UTF-8");

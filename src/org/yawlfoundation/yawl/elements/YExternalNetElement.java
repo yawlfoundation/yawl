@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,15 +18,11 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YNetElementDocoParser;
 import org.yawlfoundation.yawl.util.YVerificationHandler;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -276,11 +272,46 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     private void updateFlowMapsOnIdChange(String oldID, String newID) {
         for (YExternalNetElement prior : getPresetElements()) {
             YFlow flow = prior._postsetFlows.remove(oldID);
-            if (flow != null) prior._postsetFlows.put(newID, flow);
+            if (flow != null) {
+                updateImplicitConditionID(prior, newID, true);
+                prior._postsetFlows.put(newID, flow);
+            }
         }
         for (YExternalNetElement next : getPostsetElements()) {
             YFlow flow = next._presetFlows.remove(oldID);
-            if (flow != null) next._presetFlows.put(newID, flow);
+            if (flow != null) {
+                updateImplicitConditionID(next, newID, false);
+                next._presetFlows.put(newID, flow);
+            }
+        }
+    }
+
+
+    private void updateImplicitConditionID(YExternalNetElement element,
+                                           String newID, boolean prior) {
+        if (element instanceof YCondition && ((YCondition) element).isImplicit()) {
+            String oldID = element.getID();
+
+            // an implicit condition will always have exactly 1 preset and 1 postset
+            String source = prior ? element.getPresetElements().iterator().next().getID()
+                    : newID;
+            String target = prior ? newID :
+                    element.getPostsetElements().iterator().next().getID();
+            element.setID("c{" + source + "_" + target + "}");
+
+            // update map key with changed implicit condition id
+            if (prior) {
+                YFlow flow = this._presetFlows.remove(oldID);
+                if (flow != null) {
+                    this._presetFlows.put(element.getID(), flow);
+                }
+            }
+            else {
+                YFlow flow = this._postsetFlows.remove(oldID);
+                if (flow != null) {
+                    this._postsetFlows.put(element.getID(), flow);
+                }
+            }
         }
     }
     
@@ -370,7 +401,10 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
         if (_documentation != null)
             xml.append(StringUtil.wrapEscaped(_documentation, "documentation"));
 
-        for (YFlow flow : _postsetFlows.values()) {
+        // using for(;;) to avoid concurrent modification exception with foreach
+        List<YFlow> postSetFlows = new ArrayList<YFlow>(_postsetFlows.values());
+        for (int i = 0; i < postSetFlows.size(); i++) {
+            YFlow flow = postSetFlows.get(i);
             String flowsToXML = flow.toXML();
             if (this instanceof YTask) {
                 YExternalNetElement nextElement = flow.getNextElement();

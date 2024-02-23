@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -50,7 +50,7 @@ public class ObserverGatewayController {
      * Constructor
      */
     public ObserverGatewayController() {
-        _gateways = new Hashtable<String, Set<ObserverGateway>>();
+        _gateways = new HashMap<String, Set<ObserverGateway>>();
         _executor = Executors.newFixedThreadPool(THREADPOOL_SIZE);
     }
 

@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<spec uri="wListMaker" version="0.2" identifier="UID_16b32cb7-2ffd-462d-a3da-73cc37fdc5b8">
+    <selection>
+        <task name="Verify_list">
+            <ruleNode>
+                <id>0</id>
+                <parent>-1</parent>
+                <trueChild>1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>True</condition>
+                <conclusion>UID_49b6b6c3-8016-4457-8088-f6e5647f06f1</conclusion>
+                <cornerstone></cornerstone>
+                <description>root level default when bob is not one - five</description>
+            </ruleNode>
+            <ruleNode>
+                <id>1</id>
+                <parent>0</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>2</falseChild>
+                <condition>SomeBob = one</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>UID_78476114-cbcc-4a60-860d-6119db8f4dde</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>one</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob one</description>
+            </ruleNode>
+            <ruleNode>
+                <id>2</id>
+                <parent>1</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>3</falseChild>
+                <condition>SomeBob = two</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>UID_d30510f6-405e-4790-b3f9-c8ae2727baf4</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>two</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob two</description>
+            </ruleNode>
+            <ruleNode>
+                <id>3</id>
+                <parent>2</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>4</falseChild>
+                <condition>SomeBob = three</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>UID_77559052-3fdb-4d4d-9cfb-70b7995a074d</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>three</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob three</description>
+            </ruleNode>
+            <ruleNode>
+                <id>4</id>
+                <parent>3</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>5</falseChild>
+                <condition>SomeBob = four</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>UID_bf649034-069f-4b99-bf58-5c6a993732a6</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>four</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob four</description>
+            </ruleNode>
+            <ruleNode>
+                <id>5</id>
+                <parent>4</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>SomeBob = five</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>UID_aae48fdb-abb7-402c-9e35-a82d560b42c1</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>five</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob five</description>
+            </ruleNode>
+        </task>
+    </selection>
+</spec>

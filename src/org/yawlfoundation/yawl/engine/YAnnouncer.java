@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.YEngineEvent;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_HttpsEngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
@@ -63,13 +64,15 @@ public class YAnnouncer {
         _announcementContext = AnnouncementContext.NORMAL;
         _controller = new ObserverGatewayController();
 
-        // Initialise the standard Observer Gateway.
-        // Currently the only standard gateway is the HTTP driven IB Servlet client.
+        // Initialise the standard Observer Gateways.
+        // Currently the two standard gateways are the HTTP and HTTPS driven
+        // IB Servlet client.
         try {
             _controller.addGateway(new InterfaceB_EngineBasedClient());
+            _controller.addGateway(new InterfaceB_HttpsEngineBasedClient());
         }
         catch (YAWLException ye) {
-            _logger.warn("Failed to register default observer gateway. The Engine " +
+            _logger.warn("Failed to register default observer gateways. The Engine " +
                     "may be unable to send notifications to services!", ye);
         }
     }
@@ -83,7 +86,7 @@ public class YAnnouncer {
             throws YAWLException {
         boolean firstGateway = _controller.isEmpty();
         _controller.addGateway(gateway);
-        if (firstGateway) rennounceRestoredItems();
+        if (firstGateway) reannounceRestoredItems();
     }
 
 
@@ -229,6 +232,7 @@ public class YAnnouncer {
      */
     protected void announceCaseCompletion(YAWLServiceReference service,
                                           YIdentifier caseID, Document caseData) {
+        _logger.debug("Announcing case '{}' complete.", caseID.toString());
         if (service == null) {
             _controller.notifyCaseCompletion(_engine.getYAWLServices(), caseID, caseData);
         }
@@ -277,7 +281,7 @@ public class YAnnouncer {
      * @param announcements A set of work item enabling or cancellation events
      */
     protected void announceToGateways(Set<YAnnouncement> announcements) {
-        if (announcements != null) {
+        if (! (announcements == null || announcements.isEmpty())) {
             _logger.debug("Announcing {} events.", announcements.size());
             _controller.announce(announcements);
         }
@@ -312,7 +316,7 @@ public class YAnnouncer {
     }
 
 
-    // this method should be called by an IB service when it decides it is not going
+    // this method triggered by an IB service when it decides it is not going
     // to handle (i.e. checkout) a workitem announced to it. It passes the workitem to
     // the default worklist service for normal assignment.
     public void rejectAnnouncedEnabledTask(YWorkItem item) {
@@ -322,6 +326,9 @@ public class YAnnouncer {
                     defaultWorklist.getServiceID());
             announceToGateways(createAnnouncement(defaultWorklist, item, ITEM_ADD));
         }
+
+        // also raise an item abort exception for custom handling by services
+        announceWorkItemAbortToInterfaceXListeners(item);
     }
 
 
@@ -357,6 +364,13 @@ public class YAnnouncer {
     }
 
 
+    private void announceWorkItemAbortToInterfaceXListeners(YWorkItem item) {
+        for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
+            listener.announceWorkitemAbort(item);
+        }
+    }
+
+
     private void announceCaseCancellationToInterfaceXListeners(YIdentifier caseID) {
         for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
             _logger.debug("Announcing Cancel Case for case {} on client {}",
@@ -376,7 +390,7 @@ public class YAnnouncer {
     /******************************************************************************/
     // WORKITEM REANNOUNCEMENTS //
 
-    private void rennounceRestoredItems() {
+    private void reannounceRestoredItems() {
 
         //MLF: moved from restore logic. There is no point in reannouncing before the first gateway
         //     is registered as the announcements will simply fall on deaf errors. Obviously we

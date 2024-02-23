@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,14 +18,13 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
-import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGatewayFactory;
 import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorFactory;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
+import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
-import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
-import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
-import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
+import org.yawlfoundation.yawl.engine.interfce.*;
+import org.yawlfoundation.yawl.engine.time.workdays.HolidayLoader;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -58,7 +57,7 @@ import java.util.Enumeration;
 public class InterfaceB_EngineBasedServer extends YHttpServlet {
 
     private EngineGateway _engine;
-
+    private boolean _gatherPerfStats = false;
 
     public void init() throws ServletException {
         int maxWaitSeconds = 5;                             // a default
@@ -66,19 +65,26 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         try {
             ServletContext context = getServletContext();
 
+            // set the path to external db gateway plugin classes (if any)
+            String pluginPath = context.getInitParameter("ExternalPluginsPath");
+            ExternalDataGatewayFactory.setExternalPaths(pluginPath);
+            PredicateEvaluatorFactory.setExternalPaths(pluginPath);
+
             // init engine reference
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
-                String persistOn = context.getInitParameter("EnablePersistence");
-                boolean persist = (persistOn != null) && persistOn.equalsIgnoreCase("true");
-                String enableHbnStatsStr =
-                        context.getInitParameter("EnableHibernateStatisticsGathering");
-                boolean enableHbnStats = ((enableHbnStatsStr != null) &&
-                        enableHbnStatsStr.equalsIgnoreCase("true"));
-                _engine = new EngineGatewayImpl(persist, enableHbnStats);
+                Class<? extends YEngine> engineImpl = getEngineImplClass();
+                boolean persist = getBooleanFromContext("EnablePersistence");
+                boolean enableHbnStats = getBooleanFromContext("EnableHibernateStatisticsGathering");
+                boolean redundantMode = getBooleanFromContext("StartInRedundantMode");
+                _engine = new EngineGatewayImpl(engineImpl, persist,
+                        enableHbnStats, redundantMode);
                 _engine.setActualFilePath(context.getRealPath("/"));
                 context.setAttribute("engine", _engine);
             }
+
+            // enable performance statistics gathering if requested
+            _gatherPerfStats = getBooleanFromContext("EnablePerformanceStatisticsGathering");
 
             // set flag to disable logging (only if false) - enabled with persistence by
             // default
@@ -96,16 +102,17 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 _engine.setAllowAdminID(true);
             }
 
-            // set the path to external db gateway plugin classes (if any)
-            String pluginPath = context.getInitParameter("ExternalPluginsPath");
-            ExternalDBGatewayFactory.setExternalPaths(pluginPath);
-            PredicateEvaluatorFactory.setExternalPaths(pluginPath);
-
             // override the max time that initialisation events wait for between
             // final engine init and server start completion
             int maxWait = StringUtil.strToInt(
                     context.getInitParameter("InitialisationAnnouncementTimeout"), -1);
             if (maxWait >= 0) maxWaitSeconds = maxWait;
+
+            // set the country/region codes used for calculating work-day-only timers (if any)
+            String timerLocationConfig = context.getInitParameter("WorkdayTimerGeoCodes");
+            if (timerLocationConfig != null) {
+                new HolidayLoader(false).startupCheck(timerLocationConfig);
+            }
 
             // read the current version properties
             _engine.initBuildProperties(context.getResourceAsStream(
@@ -179,6 +186,27 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         }
     }
 
+
+    private Class<? extends YEngine> getEngineImplClass() {
+        String implClassName = getServletContext().getInitParameter("EngineImpl");
+        if (! StringUtil.isNullOrEmpty(implClassName)) {
+            try {
+                Class c = Class.forName(implClassName);
+                if (YEngine.class.isAssignableFrom(c)) {
+                    return (Class<? extends YEngine>) c;
+                }
+                _log.warn("Class '{}' is not a superclass of YEngine.", implClassName);
+            }
+            catch (ClassNotFoundException e) {
+                 _log.warn("Unable to locate external YEngine class '" +
+                         implClassName + "'.", e);
+            }
+            _log.warn("Reverting to the default YEngine implementation.");
+        }
+        return null;
+    }
+
+
     public void destroy() {
         _engine.shutdown();
         super.destroy();
@@ -186,6 +214,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if ("HEAD".equals(request.getMethod())) return;
         doPost(request, response);                 // redirect all GETs to POSTs
     }
 
@@ -227,9 +256,13 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         String specVersion = request.getParameter("specversion");
         String specURI = request.getParameter("specuri");
         String taskID = request.getParameter("taskID");
-
+        long start = System.nanoTime();
+        
         try {
             debug(request, "Post");
+            if (_engine.isRedundantMode() && ! isAllowedRedundantAction(action)) {
+                return fail("Unable to process request - engine is in redundant mode");
+            }
 
             if (action != null) {
                 if (action.equals("checkConnection")) {
@@ -245,7 +278,8 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     msg.append(_engine.disconnect(sessionHandle));
                 }
                 else if (action.equals("checkout")) {
-                    msg.append(_engine.startWorkItem(workItemID, sessionHandle));
+                    String logPredicate = request.getParameter("logPredicate");
+                    msg.append(_engine.startWorkItem(workItemID, logPredicate, sessionHandle));
                 }
                 else if (action.equals("checkin")) {
                     String data = request.getParameter("data");
@@ -262,6 +296,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     URI completionObserver = getCompletionObserver(request);
                     String caseParams = request.getParameter("caseParams");
                     String logDataStr = request.getParameter("logData");
+                    String caseID = request.getParameter("caseid");
                     String mSecStr = request.getParameter("mSec");
                     String startStr = request.getParameter("start");
                     String waitStr = request.getParameter("wait");
@@ -281,6 +316,10 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                                    completionObserver, logDataStr,
                                    StringUtil.strToDuration(waitStr), sessionHandle));
                     }
+                    else if (caseID != null) {
+                        msg.append(_engine.launchCase(specID, caseParams,
+                                completionObserver, caseID, logDataStr, sessionHandle));
+                    }
                     else msg.append(_engine.launchCase(specID, caseParams,
                                     completionObserver, logDataStr, sessionHandle));
                 }
@@ -293,7 +332,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 }
                 else if (action.equals("startOne")) {
                     String userID = request.getParameter("user");
-                    msg.append(_engine.startWorkItem(userID, sessionHandle));
+                    msg.append(_engine.startWorkItem(userID, null, sessionHandle));
                 }
                 else if (action.equals("getLiveItems")) {
                     msg.append(_engine.describeAllWorkItems(sessionHandle));
@@ -340,6 +379,11 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                             new YSpecificationID(specIdentifier, specVersion, specURI);
                     msg.append(_engine.getProcessDefinition(specID, sessionHandle));
                 }
+                else if (action.equals("getSpecificationData")) {
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, specVersion, specURI);
+                    msg.append(_engine.getSpecificationData(specID, sessionHandle));
+                }
                 else if (action.equals("getSpecificationDataSchema")) {
                     YSpecificationID specID =
                             new YSpecificationID(specIdentifier, specVersion, specURI);
@@ -354,9 +398,24 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.getSpecificationForCase(caseID, sessionHandle));
                 }
+                else if (action.equals("getSpecificationIDForCase")) {
+                    String caseID = request.getParameter("caseID");
+                    msg.append(_engine.getSpecificationIDForCase(caseID, sessionHandle));
+                }
                 else if (action.equals("getCaseState")) {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.getCaseState(caseID, sessionHandle));
+                }
+                else if (action.equals("exportCaseState")) {
+                    String caseID = request.getParameter("caseID");
+                    msg.append(_engine.exportCaseState(caseID, sessionHandle));
+                }
+                else if (action.equals("exportAllCaseStates")) {
+                    msg.append(_engine.exportAllCaseStates(sessionHandle));
+                }
+                else if (action.equals("importCases")) {
+                    String xml = request.getParameter("xml");
+                    msg.append(_engine.importCases(xml, sessionHandle));
                 }
                 else if (action.equals("getCaseData")) {
                     String caseID = request.getParameter("caseID");
@@ -400,6 +459,10 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 else if (action.equals("getStartingDataSnapshot")) {
                     msg.append(_engine.getStartingDataSnapshot(workItemID, sessionHandle));
                 }
+                else if (action.equals("pollPerfStats")) {
+                    msg.append(PerfReporter.poll());
+                }
+                if (_gatherPerfStats) PerfReporter.add(action, start);
             }  // action is null
             else if (request.getRequestURI().endsWith("ib")) {
                 msg.append(_engine.getAvailableWorkItemIDs(sessionHandle));

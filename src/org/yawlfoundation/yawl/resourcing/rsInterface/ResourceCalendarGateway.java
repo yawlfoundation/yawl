@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -19,10 +19,9 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
-import org.yawlfoundation.yawl.resourcing.calendar.ResourceScheduler;
-import org.yawlfoundation.yawl.resourcing.calendar.TimeSlot;
+import org.yawlfoundation.yawl.resourcing.calendar.*;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
 import javax.servlet.ServletException;
@@ -47,6 +46,7 @@ public class ResourceCalendarGateway extends HttpServlet {
     private static ResourceManager _rm;
     private static ResourceCalendar _calendar;
     private static ResourceScheduler _scheduler;
+    private static CalendarLogger _logger;
 
     private static final String _success = "<success/>";
     private static final String _noResource = "<failure>Unknown Resource.</failure>";
@@ -64,6 +64,7 @@ public class ResourceCalendarGateway extends HttpServlet {
         _rm = ResourceManager.getInstance();
         _calendar = ResourceCalendar.getInstance();
         _scheduler = ResourceScheduler.getInstance();
+        _logger = new CalendarLogger();
     }
 
 
@@ -99,7 +100,19 @@ public class ResourceCalendarGateway extends HttpServlet {
             else result = _noService;
         }
         else if (validConnection(handle)) {
-            if (action.equals("getAvailability")) {
+            if (action.equals("getEntries")) {
+                result = getEntries(req);
+            }
+            else if (action.equals("addEntry")) {
+                result = addEntry(req);
+            }
+            else if (action.equals("updateEntry")) {
+                result = updateEntry(req);
+            }
+            else if (action.equals("deleteEntry")) {
+                result = deleteEntry(req);
+            }
+            else if (action.equals("getAvailability")) {
                 long fromDate = strToLong(req.getParameter("from"));
                 long toDate = strToLong(req.getParameter("to"));
                 String resourceXML = req.getParameter("resourceXML");
@@ -181,10 +194,147 @@ public class ResourceCalendarGateway extends HttpServlet {
     }
 
 
+    private String getEntries(HttpServletRequest req) {
+        String groupName = req.getParameter("group");
+        String resID = req.getParameter("id");
+        long from = strToLong(req.getParameter("from"));
+        long to = strToLong(req.getParameter("to"));
+        boolean commit = Boolean.parseBoolean(req.getParameter("commit"));
+
+        List entries;
+        if (groupName != null) {
+            ResourceCalendar.ResourceGroup group =
+                    ResourceCalendar.ResourceGroup.valueOf(groupName);
+            entries = _calendar.getEntries(group, from, to, commit);
+        }
+        else {
+            AbstractResource resource = _rm.getOrgDataSet().getResource(resID);
+            entries = _calendar.getEntries(resource, from, to, commit);
+        }
+
+        XNode node = new XNode("entries");
+        if (entries != null) {
+            for (Object o : entries) {
+                CalendarEntry entry = (CalendarEntry) o;
+                node.addChild(entry.toXNode());
+            }
+        }
+        return node.toString();
+    }
+
+
+    private String addEntry(HttpServletRequest req) {
+        String groupName = req.getParameter("group");
+        String resID = req.getParameter("id");
+        String agent = req.getParameter("agent");
+        long from = strToLong(req.getParameter("from"));
+        long to = strToLong(req.getParameter("to"));
+        int workload = StringUtil.strToInt(req.getParameter("workload"), -1);
+        String comment = req.getParameter("comment");
+        long entryID;
+
+        try {
+            if (groupName != null) {
+                ResourceCalendar.ResourceGroup group =
+                        ResourceCalendar.ResourceGroup.valueOf(groupName);
+                entryID = _calendar.addEntry(group, from, to,
+                        ResourceCalendar.Status.unavailable, agent, comment);
+            }
+            else if (resID != null) {
+                CalendarEntry entry = new CalendarEntry(resID, from, to,
+                        ResourceCalendar.Status.unavailable, workload, agent, comment);
+                if (clash(entry, true)) {
+                    return fail("Time(s) and/or workload values clash with an existing entry");
+                }
+                entryID = _calendar.addEntry(entry);    // no clash
+            }
+            else {
+                return fail("Unknown resource");
+            }
+
+            if (entryID > -1) {
+                String resource = groupName != null ? groupName : resID;
+                logEntry(entryID, resource, agent, workload);
+            }
+            return String.valueOf(entryID);
+        }
+        catch (CalendarException ce) {
+            return fail(ce.getMessage());
+        }
+    }
+
+
+    private String updateEntry(HttpServletRequest req) {
+        long entryID = strToLong(req.getParameter("entryid"));
+        long from = strToLong(req.getParameter("from"));
+        long to = strToLong(req.getParameter("to"));
+        int workload = StringUtil.strToInt(req.getParameter("workload"), -1);
+        String comment = req.getParameter("comment");
+
+        CalendarEntry entry = _calendar.getEntry(entryID);
+        if (entry != null) {
+            entry.setStartTime(from);
+            entry.setEndTime(to);
+            entry.setWorkload(workload);
+            entry.setComment(comment);
+            if (! clash(entry, false)) {
+                _calendar.updateEntry(entry);
+                logEntry(entryID, entry.getResourceID(), entry.getAgent(), workload);
+                return _success;
+            }
+            else return fail("Failed to update calendar: " +
+                    "time(s) and/or workload values clash with an existing entry");
+        }
+        else return fail("Failed to update calendar: invalid entry id");
+    }
+
+
+    private String deleteEntry(HttpServletRequest req) {
+        long entryID = strToLong(req.getParameter("entryid"));
+        if (entryID > -1) {
+            try {
+                _calendar.makeAvailable(entryID);
+                return _success;
+            }
+            catch (CalendarException e) {
+                return fail(e.getMessage());
+            }
+        }
+        else return fail("Failed to delete calendar entry: invalid id");
+    }
+
+
+    private boolean clash(CalendarEntry entry, boolean adding) {
+        for (Object o : _calendar.getEntries(entry.getResourceID())) {
+            CalendarEntry other = (CalendarEntry) o;
+            if (! adding && other.getEntryID() == entry.getEntryID()) {
+                continue;
+            }
+
+            // if times overlap and combined workloads > 100%
+            if (other.getStartTime() <= entry.getEndTime() &&
+                other.getEndTime() >= entry.getStartTime() &&
+                other.getWorkload() + entry.getWorkload() > 100) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private void logEntry(long entryID, String resource, String agent, int workload) {
+        CalendarLogEntry logEntry = new CalendarLogEntry(null, null, resource, -1,
+                ResourceCalendar.Status.unavailable.name(), entryID);
+        logEntry.setAgent(agent);
+        logEntry.setWorkload(workload);
+        _logger.log(logEntry, true);
+    }
+
+
     private long strToLong(String s) {
         if (s == null) return -1;
         try {
-            return new Long(s);
+            return Long.parseLong(s);
         }
         catch (NumberFormatException nfe) {
             return -1;

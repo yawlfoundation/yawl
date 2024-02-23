@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -43,9 +43,7 @@ import java.util.*;
  */
 
 public class ResourceMap {
-
-    private ResourceManager rm = ResourceManager.getInstance();
-
+    
     // interaction points
     private OfferInteraction _offer ;
     private AllocateInteraction _allocate ;
@@ -74,8 +72,10 @@ public class ResourceMap {
 
 
     public ResourceMap() { }                                       // for persistence
+    
 
     public ResourceMap(String taskID) {
+        this();
         _taskID = taskID ;
         _offer = new OfferInteraction(taskID) ;
         _allocate = new AllocateInteraction(taskID);
@@ -168,7 +168,7 @@ public class ResourceMap {
             _piledResource = p;
             _piledResourceID = p.getID();
             if (isPersisting()) _persister.insert(this);
-            if (rm.routePiledWorkItem(_piledResource, wir)) {
+            if (getRM().routePiledWorkItem(_piledResource, wir)) {
                 result = "Task successfully piled." ;
             }
             else {
@@ -204,6 +204,7 @@ public class ResourceMap {
             if ((map != null) && (! map.isEmpty())) {
                 result = (ResourceMap) map.iterator().next();
             }
+            _persister.commit();
         }
         return result;
     }
@@ -213,9 +214,9 @@ public class ResourceMap {
     private void restorePiledResource() {
         ResourceMap map = getPersistedMap();
         if (map != null) {
-            if (rm.isPersistPiling()) {
+            if (getRM().isPersistPiling()) {
                 _piledResourceID = map.getPiledResourceID();
-                _piledResource = rm.getOrgDataSet().getParticipant(_piledResourceID) ;
+                _piledResource = getRM().getOrgDataSet().getParticipant(_piledResourceID);
             }
             else _persister.delete(map);
         }
@@ -258,6 +259,12 @@ public class ResourceMap {
     }
 
 
+    public boolean hasOffers(String itemID) {
+        Set<Participant> offeredTo = getOfferedParticipants(itemID);
+        return ! (offeredTo == null || offeredTo.isEmpty());
+    }
+
+
     public boolean equals(Object other) {
         if (other instanceof ResourceMap) {
             ResourceMap otherMap = (ResourceMap) other;
@@ -280,7 +287,7 @@ public class ResourceMap {
 
         // if this task is piled, send directly to the piled participant's started queue
         if (_piledResource != null)
-            routed = rm.routePiledWorkItem(_piledResource, wir) ;
+            routed = getRM().routePiledWorkItem(_piledResource, wir) ;
 
         if (! routed) {
 
@@ -290,7 +297,7 @@ public class ResourceMap {
 
                 // if case is chained and the chained participant is in the
                 // distribution set, route it directly to their started queue
-                routed = rm.routeIfChained(wir, distributionSet) ;
+                routed = getRM().routeIfChained(wir, distributionSet) ;
 
                 if (! routed) {
 
@@ -321,56 +328,58 @@ public class ResourceMap {
 
 
     private void addToAdminUnofferedQueue(WorkItemRecord wir) {
-        rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceUnoffered);
+        getRM().getWorkItemCache().updateResourceStatus(
+                wir, WorkItemRecord.statusResourceUnoffered);
         ResourceAdministrator.getInstance().addToUnoffered(wir);
     }
 
 
     private Set<Participant> doOffer(WorkItemRecord wir) {
-        Set<Participant> offerSet = null;
+        Set<Participant> distributionSet = null;
         if (_offer.getInitiator() == AbstractInteraction.USER_INITIATED) {
 
             // put workitem in admin's unoffered queue & DONE
             addToAdminUnofferedQueue(wir);
         }
         else {
-           offerSet = _offer.performOffer(wir);
-           if (offerSet.isEmpty()) {
+           distributionSet = _offer.performOffer(wir);
+           if (distributionSet.isEmpty()) {
                _log.warn("Parse of resource specifications for workitem {} resulted in" +
                          " an empty distribution set. The workitem will be passed to" +
                          " an administrator for manual distribution.", wir.getID());
 
                // put workitem in admin's unoffered queue & DONE
                addToAdminUnofferedQueue(wir);
-               offerSet = null ;
+               distributionSet = null ;
            }
         }
-        return offerSet ;
+        return distributionSet ;
     }    
 
-    private Participant doAllocate(Set<Participant> pSet, WorkItemRecord wir) {
+    private Participant doAllocate(Set<Participant> distributionSet, WorkItemRecord wir) {
         Participant chosenOne = null;
-        rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
+        getRM().getWorkItemCache().updateResourceStatus(
+                wir, WorkItemRecord.statusResourceOffered);
         if (_allocate.getInitiator() == AbstractInteraction.USER_INITIATED) {
 
             // for each participant in set, place workitem on their offered queue
-            for (Participant p : pSet) {
+            for (Participant p : distributionSet) {
                 QueueSet qs = p.getWorkQueues() ;
-                if (qs == null) qs = p.createQueueSet(rm.isPersisting());
+                if (qs == null) qs = p.createQueueSet(getRM().isPersisting());
                 qs.addToQueue(wir, WorkQueue.OFFERED);
-                rm.announceModifiedQueue(p.getID()) ;
+                getRM().announceModifiedQueue(p.getID());
             }
-            _offered.put(wir.getID(), pSet) ;
+            _offered.put(wir.getID(), distributionSet);
         }
         else {
-            if (rm.isDeferredChoiceHandled(wir)) {
+            if (getRM().isDeferredChoiceHandled(wir)) {
                 _log.info("Workitem {} has been withdrawn by the engine.", wir.getID());
                 return null;
             }
 
-            chosenOne = _allocate.performAllocation(pSet, wir);
+            chosenOne = _allocate.performAllocation(distributionSet, wir);
             if (chosenOne != null) {
-                rm.setDeferredChoiceHandled(wir);
+                getRM().setDeferredChoiceHandled(wir);
             }
             else {
                 _log.warn("The system allocator '{}' has been unable to allocate " +
@@ -386,10 +395,10 @@ public class ResourceMap {
     private void doStart(Participant p, WorkItemRecord wir) {
         boolean started = false ;
         QueueSet qs = p.getWorkQueues() ;
-        if (qs == null) qs = p.createQueueSet(rm.isPersisting());
+        if (qs == null) qs = p.createQueueSet(getRM().isPersisting());
 
         if (_start.getInitiator() == AbstractInteraction.SYSTEM_INITIATED) {
-            started = rm.startImmediate(p, wir) ;
+            started = getRM().startImmediate(p, wir) ;
             if (! started) {
                 _log.warn("The workitem '{}' could not be automatically started. The " +
                         "workitem has been placed on the participant's allocated queue.",
@@ -400,7 +409,8 @@ public class ResourceMap {
         // either initiator is 'user' or start was unsuccessful
         if (! started) {
             qs.addToQueue(wir, WorkQueue.ALLOCATED);
-            rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceAllocated);
+            getRM().getWorkItemCache().updateResourceStatus(
+                    wir, WorkItemRecord.statusResourceAllocated);
         }
     }
 
@@ -426,6 +436,9 @@ public class ResourceMap {
         }
         distributionSet.removeAll(unavailable);
     }
+    
+
+    private ResourceManager getRM() { return ResourceManager.getInstance(); }
 
 
     public void removeIgnoreList(WorkItemRecord wir) {
@@ -438,9 +451,11 @@ public class ResourceMap {
     
     public void addToOfferedSet(WorkItemRecord wir, Participant p) {
         Set<Participant> pSet = _offered.get(wir.getID());
-        if (pSet == null) pSet = new HashSet<Participant>();
+        if (pSet == null) {
+            pSet = new HashSet<Participant>();
+            _offered.put(wir.getID(), pSet);
+        }
         pSet.add(p);
-        _offered.put(wir.getID(), pSet);
     }
 
     /**

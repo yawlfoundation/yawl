@@ -2,7 +2,7 @@
 <%@ page import="org.yawlfoundation.yawl.worklet.admin.AdministrationTask" %>
 
 <%--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -24,8 +24,8 @@
 
 <%
     String caseID = request.getParameter("caseID");
-    YSpecificationID specID = _exceptionService.getSpecIDForCaseID(caseID);
-    boolean isWorklet = _exceptionService.isWorkletCase(caseID) ;
+    YSpecificationID specID = _workletService.getExceptionService().getSpecIDForCaseID(caseID);
+    boolean isWorklet = _workletService.isWorkletCase(caseID) ;
 
     String submit = request.getParameter("submit");
     if ((submit != null) && (submit.equals("Cancel"))) {
@@ -38,7 +38,7 @@
 
     if ((title != null) && (title.length() > 0) &&
         (scenario != null) && (scenario.length() > 0)) {
-         _exceptionService.addAdministrationTask(caseID, title, scenario, null,
+         _adminTasksManager.addTask(caseID, title, scenario, null,
                                       AdministrationTask.TASKTYPE_REJECTED_SELECTION);
         // go back to YAWL spec list
         response.sendRedirect(response.encodeURL(_caseMgtURL));

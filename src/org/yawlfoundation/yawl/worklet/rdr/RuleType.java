@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -26,17 +26,17 @@ import java.util.Map;
  * @date 12/12/11
  */
 public enum RuleType {
-    CasePreconstraint("PreCaseConstraint", "Pre-case constraint violation"),
-    CasePostconstraint("PostCaseConstraint", "Post-case constraint violation"),
-    ItemPreconstraint("ItemPreConstraint", "Workitem pre-constraint violation"),
-    ItemPostconstraint("ItemPostConstraint", "Workitem post-constraint violation"),
+    CasePreconstraint("CasePreconstraint", "Pre-case constraint violation"),
+    CasePostconstraint("CasePostconstraint", "Post-case constraint violation"),
+    ItemPreconstraint("ItemPreconstraint", "Workitem pre-constraint violation"),
+    ItemPostconstraint("ItemPostconstraint", "Workitem post-constraint violation"),
     ItemAbort("ItemAbort", "Workitem abort"),
     ItemTimeout("ItemTimeout", "Workitem timeout"),
-    ItemResourceUnavailable("ResourceUnavailable", "Resource unavailable"),
-    ItemConstraintViolation("ConstraintViolation", "Workitem constraint violation"),
-    CaseExternalTrigger("CaseExternal", "Case-level external trigger"),
-    ItemExternalTrigger("ItemExternal", "Workitem-level external trigger"),
-    ItemSelection("Selection", "Worklet Selection");          // 'pseudo' exception type
+    ItemResourceUnavailable("ItemResourceUnavailable", "Resource unavailable"),
+    ItemConstraintViolation("ItemConstraintViolation", "Workitem constraint violation"),
+    CaseExternalTrigger("CaseExternalTrigger", "Case-level external trigger"),
+    ItemExternalTrigger("ItemExternalTrigger", "Workitem-level external trigger"),
+    ItemSelection("ItemSelection", "Worklet Selection");      // 'pseudo' exception type
 
     private String shortForm;
     private String longForm;
@@ -74,8 +74,26 @@ public enum RuleType {
     public boolean isExecutingItemType() {
         switch (this) {
             case ItemAbort:
-            case ItemTimeout:
             case ItemConstraintViolation:
+            case ItemExternalTrigger: return true;
+        }
+        return false;
+    }
+
+
+    /** returns true if the exception type passed occurs after a workitem completes */
+    public boolean isCompletedItemType() {
+        switch (this) {
+            case ItemTimeout:
+            case ItemPostconstraint: return true;
+        }
+        return false;
+    }
+
+
+    public boolean isExternalType() {
+        switch (this) {
+            case CaseExternalTrigger:
             case ItemExternalTrigger: return true;
         }
         return false;
@@ -90,6 +108,7 @@ public enum RuleType {
     public String toString() {
         return shortForm;
     }
+
 
     public static RuleType fromString(String s) {
         return (s != null) ? fromStringMap.get(s) : null;

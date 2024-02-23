@@ -1,5 +1,24 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.controlpanel.util;
 
+import org.yawlfoundation.yawl.util.HttpUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -7,7 +26,9 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -19,7 +40,7 @@ public class TomcatUtil {
 
     private static int SERVER_PORT = -1;
     private static URL ENGINE_URL;
-    private static final String TOMCAT_VERSION = "7.0.55";
+    private static final String TOMCAT_VERSION = "9.0.70";
     private static final String CATALINA_HOME = deriveCatalinaHome();
 
     private static final TomcatProcess _process = new TomcatProcess(CATALINA_HOME);
@@ -61,12 +82,12 @@ public class TomcatUtil {
 
 
     public static boolean isPortActive() {
-        return isPortActive("localhost", getTomcatServerPort());
+        return HttpUtil.isPortActive("localhost", getTomcatServerPort());
     }
 
 
     public static boolean isPortActive(int port) {
-        return isPortActive("localhost", port);
+        return HttpUtil.isPortActive("localhost", port);
     }
 
 
@@ -116,21 +137,7 @@ public class TomcatUtil {
                 return false;
             }
         }
-        return isResponsive(ENGINE_URL);
-    }
-
-
-    public static boolean isResponsive(URL url) {
-        try {
-            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
-            httpConnection.setRequestMethod("HEAD");
-            httpConnection.setConnectTimeout(1000);
-            httpConnection.setReadTimeout(1000);
-            return httpConnection.getResponseCode() == 200;
-        }
-        catch (IOException ioe) {
-            return false;
-        }
+        return HttpUtil.isResponsive(ENGINE_URL);
     }
 
 
@@ -149,29 +156,6 @@ public class TomcatUtil {
            _process.monitorShutdown(listener);
         }
     }
-
-    /*************************************************************************/
-
-    private static boolean isPortActive(String host, int port) {
-        try {
-            return simplePing(host, port);
-        }
-        catch (IOException ioe) {
-            return false;
-        }
-    }
-
-
-    private static boolean simplePing(String host, int port) throws IOException {
-        if ((host == null) || (port < 0)) {
-            throw new IOException("Error: bad parameters");
-        }
-        InetAddress address = InetAddress.getByName(host);
-        Socket socket = new Socket(address, port);
-        socket.close();
-        return true;
-    }
-
 
     private static int loadTomcatServerPort() {
         XNode root = loadTomcatConfigFile("server.xml");

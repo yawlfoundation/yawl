@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -71,6 +71,9 @@ public class ResourceGatewayClientAdapter {
 
     public String getClientURI() { return _uri ; }
 
+    public ResourceGatewayClient getClient() { return _rgclient; }
+
+
     /*****************************************************************************/
 
     // PRIVATE METHODS //
@@ -132,10 +135,9 @@ public class ResourceGatewayClientAdapter {
      * @return a List of Strings, or null if the string can't be parsed.
      */
     private List<String> xmlToStringList(String xml) {
-        List<String> list = null;
+        List<String> list = new ArrayList<>();
         XNode node = _xnodeParser.parse(xml);
         if (node != null) {
-            list = new ArrayList<String>();
             for (XNode child : node.getChildren()) {
                 list.add(child.getText());
             }
@@ -206,7 +208,7 @@ public class ResourceGatewayClientAdapter {
      */
     private List<AbstractResourceAttribute> xmlStringToResourceAttributeList(
                                             String xml, String className) {
-        List<AbstractResourceAttribute> result = new ArrayList<AbstractResourceAttribute>();
+        List<AbstractResourceAttribute> result = new ArrayList<>();
 
         // get List of child elements
         for (Element child : getChildren(xml)) {
@@ -249,6 +251,19 @@ public class ResourceGatewayClientAdapter {
             else break ;
         }
         return result;
+    }
+
+
+    private List<NonHumanResource> xmlToNonHumanResourceList(String xml, String handle)
+            throws ResourceGatewayException, IOException {
+        Element e = JDOMUtil.stringToElement(xml);
+        List<NonHumanResource> list = new ArrayList<NonHumanResource>();
+        if (e != null) {
+            for (Element child : e.getChildren()) {
+                list.add(buildNonHumanResource(child, handle));
+            }
+        }
+        return list ;
     }
 
 
@@ -381,14 +396,29 @@ public class ResourceGatewayClientAdapter {
     public List<NonHumanResource> getNonHumanResources(String handle)
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_rgclient.getNonHumanResources(handle)) ;
-        Element e = JDOMUtil.stringToElement(xml);
-        List<NonHumanResource> list = new ArrayList<NonHumanResource>();
-        if (e != null) {
-            for (Element child : e.getChildren()) {
-                list.add(buildNonHumanResource(child, handle));
-            }    
-        }
-        return list ;
+        return xmlToNonHumanResourceList(xml, handle);
+    }
+
+
+    /**
+     * Gets all the NonHumanResources belonging to a category
+     * @param categoryID the id of the category
+     * @param subCategory a sub-category name. If provided, will return members only with
+     *                    that category + sub-category combination. If null, all the
+     *                    members of the category are returned
+     * @param handle a valid session handle
+     * @return a List of all NonHumanResources for that category
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there was a problem getting the
+     * NonHumanResource members
+     */
+    public List<NonHumanResource> getNonHumanCategoryMembers(String categoryID,
+                                                             String subCategory,
+                                                             String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getNonHumanCategoryMembers(categoryID,
+                subCategory, handle)) ;
+        return xmlToNonHumanResourceList(xml, handle);
     }
 
 
@@ -399,7 +429,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the roles
      */
-    public List getRoles(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractResourceAttribute> getRoles(String handle)
+            throws IOException, ResourceGatewayException {
         String rStr = successCheck(_rgclient.getRoles(handle)) ;
         return xmlStringToResourceAttributeList(rStr, "Role") ;
     }
@@ -412,7 +443,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the capabilities
      */
-    public List getCapabilities(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractResourceAttribute> getCapabilities(String handle)
+            throws IOException, ResourceGatewayException {
         String cStr = successCheck(_rgclient.getCapabilities(handle)) ;
         return xmlStringToResourceAttributeList(cStr, "Capability") ;
     }
@@ -425,7 +457,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the positions
      */
-    public List getPositions(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractResourceAttribute> getPositions(String handle)
+            throws IOException, ResourceGatewayException {
         String cStr = successCheck(_rgclient.getPositions(handle)) ;
         return xmlStringToResourceAttributeList(cStr, "Position") ;
     }
@@ -438,7 +471,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the groups
      */
-    public List getOrgGroups(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractResourceAttribute> getOrgGroups(String handle)
+            throws IOException, ResourceGatewayException {
         String cStr = successCheck(_rgclient.getOrgGroups(handle)) ;
         return xmlStringToResourceAttributeList(cStr, "OrgGroup") ;
     }
@@ -589,6 +623,14 @@ public class ResourceGatewayClientAdapter {
     }
 
 
+    public boolean isOrgDataSetModifiable(String handle) {
+        try {
+             return _rgclient.isOrgDataSetModifiable(handle).equals("true") ;
+         }
+         catch (IOException ioe) { return false; }
+    }
+
+
     /**
      * Checks if an id corresponds to a capability id known to the service
      * @param capabilityID the id to check
@@ -710,7 +752,7 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the roles
      */
-    public List getParticipantRoles(String pid, String handle)
+    public List<AbstractResourceAttribute> getParticipantRoles(String pid, String handle)
             throws IOException, ResourceGatewayException {
         String rStr = successCheck(_rgclient.getParticipantRoles(pid, handle)) ;
         return xmlStringToResourceAttributeList(rStr, "Role") ;
@@ -725,7 +767,7 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the capabilities
      */
-    public List getParticipantCapabilities(String pid, String handle)
+    public List<AbstractResourceAttribute> getParticipantCapabilities(String pid, String handle)
             throws IOException, ResourceGatewayException {
         String cStr = successCheck(_rgclient.getParticipantCapabilities(pid, handle)) ;
         return xmlStringToResourceAttributeList(cStr, "Capability") ;
@@ -740,7 +782,7 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the positions
      */
-    public List getParticipantPositions(String pid, String handle)
+    public List<AbstractResourceAttribute> getParticipantPositions(String pid, String handle)
             throws IOException, ResourceGatewayException {
         String pStr = successCheck(_rgclient.getParticipantPositions(pid, handle)) ;
         return xmlStringToResourceAttributeList(pStr, "Position") ;
@@ -1214,7 +1256,7 @@ public class ResourceGatewayClientAdapter {
      */
     public String addNonHumanResource(NonHumanResource resource, String handle)
             throws IOException {
-        return _rgclient.addNonHumanResource(resource.getName(), resource.getCategory().getName(),
+        return _rgclient.addNonHumanResource(resource.getName(), resource.getCategoryName(),
                 resource.getSubCategoryName(), resource.getDescription(), resource.getNotes(),
                 handle);
     }
@@ -1291,7 +1333,7 @@ public class ResourceGatewayClientAdapter {
     /**
      * Adds the specified Participant to the specified Role
      * @param p the Participant
-     * @param role the Role to add the Particpant to
+     * @param role the Role to add the Participant to
      * @param handle the current sessionhandle
      * @return a message indicating success, or describing a problem encountered
      * @throws IOException if there was a problem connecting to the resource service
@@ -1305,7 +1347,7 @@ public class ResourceGatewayClientAdapter {
     /**
      * Adds the specified Participant to the specified Capability
      * @param p the Participant
-     * @param cap the Capability to add the Particpant to
+     * @param cap the Capability to add the Participant to
      * @param handle the current sessionhandle
      * @return a message indicating success, or describing a problem encountered
      * @throws IOException if there was a problem connecting to the resource service
@@ -1319,7 +1361,7 @@ public class ResourceGatewayClientAdapter {
     /**
      * Adds the specified Participant to the specified Position
      * @param p the Participant
-     * @param pos the Position to add the Particpant to
+     * @param pos the Position to add the Participant to
      * @param handle the current sessionhandle
      * @return a message indicating success, or describing a problem encountered
      * @throws IOException if there was a problem connecting to the resource service
@@ -1372,7 +1414,7 @@ public class ResourceGatewayClientAdapter {
     public String updateNonHumanResource(NonHumanResource resource, String handle)
             throws IOException {
         return _rgclient.updateNonHumanResource(resource.getID(), resource.getName(),
-                resource.getCategory().getName(), resource.getSubCategoryName(),
+                resource.getCategoryName(), resource.getSubCategoryName(),
                 resource.getDescription(), resource.getNotes(), handle);
     }
 
@@ -1843,7 +1885,7 @@ public class ResourceGatewayClientAdapter {
     public boolean addNonHumanSubCategoryByName(String category,
                                                         String subcategory, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.addNonHumanSubCategoryByName(category, subcategory,
+        successCheck(_rgclient.addNonHumanSubCategoryByName(category, subcategory,
                 handle));
         return true;
     }
@@ -1860,7 +1902,7 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean addNonHumanSubCategory(String id, String subcategory, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.addNonHumanSubCategory(id, subcategory, handle));
+        successCheck(_rgclient.addNonHumanSubCategory(id, subcategory, handle));
         return true;
     }
 
@@ -1876,7 +1918,7 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean removeNonHumanCategory(String id, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanCategory(id, handle));
+        successCheck(_rgclient.removeNonHumanCategory(id, handle));
         return true;
     }
 
@@ -1892,7 +1934,7 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean removeNonHumanCategoryByName(String name, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanCategoryByName(name, handle));
+        successCheck(_rgclient.removeNonHumanCategoryByName(name, handle));
         return true;
     }
 
@@ -1908,7 +1950,7 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean removeNonHumanSubCategoryByName(String category, String subcategory,
             String handle) throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanSubCategoryByName(category, subcategory, handle));
+        successCheck(_rgclient.removeNonHumanSubCategoryByName(category, subcategory, handle));
         return true;
     }
 
@@ -1924,8 +1966,55 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean removeNonHumanSubCategory(String id, String subcategory,
             String handle) throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanSubCategory(id, subcategory, handle));
+        successCheck(_rgclient.removeNonHumanSubCategory(id, subcategory, handle));
         return true;
+    }
+
+    /**
+     * Imports the org data from a .ybkp file
+     * @param xml the file content
+     * @param handle  a current sessionhandle with admin privileges
+     * @return a message indicating success, or otherwise
+     * @throws IOException if the service can't be reached
+     */
+    public String importOrgData(String xml, String handle) throws IOException {
+        return _rgclient.importOrgData(xml, handle);
+    }
+
+
+    /**
+     * Exports the current org data to xml for writing to a .ybkp file
+     * @param handle a current sessionhandle with admin privileges
+     * @return the xml representation of the current org data, or an error message
+     * @throws IOException if the service can't be reached
+     */
+    public String exportOrgData(String handle) throws IOException {
+        return _rgclient.exportOrgData(handle);
+    }
+
+
+    public String getSecondaryResources(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getSecondaryResources(itemID, handle));
+    }
+
+
+    public List<String> setSecondaryResources(String itemID, String resourcesXML, String handle)
+            throws IOException, ResourceGatewayException {
+        String result = successCheck(_rgclient.setSecondaryResources(
+                itemID, resourcesXML, handle));
+        return xmlToStringList(result);
+    }
+
+
+    public String checkSecondaryResourcesAvailability(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.checkSecondaryResourcesAvailability(itemID, handle));
+    }
+
+
+    public String getBuildProperties(String handle) throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getBuildProperties(handle));
     }
 
 }

@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.controlpanel.update;
 
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
@@ -18,15 +36,20 @@ public class Differ {
     private ChecksumsReader _latest;
     private ChecksumsReader _current;
     private AppUpdate _mandatory;
+    private PathResolver _pathResolver;
+    private YawlUiUpdater _uiUpdater;
 
 
     public Differ(File latest, File current) {
         _current = new ChecksumsReader(current);
         if (latest != null) {
             _latest = new ChecksumsReader(latest);
+            _pathResolver = new PathResolver(_latest.getNode("paths"));
         }
   //      _mandatory = new MandatoryUpdates().get();
     }
+
+    public boolean hasLatestChecksums() { return _latest != null; }
 
     public String getLatestVersion() {
         return _latest != null ? _latest.getVersion() : "";
@@ -43,13 +66,29 @@ public class Differ {
 
 
     public String getLatestBuild(String appName) {
-        return _latest != null ? _latest.getBuildNumber(appName) : "";
+        if (_latest != null) {
+            if (appName.equals("yawlui")) {
+                return getUIUpdater().getRemoteBuildNumber();
+            }
+            return _latest.getBuildNumber(appName);
+        }
+        return "";
     }
 
     public String getCurrentBuild(String appName) {
+        if (appName.equals("yawlui")) {
+            return getUIUpdater().getLocalBuildNumber();
+        }
         return _current.getBuildNumber(appName);
     }
 
+
+    public YawlUiUpdater getUIUpdater() {
+        if (_uiUpdater == null) {
+            _uiUpdater = new YawlUiUpdater();
+        }
+        return _uiUpdater;
+    }
 
     public boolean isNewVersion() {
         return ! getLatestVersion().equals(getCurrentVersion());
@@ -66,6 +105,9 @@ public class Differ {
 
 
     public boolean hasUpdate(String appName) {
+        if (appName.equals("yawlui")) {
+            return getUIUpdater().hasUpdate();
+        }
         return isDifferent(getCurrentBuild(appName), getLatestBuild(appName));
     }
 
@@ -125,6 +167,7 @@ public class Differ {
             String name = f.getName();
             if (available.contains(name)) installed.add(name);
         }
+        installed.add("yawlui");
         return installed;
     }
 
@@ -143,18 +186,24 @@ public class Differ {
         AppUpdate upList = new AppUpdate(appName);
         ChecksumsReader reader = adding ? _latest : _current;
         for (XNode node : reader.getAppFileList(appName)) {
-            if (adding) upList.addDownload(node);
-            else upList.addDeletion(node);
+            if (adding) {
+                upList.addDownload(node, getPath(node));
+            }
+            else upList.addDeletion(node, getPath(node));
         }
         return upList;
     }
 
 
+    private String getPath(XNode node) {
+        return _pathResolver.get(node.getAttributeValue("path"));
+    }
+
     // for new installs
     public AppUpdate getAppLibs(String appName) {
         List<String> installed = getInstalledLibNames();
         AppUpdate upList = new AppUpdate(null);
-        Map<String, FileNode> libMap = _latest.getLibMap();
+        Map<String, FileNode> libMap = _latest.getLibMap(_pathResolver);
         for (XNode node : _latest.getAppLibList(appName)) {
             String name = node.getAttributeValue("name");
             if (! installed.contains(name)) {
@@ -175,9 +224,9 @@ public class Differ {
         }
 
         // checksums.xml,the yawl lib jar & props files are also needed in the lib dir
-        libNames.add(UpdateChecker.CHECKSUM_FILE);
+        libNames.add(UpdateConstants.CHECK_FILE);
         libNames.add(reader.getYawlLibNode().getAttributeValue("name"));
-        libNames.add("log4j.properties");
+        libNames.add("log4j2.xml");
         libNames.add("hibernate.properties");
         return libNames;
     }
@@ -190,6 +239,9 @@ public class Differ {
             compareWebApps(updates);
             compareControlPanel(updates);
             if (hasMandatoryUpdates()) updates.add(_mandatory);
+            if (getUIUpdater().hasUpdate()) {
+                updates.add(getUIUpdater().getAppUpdate());
+            }
         }
         return updates;
     }
@@ -216,7 +268,7 @@ public class Differ {
             String latestMd5 = latestNode.getAttributeValue("md5");
             if (! (currentMd5 == null || latestMd5 == null || currentMd5.equals(latestMd5))) {
                 appUpdate = new AppUpdate(appName);
-                appUpdate.addDownload(latestNode);
+                appUpdate.addDownload(latestNode, getPath(latestNode));
             }
         }
         return appUpdate;
@@ -226,6 +278,9 @@ public class Differ {
     private void compareWebApps(List<AppUpdate> updates) throws IllegalStateException {
         List<String> installedWebAppNames = getInstalledWebAppNames();
         for (String appName : installedWebAppNames) {
+            if (appName.equals("yawlui")) {
+                continue;
+            }
             if (hasUpdate(appName)) {
                 AppUpdate appUpdate = compareFileLists(
                         _latest.getAppFileList(appName),
@@ -255,8 +310,8 @@ public class Differ {
     private Map<String, FileNode> getFileMap(List<XNode> fileList) {
         Map<String, FileNode> fileMap = new HashMap<String, FileNode>();
         for (XNode child : fileList) {
-            FileNode fileNode = new FileNode(child);
-            fileMap.put(fileNode.getName(), fileNode);
+            FileNode fileNode = new FileNode(child, getPath(child));
+            fileMap.put(fileNode.getURLFilePath(), fileNode);
         }
         return fileMap;
     }

@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema4.0.xsd">
+  <specification uri="Casualty_Treatment">
+    <name>Casualty Treatment</name>
+    <documentation>A simple medical treatment process designed to test and demonstrate the Worklet Dynamic Process Selection Service with the YAWL engine.</documentation>
+    <metaData>
+      <coverage>4.5.1.796</coverage>
+      <version>0.3</version>
+      <persistent>false</persistent>
+      <identifier>UID_9a382111-fde6-4a33-8a5b-1c1d9962660e</identifier>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="Casualty_Treatment" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <localVariable>
+        <index>0</index>
+        <name>HeartRate</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>72</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Rash</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>0</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>SystolicBP</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>120</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Sex</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>M</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Fracture</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>0</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Wound</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>0</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Fever</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>0</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Weight</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>85.0</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>DiastolicBP</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>80</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>AbdominalPain</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>0</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Height</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>1.80</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Age</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>21</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition">
+          <flowsInto>
+            <nextElementRef id="Admit" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Admit">
+          <name>Admit</name>
+          <flowsInto>
+            <nextElementRef id="Triage" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;HeartRate&gt;{number(/Casualty_Treatment/HeartRate/text())}&lt;/HeartRate&gt;" />
+              <mapsTo>HeartRate</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;SystolicBP&gt;{number(/Casualty_Treatment/SystolicBP/text())}&lt;/SystolicBP&gt;" />
+              <mapsTo>SystolicBP</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;DiastolicBP&gt;{number(/Casualty_Treatment/DiastolicBP/text())}&lt;/DiastolicBP&gt;" />
+              <mapsTo>DiastolicBP</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;PatientID&gt;{/Casualty_Treatment/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Sex&gt;{/Casualty_Treatment/Sex/text()}&lt;/Sex&gt;" />
+              <mapsTo>Sex</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Height&gt;{number(/Casualty_Treatment/Height/text())}&lt;/Height&gt;" />
+              <mapsTo>Height</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Age&gt;{number(/Casualty_Treatment/Age/text())}&lt;/Age&gt;" />
+              <mapsTo>Age</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Weight&gt;{number(/Casualty_Treatment/Weight/text())}&lt;/Weight&gt;" />
+              <mapsTo>Weight</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/Casualty_Treatment/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Weight&gt;{number(/Admit/Weight/text())}&lt;/Weight&gt;" />
+              <mapsTo>Weight</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Sex&gt;{/Admit/Sex/text()}&lt;/Sex&gt;" />
+              <mapsTo>Sex</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Age&gt;{number(/Admit/Age/text())}&lt;/Age&gt;" />
+              <mapsTo>Age</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;DiastolicBP&gt;{number(/Admit/DiastolicBP/text())}&lt;/DiastolicBP&gt;" />
+              <mapsTo>DiastolicBP</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;HeartRate&gt;{number(/Admit/HeartRate/text())}&lt;/HeartRate&gt;" />
+              <mapsTo>HeartRate</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;SystolicBP&gt;{number(/Admit/SystolicBP/text())}&lt;/SystolicBP&gt;" />
+              <mapsTo>SystolicBP</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Height&gt;{number(/Admit/Height/text())}&lt;/Height&gt;" />
+              <mapsTo>Height</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="Admit" />
+        </task>
+        <task id="Triage">
+          <name>Triage</name>
+          <flowsInto>
+            <nextElementRef id="Treat" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Rash&gt;{/Casualty_Treatment/Rash/text()}&lt;/Rash&gt;" />
+              <mapsTo>Rash</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;PatientID&gt;{/Casualty_Treatment/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;AbdominalPain&gt;{/Casualty_Treatment/AbdominalPain/text()}&lt;/AbdominalPain&gt;" />
+              <mapsTo>AbdominalPain</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Fracture&gt;{/Casualty_Treatment/Fracture/text()}&lt;/Fracture&gt;" />
+              <mapsTo>Fracture</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Wound&gt;{/Casualty_Treatment/Wound/text()}&lt;/Wound&gt;" />
+              <mapsTo>Wound</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Fever&gt;{/Casualty_Treatment/Fever/text()}&lt;/Fever&gt;" />
+              <mapsTo>Fever</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/Casualty_Treatment/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Rash&gt;{/Triage/Rash/text()}&lt;/Rash&gt;" />
+              <mapsTo>Rash</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;AbdominalPain&gt;{/Triage/AbdominalPain/text()}&lt;/AbdominalPain&gt;" />
+              <mapsTo>AbdominalPain</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Wound&gt;{/Triage/Wound/text()}&lt;/Wound&gt;" />
+              <mapsTo>Wound</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Fever&gt;{/Triage/Fever/text()}&lt;/Fever&gt;" />
+              <mapsTo>Fever</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Fracture&gt;{/Triage/Fracture/text()}&lt;/Fracture&gt;" />
+              <mapsTo>Fracture</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="Triage" />
+        </task>
+        <task id="Treat">
+          <name>Treat</name>
+          <flowsInto>
+            <nextElementRef id="Discharge" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;HeartRate&gt;{number(/Casualty_Treatment/HeartRate/text())}&lt;/HeartRate&gt;" />
+              <mapsTo>HeartRate</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Rash&gt;{/Casualty_Treatment/Rash/text()}&lt;/Rash&gt;" />
+              <mapsTo>Rash</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;SystolicBP&gt;{number(/Casualty_Treatment/SystolicBP/text())}&lt;/SystolicBP&gt;" />
+              <mapsTo>SystolicBP</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Sex&gt;{/Casualty_Treatment/Sex/text()}&lt;/Sex&gt;" />
+              <mapsTo>Sex</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Fracture&gt;{/Casualty_Treatment/Fracture/text()}&lt;/Fracture&gt;" />
+              <mapsTo>Fracture</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Wound&gt;{/Casualty_Treatment/Wound/text()}&lt;/Wound&gt;" />
+              <mapsTo>Wound</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Fever&gt;{/Casualty_Treatment/Fever/text()}&lt;/Fever&gt;" />
+              <mapsTo>Fever</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Weight&gt;{number(/Casualty_Treatment/Weight/text())}&lt;/Weight&gt;" />
+              <mapsTo>Weight</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/Casualty_Treatment/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;DiastolicBP&gt;{number(/Casualty_Treatment/DiastolicBP/text())}&lt;/DiastolicBP&gt;" />
+              <mapsTo>DiastolicBP</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;PatientID&gt;{/Casualty_Treatment/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;AbdominalPain&gt;{/Casualty_Treatment/AbdominalPain/text()}&lt;/AbdominalPain&gt;" />
+              <mapsTo>AbdominalPain</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Height&gt;{number(/Casualty_Treatment/Height/text())}&lt;/Height&gt;" />
+              <mapsTo>Height</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Age&gt;{number(/Casualty_Treatment/Age/text())}&lt;/Age&gt;" />
+              <mapsTo>Age</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/Treat/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Pharmacy&gt;{/Treat/Pharmacy/text()}&lt;/Pharmacy&gt;" />
+              <mapsTo>Pharmacy</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Treatment&gt;{/Treat/Treatment/text()}&lt;/Treatment&gt;" />
+              <mapsTo>Treatment</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="Treat" />
+        </task>
+        <task id="Discharge">
+          <name>Discharge</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Treatment&gt;{/Casualty_Treatment/Treatment/text()}&lt;/Treatment&gt;" />
+              <mapsTo>Treatment</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Notes&gt;{/Casualty_Treatment/Notes/text()}&lt;/Notes&gt;" />
+              <mapsTo>Notes</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Pharmacy&gt;{/Casualty_Treatment/Pharmacy/text()}&lt;/Pharmacy&gt;" />
+              <mapsTo>Pharmacy</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/Casualty_Treatment/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;PatientID&gt;{/Casualty_Treatment/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
+            </mapping>
+          </startingMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="Discharge" />
+        </task>
+        <outputCondition id="OutputCondition" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Admit" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Weight</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>3</index>
+        <name>DiastolicBP</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>4</index>
+        <name>Sex</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>5</index>
+        <name>Height</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>6</index>
+        <name>HeartRate</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>7</index>
+        <name>SystolicBP</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>8</index>
+        <name>Age</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Weight</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>3</index>
+        <name>DiastolicBP</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>4</index>
+        <name>Sex</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>5</index>
+        <name>Height</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>6</index>
+        <name>HeartRate</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>7</index>
+        <name>SystolicBP</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>8</index>
+        <name>Age</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="Discharge" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>3</index>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>4</index>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="Treat" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Sex</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>DiastolicBP</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>4</index>
+        <name>Height</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>5</index>
+        <name>HeartRate</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>7</index>
+        <name>SystolicBP</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>8</index>
+        <name>Fracture</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>9</index>
+        <name>Age</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>11</index>
+        <name>Weight</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>12</index>
+        <name>Fever</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>13</index>
+        <name>Rash</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>14</index>
+        <name>Wound</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>15</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>16</index>
+        <name>AbdominalPain</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>Notes</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>Pharmacy</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <yawlService id="http://localhost:8080/workletService/ib" />
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="Triage" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>PatientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Fever</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>3</index>
+        <name>Rash</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>4</index>
+        <name>Wound</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>5</index>
+        <name>AbdominalPain</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>6</index>
+        <name>Fracture</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Fever</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>3</index>
+        <name>Rash</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>4</index>
+        <name>Wound</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>5</index>
+        <name>AbdominalPain</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>6</index>
+        <name>Fracture</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+  </specification>
+  <layout>
+    <locale language="en" country="AU"/>
+    <specification id="Casualty_Treatment" defaultBgColor="-526351">
+      <size w="69" h="26"/>
+      <net id="Casualty_Treatment" bgColor="-526351">
+        <bounds x="0" y="0" w="944" h="427"/>
+        <frame x="0" y="0" w="947" h="430"/>
+        <viewport x="0" y="0" w="947" h="430"/>
+        <scale>0.94</scale>
+        <vertex id="OutputCondition">
+          <attributes>
+            <bounds x="608" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <container id="Admit">
+          <vertex>
+            <attributes>
+              <bounds x="128" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="96" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="Triage">
+          <vertex>
+            <attributes>
+              <bounds x="256" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="224" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="Discharge">
+          <vertex>
+            <attributes>
+              <bounds x="512" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="480" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="Treat">
+          <vertex>
+            <attributes>
+              <bounds x="384" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="352" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <flow source="Discharge" target="OutputCondition">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="Triage" target="Treat">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="InputCondition" target="Admit">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="Admit" target="Triage">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="Treat" target="Discharge">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+      </net>
+      <labelFontSize>13</labelFontSize>
+    </specification>
+  </layout>
+</specificationSet>

@@ -1,0 +1,183 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.yawlfoundation.yawl.worklet.exception;
+
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
+import org.yawlfoundation.yawl.worklet.support.Persister;
+
+import java.util.*;
+
+/**
+ * @author Michael Adams
+ * @date 8/02/2016
+ */
+public class ExletRunnerCache {
+
+    private final Set<ExletRunner> _runners = new HashSet<ExletRunner>();
+
+
+    public void add(ExletRunner runner) {
+        if (runner != null && _runners.add(runner)) {
+            Persister.insert(runner);
+        }
+    }
+
+
+    public void remove(ExletRunner runner) {
+        if (runner != null && _runners.remove(runner)) {
+            Persister.delete(runner);
+        }
+    }
+
+
+    public void cancel(String caseID) {
+        for (ExletRunner runner : getRunnersForCase(caseID)) {
+            remove(runner);
+        }
+    }
+
+
+    public Set<ExletRunner> getRunnersForCase(String caseID) {
+        if (caseID != null) {
+            Set<ExletRunner> caseRunners = new HashSet<ExletRunner>();
+            for (ExletRunner runner : _runners) {
+                if (caseID.equals(runner.getCaseID())) {
+                    caseRunners.add(runner);
+                }
+            }
+            return caseRunners;
+        }
+        return Collections.emptySet();
+    }
+
+
+    public ExletRunner getRunnerForItem(String itemID) {
+        if (itemID != null) {
+            for (ExletRunner runner : _runners) {
+                if (itemID.equals(runner.getWorkItemID())) {
+                    return runner;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public ExletRunner getRunner(RuleType xType, String caseID, String itemID) {
+        return itemID != null ? getRunnerForItem(itemID) : getRunner(xType, caseID);
+    }
+
+
+    public ExletRunner getRunner(RuleType xType, String caseID) {
+        if (caseID != null) {
+            for (ExletRunner runner : getRunnersForCase(caseID)) {
+                if (runner.getRuleType() == xType) {
+                    return runner;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public ExletRunner getRunnerForWorklet(String caseID) {
+        for (ExletRunner runner : _runners) {
+            for (WorkletRunner worklet : runner.getWorkletRunners()) {
+                if (worklet.getCaseID().equals(caseID)) {
+                    return runner;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public Set<WorkletRunner> getWorkletsForCase(String caseID) {
+        if (caseID != null) {
+            Set<WorkletRunner> worklets = new HashSet<WorkletRunner>();
+            for (ExletRunner runner : getRunnersForCase(caseID)) {
+                worklets.addAll(runner.getWorkletRunners());
+            }
+            return worklets;
+        }
+        return Collections.emptySet();
+    }
+
+
+    public Set<WorkletRunner> getWorkletsForItem(String itemID) {
+        return getWorklets(getRunnerForItem(itemID));
+    }
+
+
+    public Set<WorkletRunner> getAllWorklets() {
+        Set<WorkletRunner> worklets = new HashSet<WorkletRunner>();
+        for (ExletRunner runner : _runners) {
+            worklets.addAll(runner.getWorkletRunners());
+        }
+        return worklets;
+    }
+
+
+
+    public boolean isCompensationWorklet(String caseID) {
+        return getWorkletRunner(caseID) != null;
+    }
+
+
+    public WorkletRunner getWorkletRunner(String caseID) {
+        for (ExletRunner runner : _runners) {
+            for (WorkletRunner worklet : runner.getWorkletRunners()) {
+                if (worklet.getCaseID().equals(caseID)) {
+                    return worklet;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public void removeWorkletRunners(Set<WorkletRunner> toRemove) {
+        for (ExletRunner runner : _runners) {
+            runner.removeWorklets(toRemove);
+        }
+    }
+
+
+    /** restores active ExletRunner instances from persistence */
+    public void restore() {
+        List items = Persister.getInstance().getObjectsForClass(
+                ExletRunner.class.getName());
+
+        for (Object o : items) {
+            ExletRunner runner = (ExletRunner) o;
+            _runners.add(runner);
+            runner.restoreWorkletRunners();
+        }
+        Persister.getInstance().commit();
+    }
+
+
+    private Set<WorkletRunner> getWorklets(ExletRunner runner) {
+        return runner != null ? runner.getWorkletRunners() : null;
+    }
+
+
+
+}

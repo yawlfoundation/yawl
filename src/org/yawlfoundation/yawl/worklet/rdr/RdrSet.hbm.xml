@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -41,7 +41,7 @@
 
         <property name="_processName" column="processname" access="field"/>
 
-        <set name="treeSet" cascade="all">
+        <set name="ruleSet" cascade="all-delete-orphan" lazy="false">
             <key column="rdrsetid"/>
             <one-to-many class="org.yawlfoundation.yawl.worklet.rdr.RdrTreeSet"/>
         </set>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -160,6 +160,8 @@ public class HibernateImpl extends DataSource {
        List<NonHumanCategory> catList = _db.getObjectsForClass(_nonHumanResourceCategory) ;
        if (catList != null) for (NonHumanCategory cat : catList)
            ds.putNonHumanCategory(cat) ;
+
+        _db.commit();
 
        return ds ;
     }

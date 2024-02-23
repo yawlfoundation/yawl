@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.controlpanel.update;
 
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -13,6 +31,11 @@ import java.util.*;
  * @date 12/08/2014
  */
 public class ChecksumsReader {
+
+    // this is a list of unsupported apps in version 5 (or later). A quick fix. Future
+    // work will include removing these from checksums for a more thorough cleanup
+    private final List<String> _ignoredApps =
+            List.of("procletService", "twitterService", "yawlSMSInvoker");
 
     private XNode _root;
 
@@ -66,10 +89,11 @@ public class ChecksumsReader {
 
     protected List<XNode> getLibList() { return getChildren(getLibNode()); }
 
-    protected Map<String, FileNode> getLibMap() {
+    protected Map<String, FileNode> getLibMap(PathResolver pathResolver) {
         Map<String, FileNode> map = new HashMap<String, FileNode>();
         for (XNode node : getLibList()) {
-            map.put(node.getAttributeValue("name"), new FileNode(node));
+            map.put(node.getAttributeValue("name"),
+                    new FileNode(node, pathResolver.get(node.getAttributeValue("path"))));
         }
         return map;
     }
@@ -79,7 +103,10 @@ public class ChecksumsReader {
     protected List<String> getWebAppNames() {
         List<String> names = new ArrayList<String>();
         for (XNode appNode : getWebappsList()) {
-            names.add(appNode.getName());
+            String name = appNode.getName();
+            if (! isIgnoredApp(name)) {
+                names.add(appNode.getName());
+            }
         }
         return names;
     }
@@ -159,6 +186,11 @@ public class ChecksumsReader {
 
     private List<XNode> getChildren(XNode node) {
         return node != null ? node.getChildren() : Collections.<XNode>emptyList();
+    }
+
+
+    private boolean isIgnoredApp(String appName) {
+        return _ignoredApps.contains(appName);
     }
 
 }

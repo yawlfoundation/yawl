@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,7 +18,10 @@
 
 package org.yawlfoundation.yawl.scheduling.util;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
@@ -56,8 +59,19 @@ public class PropertyReader {
         if (prop == null) {
             prop = new Properties();
             try {
-                prop.load(this.getClass().getResourceAsStream(propFile));
-                _props.put(propFile, prop);                   // cache for later calls
+                InputStream is = this.getClass().getResourceAsStream(propFile);
+                if (is == null) {
+                    File f = new File(System.getenv("CATALINA_HOME") +
+                            "/webapps/schedulingService/WEB-INF/classes" + propFile);
+                   if (f.exists()) {
+                       is = new FileInputStream(f);
+                   }
+               }
+
+               if (is != null) {
+                   prop.load(is);
+                   _props.put(propFile, prop);                   // cache for later calls
+               }
             }
             catch (IOException e) {
                 throw new IOException("cannot load properties from file: " + propFile, e);

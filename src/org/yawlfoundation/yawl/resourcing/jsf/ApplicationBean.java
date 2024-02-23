@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -83,7 +83,7 @@ public class ApplicationBean extends AbstractApplicationBean {
         }
 
         // Add init code here that must complete *after* managed components are initialized
-        _rm.registerJSFApplicationReference(this);
+//        _rm.registerJSFApplicationReference(this);
     }
 
     public void destroy() { }
@@ -121,7 +121,7 @@ public class ApplicationBean extends AbstractApplicationBean {
     public void setFavIcon(Link link) { favIcon = link; }
 
 
-    private static String YAWL_VERSION = "3.0";
+    private static String YAWL_VERSION = "4.5.1";
 
     public String getYawlVersion() { return YAWL_VERSION; }
 
@@ -238,7 +238,6 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     public void removeWorkItemParams(WorkItemRecord wir) {
         _workItemParams.remove(wir.getID());
-        removeFromReofferMap(wir);
     }
 
 
@@ -252,7 +251,6 @@ public class ApplicationBean extends AbstractApplicationBean {
         for (String id : toRemove) {
             _workItemParams.remove(id);
         }
-        removeCaseFromReofferMap(caseID);
     }
 
 
@@ -491,31 +489,9 @@ public class ApplicationBean extends AbstractApplicationBean {
      */
 
     // if an offered workitem has no resource map (usually a pre-2.0 spec), it can't
-    // be reoffered on the admin screen. This map keeps track of listed workitems and
-    // whether they can be reoffered or not.
-
-    private Map<String, Boolean> _canReofferMap = new ConcurrentHashMap<String, Boolean>();
-
+    // be reoffered on the admin screen.
     public boolean canReoffer(WorkItemRecord wir) {
-        Boolean okToReoffer = _canReofferMap.get(wir.getID());
-        if (okToReoffer == null) {
-            okToReoffer = (_rm.getCachedResourceMap(wir) != null);
-            _canReofferMap.put(wir.getID(), okToReoffer);
-        }
-        return okToReoffer;
-    }
-
-    public void removeFromReofferMap(WorkItemRecord wir) {
-        _canReofferMap.remove(wir.getID());
-    }
-
-    public void removeCaseFromReofferMap(String caseID) {
-        int len = caseID.length();
-        for (String id : _canReofferMap.keySet()) {
-            if (id.startsWith(caseID) && ":.".contains(id.substring(len, len + 1))) {
-                _canReofferMap.remove(id);
-            }
-        }
+        return _rm.getCachedResourceMap(wir) != null;
     }
 
 

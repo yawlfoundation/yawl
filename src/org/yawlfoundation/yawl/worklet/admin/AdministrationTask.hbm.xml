@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -26,8 +26,8 @@
 	<class name="org.yawlfoundation.yawl.worklet.admin.AdministrationTask"
            table="ws_AdminTask">
 
-       <id name="_wsTaskID" column="wstaskid" type="string" access="field">
-   		    <generator class="assigned"/>
+       <id name="_wsTaskID" column="wstaskid" type="integer">
+   		    <generator class="native"/>
        </id>
 		
        <property name="_caseID"   column="caseID"/>

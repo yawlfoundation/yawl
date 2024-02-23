@@ -1,7 +1,27 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -9,6 +29,7 @@ import java.io.IOException;
  */
 public class CheckSumTask extends AbstractCheckSumTask {
 
+    private YFileLocations _locations;
 
     public String toXML(File baseDir, CheckSummer summer) throws IOException {
         File checksumsFile = getChecksumsFile(baseDir);
@@ -16,12 +37,21 @@ public class CheckSumTask extends AbstractCheckSumTask {
         if (root == null) {
             throw new IOException("Error locating or parsing checksums file");
         }
+        _locations = new YFileLocations(baseDir.getAbsolutePath() +
+                File.separator + _antLocations);
         root.getChild("version").setText(getVersion());
         root.getChild("timestamp").setText(now());
+        addPaths(root);
         addLibs(root, baseDir, summer);
         addYAWLLib(root, baseDir, summer);
         addApp(root, baseDir, summer);
         return root.toPrettyString(true);
+    }
+
+
+    private void addPaths(XNode root) {
+        root.removeChild(root.getChild("paths"));
+        root.addChild(_locations.getPaths());
     }
 
 
@@ -109,7 +139,13 @@ public class CheckSumTask extends AbstractCheckSumTask {
         fileNode.addAttribute("md5", md5);
         fileNode.addAttribute("size", file.length());
         fileNode.addAttribute("timestamp", formatTimestamp(file.lastModified()));
+        fileNode.addAttribute("path", _locations.get(getLocationGroup(node), fileName));
         return md5;
+    }
+
+
+    private String getLocationGroup(XNode node) {
+        return node.getName().equals("files") ? node.getParent().getName() : node.getName();
     }
 
 
@@ -182,4 +218,43 @@ public class CheckSumTask extends AbstractCheckSumTask {
         return new XNodeParser().parse(StringUtil.fileToString(f));
     }
 
+
+    /******************************************************************************/
+
+    class YFileLocations extends FileLocations {
+
+        Map<String, Map<String, String>> _subMap;
+
+        YFileLocations(String fileName) { super(fileName); }
+
+
+        public void loadLocations(XNode root) {
+            _subMap = new HashMap<String, Map<String, String>>();
+            XNode files = root.getChild("files");
+            if (files != null) {
+                for (XNode subList : files.getChildren()) {
+                    loadSubList(subList);
+                }
+            }
+        }
+
+
+        public String get(String subName, String fileName) {
+            Map<String, String> fileMap = _subMap.get(subName);
+            String path = fileMap != null ? fileMap.get(fileName) : null;
+            return path != null ? path : "";
+        }
+
+
+        private void loadSubList(XNode subList) {
+            Map<String, String> fileMap = new HashMap<String, String>();
+            _subMap.put(subList.getName(), fileMap);
+            for (XNode fNode : subList.getChildren()) {
+                String name = fNode.getAttributeValue("name");
+                String path = fNode.getAttributeValue("path");
+                fileMap.put(name, path);
+            }
+        }
+
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -53,9 +53,9 @@ public class MessagePanel extends PanelLayout {
 
     private static final int TITLEBAR_HEIGHT = 18;
     private static final int BTNPANEL_HEIGHT = 30;
-    private static final int MIN_MESSAGES_WIDTH = 270;
+    private static final int MIN_MESSAGES_WIDTH = 290;
     private static final int MIN_PANEL_HEIGHT = 120;
-    private static final int NON_MESSAGE_WIDTH = 80;
+    private static final int NON_MESSAGE_WIDTH = 100;
     private static final int PANEL_VSPACE = 5;
     private static final int MESSAGE_VSPACE = 6;
     private static final Font _msgFont = new Font("SansSerif", Font.PLAIN, 13);
@@ -368,6 +368,7 @@ public class MessagePanel extends PanelLayout {
                 listMessage(msg, _messages.get(message)) ;
                 addVSpace();
             }
+            addVSpace();                       // between last msg and button
         }
     }
 

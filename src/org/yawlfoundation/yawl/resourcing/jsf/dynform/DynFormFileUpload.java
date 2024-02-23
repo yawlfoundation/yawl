@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -40,6 +40,8 @@ public class DynFormFileUpload {
     private PanelLayout uploadPanel;
     private PanelLayout blockoutPanel;
     private Upload upload;
+
+    private static final int PANEL_WIDTH = 300;
 
 
     public DynFormFileUpload(DocComponent docComponent) {
@@ -88,7 +90,8 @@ public class DynFormFileUpload {
             uploadPanel = new PanelLayout();
             uploadPanel.setId("pnlUpload");
             uploadPanel.setStyleClass("orgDataUploadPanel");
-            uploadPanel.setStyle("left:" + calcUploadPanelLeft() + "px");
+            uploadPanel.setStyle("width:" + PANEL_WIDTH + "px;left:" +
+                    calcUploadPanelLeft() + "px");
             uploadPanel.getChildren().add(makeHeaderText());
             uploadPanel.getChildren().add(getUploader());
             uploadPanel.getChildren().add(makeOKButton());
@@ -139,7 +142,7 @@ public class DynFormFileUpload {
     
     private int calcUploadPanelLeft() {
         int formCentre = owner.getFormWidth() / 2;
-        int uploadPanelCentre = 574 / 2;                // 574 = set width of panel
+        int uploadPanelCentre = PANEL_WIDTH / 2;
         return formCentre - uploadPanelCentre;          // neg. offset
     }
 

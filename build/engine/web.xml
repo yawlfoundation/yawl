@@ -66,11 +66,21 @@
 
     <context-param>
         <param-name>EnableHibernateStatisticsGathering</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
         <description>
             When set to 'true', the hibernate database layer will collect statistics of
             all operations for later perusal.
-            When set to 'false', hibernate statistics collection is disabled.
+            When set to any other value, hibernate statistics collection is disabled.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EnablePerformanceStatisticsGathering</param-name>
+        <param-value>false</param-value>
+        <description>
+            When set to 'true', statistics will be collected that capture the timespan of
+            each request-response operation.
+            When set to any other value, performance statistics collection is disabled.
         </description>
     </context-param>
 
@@ -111,7 +121,42 @@
         </description>
     </context-param>
 
+    <context-param>
+   		<param-name>WorkdayTimerGeoCodes</param-name>
+   		<param-value></param-value>
+   		<description>
+   			Set this value to a country code and optional region code, separated by
+            a semi-colon (;) if you intend to use the working-day-only constraint
+            for work item timers. The codes will allow for the loading of local public
+            holiday data for use in timer duration calculations. Example values
+            include 'usa;New York', 'aus;Victoria' and 'chn'.
 
+            The value can be left blank if working-day-only calculations are not
+            required, or if local public holiday data should be excluded.
+
+            The full list of supported country and region codes can be found at
+            http://holidays.kayaposoft.com/
+         </description>
+   	</context-param>
+
+    <context-param>
+   		<param-name>EngineImpl</param-name>
+   		<param-value></param-value>
+   		<description>
+   			Set this value to a fully qualified name of a class on the classpath that
+            extends YEngine and supports additional functionality as required.
+         </description>
+   	</context-param>
+
+    <context-param>
+   		<param-name>StartInRedundantMode</param-name>
+   		<param-value>false</param-value>
+   		<description>
+   			When set to 'true', will start the engine in redundant (or shadow) mode.
+            This allows the engine to be brought online (promoted) when the engine it
+            is shadowing goes offline. See the user manual for more information.
+         </description>
+   	</context-param>
 
 	<context-param>
 		<param-name>RMIServerName</param-name>

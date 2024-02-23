@@ -167,7 +167,7 @@ public class TestCaseCancellation extends TestCase {
         for (Iterator iterator = activeItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = (YWorkItem) iterator.next();
             _engine.completeWorkItem(workItem, "<data/>", null,
-                    YEngine.WorkItemCompletion.Normal);
+                    WorkItemCompletion.Normal);
             break;
         }
     }

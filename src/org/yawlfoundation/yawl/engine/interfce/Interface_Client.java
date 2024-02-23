@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -228,7 +228,7 @@ public class Interface_Client {
      * @return the stream's contents (ie. the HTTP reply)
      * @throws IOException when there's some kind of communication problem
      */
-    private String getReply(InputStream is) throws IOException {   
+    protected String getReply(InputStream is) throws IOException {
         final int BUF_SIZE = 16384;
         
         // read reply into a buffered byte stream - to preserve UTF-8

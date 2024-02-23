@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.schema.internal;
 
 import org.jdom2.Element;
@@ -22,6 +40,7 @@ class YTimerType implements YDataType {
                     "\t\t\t\t</xs:simpleType>\n" +
                     "\t\t\t</xs:element>\n" +
                     "\t\t\t<xs:element name=\"expiry\" type=\"xs:string\"/>\n" +
+                    "\t\t\t<xs:element name=\"workdays\" type=\"xs:boolean\"/>\n" +
                     "\t\t</xs:sequence>\n" +
                     "\t</xs:complexType>\n";
 
@@ -51,6 +70,10 @@ class YTimerType implements YDataType {
         Element expiry = addElement(sequence, "element");
         expiry.setAttribute("name", "expiry");
         expiry.setAttribute("type", "xs:string");
+
+        Element workdays = addElement(sequence, "element");
+        workdays.setAttribute("name", "workdays");
+        workdays.setAttribute("type", "xs:boolean");
 
         return element;
     }

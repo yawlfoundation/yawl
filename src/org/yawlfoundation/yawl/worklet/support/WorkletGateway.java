@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -19,18 +19,22 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.Sessions;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.*;
 import org.yawlfoundation.yawl.worklet.WorkletService;
+import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
+import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
+import org.yawlfoundation.yawl.worklet.exception.ExletValidationError;
+import org.yawlfoundation.yawl.worklet.exception.ExletValidator;
 import org.yawlfoundation.yawl.worklet.rdr.*;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrException;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrResult;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 
 import javax.servlet.ServletContext;
@@ -38,9 +42,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * The WorkletGateway class acts as a gateway between the Worklet Selection
@@ -57,45 +62,48 @@ public class WorkletGateway extends YHttpServlet {
 
     private WorkletService _ws;
     private Rdr _rdr;
+    private AdminTasksManager _adminTasksMgr;
+    private YBuildProperties _buildProps;
     private Sessions _sessions;            // maintains sessions with external services
 
     public void init() {
-        if (!Library.wsInitialised) {
+        if (!WorkletConstants.wsInitialised) {
             try {
                 _ws = WorkletService.getInstance();
+                _ws.setupEngineClient();
                 _rdr = _ws.getRdrInterface();
                 ServletContext context = getServletContext();
 
-                Library.setHomeDir(context.getRealPath("/"));
-                Library.setRepositoryDir(context.getInitParameter("Repository"));
+                WorkletConstants.setHomeDir(context.getRealPath("/"));
 
                 String persistStr = context.getInitParameter("EnablePersistence");
-                Library.setPersist(persistStr.equalsIgnoreCase("TRUE"));
+                WorkletConstants.setPersist(persistStr.equalsIgnoreCase("TRUE"));
 
-                Library.setResourceServiceURL(context.getInitParameter("ResourceServiceURL"));
+                WorkletConstants.setResourceServiceURL(context.getInitParameter("ResourceServiceURL"));
 
                 String engineURI = context.getInitParameter("InterfaceB_BackEnd");
-                _ws.initEngineURI(engineURI);
+                _ws.getEngineClient().initEngineURI(engineURI);
 
                 String ixStr = context.getInitParameter("EnableExceptionHandling");
                 boolean exceptionHandlingEnabled = ixStr != null && ixStr.equalsIgnoreCase("TRUE");
                 _ws.setExceptionServiceEnabled(exceptionHandlingEnabled);
 
+                String engineLogonName = context.getInitParameter("EngineLogonUserName");
+                String engineLogonPassword = context.getInitParameter("EngineLogonPassword");
                 _sessions = new Sessions();
                 _sessions.setupInterfaceA(engineURI.replaceFirst("/ib", "/ia"),
-                        context.getInitParameter("EngineLogonUserName"),
-                        context.getInitParameter("EngineLogonPassword"));
+                        engineLogonName, engineLogonPassword);
 
-                if (exceptionHandlingEnabled) {
-                    ExceptionService.getInst().completeInitialisation();
-                }
-                else {
-                    _ws.completeInitialisation();
-                }
+                // read the current version properties
+                initBuildProperties(context.getResourceAsStream(
+                                   "/WEB-INF/classes/version.properties"));
+
+
+                _ws.completeInitialisation();
             } catch (Exception e) {
                 _log.error("Gateway Initialisation Exception", e);
             } finally {
-                Library.setServicetInitialised();
+                WorkletConstants.setServicetInitialised();
             }
         }
     }
@@ -125,7 +133,7 @@ public class WorkletGateway extends YHttpServlet {
                         "Service and the external RDREditor (it isn't meant to be browsed " +
                         " to directly). It provides the " +
                         "functionality to trigger a running worklet replacement " +
-                        "due to an addtion to the ruleset (by the editor).</p>" +
+                        "due to an addition to the rule set (by the editor).</p>" +
                         "</body></html>";
             } else if (action.equals("connect")) {
                 String userid = req.getParameter("userid");
@@ -137,56 +145,99 @@ public class WorkletGateway extends YHttpServlet {
                 result = String.valueOf(_sessions.disconnect(handle));
             } else if (_sessions.checkConnection(handle)) {
                 if (action.equalsIgnoreCase("replace")) {
-                    _log.info("Received a request from the Rules Editor to replace " +
-                            "a running worklet.");
-
-                    String itemID = req.getParameter("itemID");
-                    int exType = Integer.parseInt(req.getParameter("exType"));
-                    RuleType rType = RuleType.values()[exType];
-
-                    // get the service instance and call replace
-                    if (rType == RuleType.ItemSelection) {
-                        result = _ws.replaceWorklet(itemID);
-                    } else {
-                        String caseID = req.getParameter("caseID");
-                        String trigger = req.getParameter("trigger");
-                        ExceptionService ex = ExceptionService.getInst();
-                        result = ex.replaceWorklet(rType, caseID, itemID, trigger);
-                    }
-                } else if (action.equalsIgnoreCase("refresh")) {
-                    _ws.refreshRuleSet(makeSpecID(req));
-                    result = "<success/>";
-                } else if (action.equalsIgnoreCase("addListener")) {
-                    result = response(_ws.getServer().addListener(req.getParameter("uri")));
-                } else if (action.equalsIgnoreCase("removeListener")) {
-                    result = response(_ws.getServer().removeListener(req.getParameter("uri")));
-                } else if (action.equalsIgnoreCase("evaluate")) {
-                    result = response(evaluate(req));
-                } else if (action.equalsIgnoreCase("process")) {
-                    result = response(process(req));
-                } else if (action.equalsIgnoreCase("execute")) {
-                    result = response(execute(req));
-                } else if (action.equalsIgnoreCase("addNode")) {
-                    result = response(addNode(req));
-                } else if (action.equalsIgnoreCase("getNode")) {
-                    result = getNode(req);
-                } else if (action.equalsIgnoreCase("getRdrTree")) {
-                    result = getRdrTree(req);
-                } else if (action.equalsIgnoreCase("getRdrSet")) {
-                    result = getRdrSet(req);
-                } else if (action.equalsIgnoreCase("addRdrSet")) {
-                    result = addRdrSet(req);
-                } else if (action.equalsIgnoreCase("addWorklet")) {
-                    result = addWorklet(req);
-                } else if (action.equalsIgnoreCase("getWorklet")) {
-                    result = getWorklet(req);
-                } else if (action.equalsIgnoreCase("getWorkletNames")) {
-                    result = getWorkletNames();
-                } else if (action.equalsIgnoreCase("getRunningWorklets")) {
-                    result = getRunningWorklets();
-                } else if (action.equalsIgnoreCase("getWorkletInfoList")) {
-                     result = getWorkletInfoList();
+                    result = replace(req);
                 }
+                else if (action.equalsIgnoreCase("refresh")) {  // no longer required
+                    result = "<success/>";
+                }
+                else if (action.equalsIgnoreCase("addListener")) {
+                    result = response(_ws.getServer().addListener(req.getParameter("uri")));
+                }
+                else if (action.equalsIgnoreCase("removeListener")) {
+                    result = response(_ws.getServer().removeListener(req.getParameter("uri")));
+                }
+                else if (action.equalsIgnoreCase("evaluate")) {
+                    result = response(evaluate(req));
+                }
+                else if (action.equalsIgnoreCase("process")) {
+                    result = response(process(req));
+                }
+                else if (action.equalsIgnoreCase("execute")) {
+                    result = response(execute(req));
+                }
+                else if (action.equalsIgnoreCase("addNode")) {
+                    result = response(addNode(req));
+                }
+                else if (action.equalsIgnoreCase("getNode")) {
+                    result = getNode(req);
+                }
+                else if (action.equalsIgnoreCase("removeNode")) {
+                    result = removeNode(req);
+                }
+                else if (action.equalsIgnoreCase("getRdrTree")) {
+                    result = getRdrTree(req);
+                }
+                else if (action.equalsIgnoreCase("getRdrSet")) {
+                    result = getRdrSet(req);
+                }
+                else if (action.equalsIgnoreCase("getRdrSetIDs")) {
+                    result = getRdrSetIDs();
+                }
+                else if (action.equalsIgnoreCase("addRdrSet")) {
+                    result = addRdrSet(req);
+                }
+                else if (action.equalsIgnoreCase("removeRdrSet")) {
+                    result = removeRdrSet(req);
+                }
+                else if (action.equalsIgnoreCase("addWorklet")) {
+                    result = addWorklet(req);
+                }
+                else if (action.equalsIgnoreCase("getWorklet")) {
+                    result = getWorklet(req);
+                }
+                else if (action.equalsIgnoreCase("removeWorklet")) {
+                    result = removeWorklet(req);
+                }
+                else if (action.equalsIgnoreCase("getWorkletNames")) {
+                    result = getWorkletNames();
+                }
+                else if (action.equalsIgnoreCase("getRunningWorklets")) {
+                    result = getRunningWorklets();
+                }
+                else if (action.equalsIgnoreCase("getOrphanedWorklets")) {
+                    result = getOrphanedWorklets();
+                }
+                else if (action.equalsIgnoreCase("getWorkletInfoList")) {
+                    result = getWorkletInfoList();
+                }
+                else if (action.equalsIgnoreCase("updateRdrSetTaskIDs")) {
+                    result = updateRdrSetTaskIDs(req);
+                }
+                else if (action.equalsIgnoreCase("updateRdrSetTaskIDs")) {
+                    result = updateRdrSetTaskIDs(req);
+                }
+                else if (action.equalsIgnoreCase("getAdministrationTasks")) {
+                    result = getAdministrationTasks();
+                }
+                else if (action.equalsIgnoreCase("getAdministrationTask")) {
+                    result = getAdministrationTask(req);
+                }
+                else if (action.equalsIgnoreCase("addAdministrationTask")) {
+                    result = addAdministrationTask(req);
+                }
+                else if (action.equalsIgnoreCase("removeAdministrationTask")) {
+                    result = removeAdministrationTask(req);
+                }
+                else if (action.equalsIgnoreCase("raiseExternalException")) {
+                    result = raiseExternalException(req);
+                }
+                else if (action.equalsIgnoreCase("getExternalTriggers")) {
+                    result = getExternalTriggers(req);
+                }
+                else if (action.equalsIgnoreCase("getBuildProperties")) {
+                     result = _buildProps.toXML();
+                 }
+
                 else {
                     result = fail("Unrecognised action: " + action);
                 }
@@ -211,6 +262,12 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
+    public void initBuildProperties(InputStream stream) {
+        _buildProps = new YBuildProperties();
+        _buildProps.load(stream);
+    }
+
+
     private YSpecificationID makeSpecID(HttpServletRequest req) {
         String specIdentifier = req.getParameter("specidentifier");
         String specVersion = req.getParameter("specversion");
@@ -222,26 +279,44 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
+    private AdminTasksManager getAdminTasksMgr() {
+        if (_adminTasksMgr == null) {
+            _adminTasksMgr = new AdminTasksManager();
+        }
+        return _adminTasksMgr;
+    }
+
+
     private String addNode(HttpServletRequest req) {
         YSpecificationID specID = makeSpecID(req);
         String processName = req.getParameter("name");
         String taskID = req.getParameter("taskid");
         String rTypeStr = req.getParameter("rtype");
         String nodeXML = req.getParameter("node");
-        if (rTypeStr == null) return fail("Rule Type has null value");
-        if (nodeXML == null) return fail("Node is null");
 
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
+
+        if (nodeXML == null) return fail("Node is null");
         RdrNode node = new RdrNode(nodeXML);
 
         RdrConclusion conc = node.getConclusion();
         if (conc.isNullConclusion()) {
             return fail("Node conclusion contains no elements.");
         }
-        List<ExletValidationError> errList =  new ExletValidator().validate(
+        List<ExletValidationError> errList =  new ExletValidator().validate(rType,
                 node.getConclusion(), _ws.getLoader().getAllWorkletKeys());
         if (! errList.isEmpty()) {
             return fail("Node contains invalid conclusion: " + errList.get(0).getMessage());
+        }
+
+        if (rType.isExternalType()) {
+            Element cs = node.getCornerStone();
+            if (cs == null || StringUtil.isNullOrEmpty(cs.getChildText("trigger"))) {
+                return fail("Condition for external rule type node must include " +
+                        "'trigger=[some value]'");
+            }
         }
 
         try {
@@ -272,7 +347,9 @@ public class WorkletGateway extends YHttpServlet {
         Element data = JDOMUtil.stringToElement(dataStr);
         if (data == null) return fail("No or invalid data provided for evaluation");
 
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
+
         String taskID = req.getParameter("taskid");
         YSpecificationID specID = makeSpecID(req);
         String processName = req.getParameter("name");
@@ -298,7 +375,7 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private String process(HttpServletRequest req) {
-        if (!_ws.isExceptionServiceEnabled()) {
+        if (!_ws.isExceptionHandlingEnabled()) {
             return fail("Exception handling is currently disabled. Please enable in it " +
                     "Worklet Service's web.xml");
         }
@@ -308,7 +385,8 @@ public class WorkletGateway extends YHttpServlet {
 
         String rTypeStr = req.getParameter("rtype");
         if (rTypeStr == null) return fail("Rule Type has null value");
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
 
         WorkItemRecord wir;
         try {
@@ -322,9 +400,9 @@ public class WorkletGateway extends YHttpServlet {
         if (data != null) wir.setUpdatedData(data);
 
         if (rType == RuleType.ItemAbort) {
-            return ExceptionService.getInst().handleWorkItemAbortException(wir, dataStr);
+            return WorkletService.getInstance().handleWorkItemAbortException(wir, dataStr);
         } else if (rType == RuleType.ItemConstraintViolation) {
-            return ExceptionService.getInst().handleConstraintViolationException(wir, dataStr);
+            return WorkletService.getInstance().handleConstraintViolationException(wir, dataStr);
         } else return fail("Invalid rule type '" + rType.toLongString() +
                 "'. This method can only be used for workitem constraint violation" +
                 " and workitem abort exception types");
@@ -332,7 +410,7 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private String execute(HttpServletRequest req) {
-        if (!_ws.isExceptionServiceEnabled()) {
+        if (!_ws.isExceptionHandlingEnabled()) {
             return fail("Exception handling is currently disabled. Please enable in it " +
                     "Worklet Service's web.xml");
         }
@@ -348,7 +426,8 @@ public class WorkletGateway extends YHttpServlet {
         if (rTypeStr.contains("Case")) {
             return fail("Case-level exception types cannot be executed using this method");
         }
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
 
         WorkItemRecord wir;
         try {
@@ -359,34 +438,60 @@ public class WorkletGateway extends YHttpServlet {
         }
 
         loadWorklets(req.getParameter("workletset"));
-        return ExceptionService.getInst().raiseException(wir, rType, conclusion);
+        return WorkletService.getInstance().getExceptionService().
+                raiseException(wir, rType, conclusion);
+    }
+
+
+    private String replace(HttpServletRequest req) {
+        String itemID = req.getParameter("itemID");
+        String rTypeStr = req.getParameter("exType");
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
+
+        // get the service instance and call replace
+        try {
+            if (rType == RuleType.ItemSelection) {
+                return _ws.replaceWorklet(itemID);
+            }
+            else {
+                String caseID = req.getParameter("caseID");
+                ExceptionService ex = WorkletService.getInstance().getExceptionService();
+                return ex.replaceWorklet(rType, caseID, itemID);
+            }
+        }
+        catch (IOException ioe) {
+            return fail(ioe.getMessage());
+        }
     }
 
 
     private String getNode(HttpServletRequest req) {
+        long nodeID = StringUtil.strToLong(req.getParameter("nodeid"), -1);
+        RdrNode node = _rdr.getNode(nodeID);
+        return node != null ? node.toXML() : fail("No rule node found with id: " + nodeID);
+    }
+
+
+    private String removeNode(HttpServletRequest req) {
+        long nodeID = StringUtil.strToLong(req.getParameter("nodeid"), -1);
         YSpecificationID specID = makeSpecID(req);
-        String processName = req.getParameter("name");
         String taskID = req.getParameter("taskid");
         String rTypeStr = req.getParameter("rtype");
-        int nodeID = StringUtil.strToInt(req.getParameter("nodeid"), -1);
+
         if (rTypeStr == null) return fail("Rule Type has null value");
-        if (nodeID < 0) return fail("Invalid node id");
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
 
-        RuleType rType = RuleType.valueOf(rTypeStr);
-        RdrNode node;
+        RdrResult result;
         if (specID != null) {
-            node = _rdr.getNode(specID, taskID, rType, nodeID);
-        } else if (processName != null) {
-            node = _rdr.getNode(processName, taskID, rType, nodeID);
-        } else {
-            String wirStr = req.getParameter("wir");
-            if (wirStr == null) return fail(
-                    "No specification, process name or work item record provided for evaluation");
-            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
-            node = _rdr.getNode(wir, rType, nodeID);
+            result = _rdr.removeNode(specID, taskID, rType, nodeID);
         }
-
-        return node != null ? node.toXML() : fail("No rule node found for parameters.");
+        else {
+            String processName = req.getParameter("name");
+            result = _rdr.removeNode(processName, taskID, rType, nodeID);
+        }
+        return result.name();
     }
 
 
@@ -395,9 +500,11 @@ public class WorkletGateway extends YHttpServlet {
         String processName = req.getParameter("name");
         String taskID = req.getParameter("taskid");
         String rTypeStr = req.getParameter("rtype");
-        if (rTypeStr == null) return fail("Rule Type has null value");
 
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
+
         RdrTree tree;
         if (specID != null) {
             tree = _rdr.getRdrTree(specID, taskID, rType);
@@ -429,21 +536,91 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
+    private String getRdrSetIDs() {
+        XNode root = new XNode("rdrsetids");
+        for (String id : _rdr.getRdrSetIDs()) {
+             root.addChild("identifier", id);
+        }
+        return root.toString();
+    }
+
+
     private String addRdrSet(HttpServletRequest req) {
-        YSpecificationID specID = makeSpecID(req);
         String xml = req.getParameter("ruleset");
+        YSpecificationID specID = makeSpecID(req);
+        if (specID != null) {
+            return addRdrSet(specID, xml);
+        }
+
+        String processName = req.getParameter("name");
+        if (processName != null) {
+            return addRdrSet(processName, xml);
+        }
+
+        return fail("Invalid parameters");
+    }
+
+
+    private String addRdrSet(YSpecificationID specID, String xml) {
         if (! (xml == null || specID == null)) {
             RdrSet exists = new RdrSetLoader().load(specID);
             if (exists == null) {
-                RdrSet rdrSet = new RdrSet(specID);
-                rdrSet.fromXML(xml);
-                if (! rdrSet.hasRules()) {
-                    return fail("Malformed XML in rule set");
-                }
-                Persister.insert(rdrSet);
-                return "<success/>";
+                return addRdrSet(new RdrSet(specID), xml);
             }
             return fail("Rule set already exists for specification: " + specID.toString());
+        }
+        return fail("Invalid parameters");
+    }
+
+
+    private String addRdrSet(String processName, String xml) {
+        if (! (xml == null || processName == null)) {
+            RdrSet exists = new RdrSetLoader().load(processName);
+            if (exists == null) {
+                return addRdrSet(new RdrSet(processName), xml);
+            }
+            return fail("Rule set already exists for specification: " + processName);
+        }
+        return fail("Invalid parameters");
+    }
+
+
+    private String addRdrSet(RdrSet rdrSet, String xml) {
+        rdrSet.fromXML(xml, true);
+        if (! rdrSet.hasRules()) {
+            return fail("Malformed XML in rule set");
+        }
+        Persister.insert(rdrSet);
+        return "<success/>";
+    }
+
+
+    private String removeRdrSet(HttpServletRequest req) {
+        String idString = req.getParameter("identifier");
+        if (idString != null)  {
+            RdrSet removed;
+            if (idString.contains(":")) {
+                YSpecificationID specID = new YSpecificationID().fromFullString(idString);
+                removed = _rdr.removeRdrSet(specID);
+            }
+            else {
+                removed = _rdr.removeRdrSet(idString);    // process name
+            }
+            return removed != null ? "<success/>" :
+                    fail("No rule set for identifier: " + idString);
+        }
+        return fail("Invalid parameters");
+    }
+
+
+    private String updateRdrSetTaskIDs(HttpServletRequest req) {
+        YSpecificationID specID = makeSpecID(req);
+        String updateXML = req.getParameter("updates");
+        if (! (specID == null || updateXML == null)) {
+            YAttributeMap map = new YAttributeMap();
+            map.fromXMLElements(updateXML);
+            _rdr.updateTaskIDs(specID, map);
+            return "<success/>";
         }
         return fail("Invalid parameters");
     }
@@ -452,7 +629,7 @@ public class WorkletGateway extends YHttpServlet {
     private void loadWorklets(String worklets) {
         if (worklets != null) {
             for (String worklet : StringUtil.xmlToSet(worklets)) {
-                String result = _ws.uploadWorklet(worklet);
+                String result = _ws.getEngineClient().uploadWorklet(worklet);
                 if (result != null) {
                     if (result.startsWith("<fail")) {
                         _log.warn(StringUtil.unwrap(result));
@@ -491,6 +668,16 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
+    private String removeWorklet(HttpServletRequest req) {
+        String key = req.getParameter("key");
+        if (key != null) {
+            return _ws.getLoader().remove(key) ? "<success/>" :
+                    fail("No worklet found with specification id key: " + key);
+        }
+        return fail("Invalid parameters");
+    }
+
+
     private String getWorkletNames() {
         XNode root = new XNode("workletnames");
         for (String name : _ws.getLoader().getAllWorkletKeys()) {
@@ -510,13 +697,22 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private String getRunningWorklets() {
-        Set<WorkletRunner> runners = _ws.getAllRunners();
+        Collection<WorkletRunner> runners = _ws.getAllRunners().values();
         if (runners.isEmpty()) {
             return fail("No worklet instances currently running");
         }
         XNode root = new XNode("runningworklets");
         for (WorkletRunner runner : runners) {
             root.addChild(runner.toXNode());
+        }
+        return root.toString();
+    }
+
+
+    private String getOrphanedWorklets() {
+        XNode root = new XNode("orphan_worklets");
+        for (WorkletSpecification wSpec : _ws.getLoader().getOrphanedWorklets()) {
+            root.addChild(new WorkletInfo(wSpec).toXNode());
         }
         return root.toString();
     }
@@ -533,13 +729,105 @@ public class WorkletGateway extends YHttpServlet {
             throw new IOException("Work item record is invalid");
         }
 
-        WorkItemRecord refreshedWir = _ws.getEngineStoredWorkItem(wir);
+        WorkItemRecord refreshedWir = _ws.getEngineClient().getEngineStoredWorkItem(wir);
         if (refreshedWir == null) {
             throw new IOException("Work item '" + wir.getID() +
                     "' is unknown to the Engine");
         }
 
         return refreshedWir;
+    }
+
+
+    private String getAdministrationTask(HttpServletRequest req) {
+        int id = StringUtil.strToInt(req.getParameter("id"), -1);
+        if (id > -1) {
+            AdministrationTask task = getAdminTasksMgr().getTask(id);
+            if (task != null) {
+                return task.toXML();
+            }
+        }
+        return fail("Failed to retrieve task; missing or invalid task id");
+    }
+
+
+    private String getAdministrationTasks() {
+        StringBuilder xml = new StringBuilder("<tasks>");
+        for (AdministrationTask task : getAdminTasksMgr().getAllTasksAsList()) {
+            xml.append(task.toXML());
+        }
+        xml.append("</tasks>");
+        return xml.toString();
+    }
+    
+
+    private String addAdministrationTask(HttpServletRequest req) {
+        String caseID = req.getParameter("caseid");
+        String itemID = req.getParameter("itemid");
+        String title = req.getParameter("title");
+        String scenario = req.getParameter("scenario");
+        String process = req.getParameter("process");
+        int taskType = StringUtil.strToInt(req.getParameter("tasktype"), -1);
+
+        AdministrationTask task;
+        if (itemID != null) {
+            task = getAdminTasksMgr().addTask(caseID, itemID, title, scenario, process, taskType);
+        }
+        else {
+            task = getAdminTasksMgr().addTask(caseID, title, scenario, process, taskType);
+        }
+        return task.toXML();
+    }
+
+
+    private String removeAdministrationTask(HttpServletRequest req) {
+        int id = StringUtil.strToInt(req.getParameter("id"), -1);
+        if (id > -1) {
+            AdministrationTask task = getAdminTasksMgr().removeTask(id);
+            if (task != null) {
+                return "<success/>";
+            }
+        }
+        return fail("Failed to remove task; missing or invalid task id");
+    }
+
+
+    private String raiseExternalException(HttpServletRequest req) {
+        String caseID = req.getParameter("caseid");
+        String itemID = req.getParameter("itemid");
+        String trigger = req.getParameter("trigger");
+        if (caseID != null) {
+            _ws.getExceptionService().raiseExternalException("case", caseID, trigger);
+        }
+        else if (itemID != null) {
+            _ws.getExceptionService().raiseExternalException("item", itemID, trigger);
+        }
+        return "<success/>";
+    }
+
+
+    private String getExternalTriggers(HttpServletRequest req) {
+        String caseID = req.getParameter("caseid");
+        String itemID = req.getParameter("itemid");
+
+        List<String> triggers = null;
+        if (caseID != null) {
+            triggers = _ws.getExceptionService().getExternalTriggersForCase(caseID);
+        }
+        else if (itemID != null) {
+            triggers = _ws.getExceptionService().getExternalTriggersForItem(itemID);
+        }
+
+        if (triggers == null) {
+            return fail("Failed to retrieve triggers; Missing parameter: id");
+        }
+
+        StringBuilder xml = new StringBuilder("<triggers>");
+        for (String trigger : triggers) {
+            xml.append(StringUtil.wrap(trigger, "trigger"));
+        }
+        xml.append("</triggers>");
+        return xml.toString();
     }
 
 }

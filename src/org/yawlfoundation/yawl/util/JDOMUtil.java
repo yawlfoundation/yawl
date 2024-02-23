@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -23,9 +23,11 @@ import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
-import org.jdom2.filter.ElementFilter;
+import org.jdom2.Namespace;
+import org.jdom2.filter.Filters;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaderSAX2Factory;
+import org.jdom2.output.EscapeStrategy;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.xpath.XPathExpression;
@@ -36,6 +38,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 
 
 /**
@@ -106,6 +109,18 @@ public class JDOMUtil {
         }
         return null ;
     }
+
+    
+    public synchronized static Document stringToDocumentUncaught(String s)
+            throws IOException, JDOMException {
+        if (s == null) {
+            throw new JDOMException("Attempt to convert null string to document");
+        }
+        if (s.startsWith(UTF8_BOM)) s = s.substring(1);   // remove BOM if any
+        _builder.setIgnoringBoundaryWhitespace(true);
+        return _builder.build(new StringReader(s));
+    }
+
 
     /****************************************************************************/
 
@@ -182,6 +197,21 @@ public class JDOMUtil {
     }
 
 
+    public static String encodeAttributeEscapes(String attrValue) {
+        if (attrValue == null) return null;
+        EscapeStrategy strategy = Format.getRawFormat().getEscapeStrategy();
+        return Format.escapeAttribute(strategy, attrValue);
+    }
+
+
+    public static String decodeAttributeEscapes(String attrValue) {
+        if (attrValue == null) return null;
+        String temp = "<temp key=\"" + attrValue + "\"/>";
+        Element e = stringToElement(temp);
+        return e.getAttributeValue("key");
+    }
+
+
     public static String decodeEscapes(String s) {
         if ((s == null) || (s.indexOf('&') < 0)) return s;  // short circuit if no encodes
         return s.replaceAll("&lt;","<")
@@ -194,9 +224,29 @@ public class JDOMUtil {
     /****************************************************************************/
 
     public static Element selectElement(Document doc, String path) {
-        XPathExpression<Element> expression =
-                XPathFactory.instance().compile(path, new ElementFilter());
-        return expression.evaluateFirst(doc);
+        return getXPathExpression(path, null).evaluateFirst(doc);
+    }
+
+
+    public static Element selectElement(Document doc, String path, Namespace ns) {
+         return getXPathExpression(path, ns).evaluateFirst(doc);
+     }
+
+
+    public static List<Element> selectElementList(Document doc, String path) {
+        return getXPathExpression(path, null).evaluate(doc);
+    }
+
+
+    public static List<Element> selectElementList(Document doc, String path, Namespace ns) {
+        return getXPathExpression(path, ns).evaluate(doc);
+    }
+
+
+    public static XPathExpression<Element> getXPathExpression(String path, Namespace ns) {
+        return ns != null ?
+                XPathFactory.instance().compile(path, Filters.element(), null, ns) :
+                XPathFactory.instance().compile(path, Filters.element());
     }
 
 

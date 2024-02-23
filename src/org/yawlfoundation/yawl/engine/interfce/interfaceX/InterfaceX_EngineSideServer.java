@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -161,7 +161,7 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
                         true, sessionHandle));
             }
             else if ("continueWorkItem".equals(action)) {
-                msg.append(_engine.startWorkItem(workitemID, sessionHandle));
+                msg.append(_engine.startWorkItem(workitemID, null, sessionHandle));
             }
             else if ("unsuspendWorkItem".equals(action)) {
                 msg.append(_engine.unsuspendWorkItem(workitemID, sessionHandle));
@@ -170,7 +170,7 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
                 msg.append(_engine.restartWorkItem(workitemID, sessionHandle));
             }
             else if ("startWorkItem".equals(action)) {
-                msg.append(_engine.startWorkItem(workitemID, sessionHandle));
+                msg.append(_engine.startWorkItem(workitemID, null, sessionHandle));
             }
             else if ("cancelWorkItem".equals(action)) {
                 String fail = request.getParameter("fail");

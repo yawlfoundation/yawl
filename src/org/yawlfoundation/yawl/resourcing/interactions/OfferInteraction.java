@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -596,7 +596,7 @@ public class OfferInteraction extends AbstractInteraction {
         private String getNetParamValue (WorkItemRecord wir, String name) {
             String result = null ;
             try {
-                result = _rm.getNetParamValue(wir.getCaseID(), _name);
+                result = _rm.getNetParamValue(wir.getNetID(), _name);
                 if (result == null)
                     _log.error("Unable to retrieve value from net parameter '{}'" +
                                " for deferred allocation of workitem '{}'.",

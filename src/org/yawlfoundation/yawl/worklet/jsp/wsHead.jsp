@@ -1,7 +1,8 @@
 <%@ page import="org.yawlfoundation.yawl.worklet.exception.ExceptionService" %>
 <%@ page import="org.yawlfoundation.yawl.worklet.WorkletService" %>
+<%@ page import="org.yawlfoundation.yawl.worklet.admin.AdminTasksManager" %>
 <%--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -26,24 +27,31 @@
       href="./graphics/favicon.ico"/>
 
 <%!
-    ExceptionService _exceptionService = null;
-    String _engineURI;
+    WorkletService _workletService = null;
+    AdminTasksManager _adminTasksManager = null;
     String _worklistURL;
     String _adminlistURL;
     String _caseMgtURL;
 
     public void jspInit() {
         ServletContext context = getServletContext();
-        _exceptionService = (ExceptionService) context.getAttribute(
-                "org.yawlfoundation.yawl.worklet.exception.ExceptionService");
-        if (_exceptionService == null) {
-            _exceptionService = ExceptionService.getInst();
-            context.setAttribute("org.yawlfoundation.yawl.worklet.exception.ExceptionService",
-                    _exceptionService);
+        _workletService = (WorkletService) context.getAttribute(
+                "org.yawlfoundation.yawl.worklet.WorkletService");
+        if (_workletService == null) {
+            _workletService = WorkletService.getInstance();
+            context.setAttribute("org.yawlfoundation.yawl.worklet.WorkletService",
+                    _workletService);
+        }
+        _adminTasksManager = (AdminTasksManager) context.getAttribute(
+                "org.yawlfoundation.yawl.worklet.admin.AdminTasksManager");
+        if (_adminTasksManager == null) {
+            _adminTasksManager = new AdminTasksManager();
+            context.setAttribute("org.yawlfoundation.yawl.worklet.admin.AdminTasksManager",
+                    _adminTasksManager);
         }
 
         // set resource service admin page urls
-        String resourceServiceURL = _exceptionService.getResourceServiceURL();
+        String resourceServiceURL = _workletService.getResourceServiceURL();
         if (resourceServiceURL == null) {
             resourceServiceURL = "http://localhost:8080/resourceService";   // a default
         }

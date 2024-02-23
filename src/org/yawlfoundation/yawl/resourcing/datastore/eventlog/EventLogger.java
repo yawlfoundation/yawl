@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -23,9 +23,12 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -40,20 +43,22 @@ public class EventLogger {
 
     private static boolean _loggingEnabled = false;
     private static boolean _logOffers = false;
-    private static Persister _persister = Persister.getInstance();
+    private static ResourceGatewayServer _eventServer;
     private static Map<String, Object> _specMap;
+    private static Set<ResourceEventListener> _listeners;
 
     private static final ExecutorService _executor = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors());
 
 
-    public static enum event { offer, allocate, start, suspend, deallocate, delegate,
+    public enum event { offer, allocate, start, suspend, deallocate, delegate,
         reallocate_stateless, reallocate_stateful, skip, pile, cancel, chain, complete,
         unoffer, unchain, unpile, resume, timer_expired, launch_case, cancel_case,
         cancelled_by_case, busy, released, autotask_start, autotask_complete }
 
-    public static enum audit { logon, logoff, invalid, unknown, shutdown, expired,
+    public enum audit { logon, logoff, invalid, unknown, shutdown, expired,
         gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired }
+
 
 
     public EventLogger() { }
@@ -62,6 +67,24 @@ public class EventLogger {
     public static void setLogging(boolean flag) { _loggingEnabled = flag; }
 
     public static void setOfferLogging(boolean flag) { _logOffers = flag ; }
+
+    public static void setEventServer(ResourceGatewayServer server) {
+        _eventServer = server;
+    }
+
+    public static void addListeners(Set<ResourceEventListener> listeners) {
+        getListeners().addAll(listeners);
+    }
+
+
+    public static void addListener(ResourceEventListener listener) {
+        getListeners().add(listener);
+    }
+
+    public static void removeListener(ResourceEventListener listener) {
+        getListeners().remove(listener);
+    }
+
 
 
     public static List<Runnable> shutdown() {
@@ -78,7 +101,7 @@ public class EventLogger {
 
     public static void log(WorkItemRecord wir, String pid, event eType) {
         if (_loggingEnabled) {
-            insertEvent(getSpecificationKey(wir), wir, pid, eType);
+            insertEvent(wir, pid, eType);
         }
     }
 
@@ -103,7 +126,7 @@ public class EventLogger {
 
     public static void log(YSpecificationID specID, String caseID, String id, event eType) {
         if (_loggingEnabled) {
-            insertEvent(getSpecificationKey(specID), caseID, id, eType);
+            insertEvent(specID, caseID, id, eType);
         }
     }
 
@@ -133,54 +156,77 @@ public class EventLogger {
     }
 
 
-    private static void insertEvent(long specKey, String caseID, String pid, event eType) {
+    private static void insertEvent(YSpecificationID specID, String caseID,
+                                    String pid, event eType) {
+        long specKey = getSpecificationKey(specID);
         ResourceEvent resEvent = new ResourceEvent(specKey, caseID, pid, eType);
         insertEvent(resEvent);
+        announceEvent(specID, resEvent);
     }
 
 
-    private static void insertEvent(long specKey, WorkItemRecord wir, String pid, event eType) {
+    private static void insertEvent(WorkItemRecord wir, String pid, event eType) {
+        YSpecificationID specID = new YSpecificationID(wir);
+        long specKey = getSpecificationKey(specID);
         ResourceEvent resEvent = new ResourceEvent(specKey, wir, pid, eType);
         insertEvent(resEvent);
+        announceEvent(specID, resEvent);
     }
 
 
     private static void insertEvent(final Object event) {
         _executor.execute(new Runnable() {
             public void run() {
-                _persister.insert(event);
+                Persister.getInstance().insert(event);
             }
         });
+    }
+
+
+    private static void announceEvent(YSpecificationID specID, ResourceEvent event) {
+        if (_eventServer != null) {
+            _eventServer.announceResourceEvent(specID, event);
+        }
+        for (ResourceEventListener listener : getListeners()) {
+            listener.eventOccurred(specID, event);
+        }
     }
 
 
     /**
      * Gets the primary key for a specification record, or inserts a new entry if it
      * doesn't exist and returns its key.
-     * @param ySpecID the identifiers of the specification
+     * @param specID the identifiers of the specification
      * @return the primary key for the specification
      */
-    public static long getSpecificationKey(YSpecificationID ySpecID) {
-        if (ySpecID == null) return -1;
-        if (_specMap == null) _specMap = _persister.selectMap("SpecLog");
-        String key = ySpecID.getKey() + ySpecID.getVersionAsString();
-        long result = getSpecificationKey(key);
+    public static long getSpecificationKey(YSpecificationID specID) {
+        if (specID == null) return -1;
+        long result = getSpecificationKey(specID.toKeyString());
         if (result < 0) {
-            SpecLog specEntry = new SpecLog(ySpecID);
-            _persister.insert(specEntry);
-            _specMap.put(key, specEntry);
-            result = specEntry.getLogID();
+            result = addToSpecMap(specID);
         }
         return result;
     }
 
-    private static long getSpecificationKey(WorkItemRecord wir) {
-        return getSpecificationKey(new YSpecificationID(wir));
+
+    private static Map<String, Object> getSpecMap() {
+        if (_specMap == null) {
+            _specMap = Persister.getInstance().selectMap("SpecLog");
+        }
+        return _specMap;
     }
 
-    // pre: specMap != null
+
+    private static long addToSpecMap(YSpecificationID specID) {
+        SpecLog specEntry = new SpecLog(specID);
+        Persister.getInstance().insert(specEntry);
+        getSpecMap().put(specID.toKeyString(), specEntry);
+        return specEntry.getLogID();
+    }
+
+
     private static long getSpecificationKey(String key) {
-        SpecLog specEntry = (SpecLog) _specMap.get(key);
+        SpecLog specEntry = (SpecLog) getSpecMap().get(key);
         return (specEntry != null) ? specEntry.getLogID() : -1;
     }
 
@@ -205,5 +251,10 @@ public class EventLogger {
         }
     }
 
+
+    private static Set<ResourceEventListener> getListeners() {
+        if (_listeners == null) _listeners = new HashSet<ResourceEventListener>();
+        return _listeners;
+    }
 
 }

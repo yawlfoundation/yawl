@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -505,7 +505,7 @@ public class participantData extends AbstractPageBean {
     }
 
 
-    // discards edits/iputs, and resets to original values
+    // discards edits/inputs, and resets to original values
     public String btnReset_action() {
 
         // if in 'add new' mode, discard inputs and go back to edit mode
@@ -737,11 +737,11 @@ public class participantData extends AbstractPageBean {
     private void saveChanges(Participant p) {
 
         // update fields     
-        p.setFirstName((String) txtFirstName.getText());
-        p.setLastName((String) txtLastName.getText());
-        p.setUserID((String) txtUserID.getText());
-        p.setDescription((String) txtDesc.getText());
-        p.setNotes((String) txtNotes.getText());
+        p.setFirstName(_sb.stripXMLChars((String) txtFirstName.getText()));
+        p.setLastName(_sb.stripXMLChars((String) txtLastName.getText()));
+        p.setUserID(_sb.stripXMLChars((String) txtUserID.getText()));
+        p.setDescription(_sb.stripXMLChars((String) txtDesc.getText()));
+        p.setNotes(_sb.stripXMLChars((String) txtNotes.getText()));
         p.setAdministrator((Boolean) cbxAdmin.getValue());
 
         // only change password if a new one is entered and after its been validated

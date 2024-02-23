@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -33,9 +33,12 @@ import java.util.regex.Pattern;
 public class XNodeParser {
 
     private boolean _check;                                         // validation flag
+    private boolean _suppressMessages;
     private Pattern _attributeSplitter;
     private List<String> _openingComments;                          // if root node only
     private List<String> _closingComments;                          // if root node only
+
+    private static final String UTF8_BOM = "\uFEFF";
 
     public XNodeParser() {
         this(false);
@@ -43,6 +46,7 @@ public class XNodeParser {
 
     public XNodeParser(boolean check) {
         _check = check;
+        _suppressMessages = false;
         _attributeSplitter = Pattern.compile("\\s*=\\s*\"|\\s*\"\\s*");
     }
 
@@ -53,7 +57,10 @@ public class XNodeParser {
      * @return the root XNode, with contents
      */
     public XNode parse(String s) {
-        if (s == null) return null;
+        if (s == null || s.isEmpty()) return null;
+
+        // remove UTF-8 BOM char, if any
+        if (s.startsWith(UTF8_BOM)) s = s.substring(1);
 
         // remove any headers
         if (s.startsWith("<?xml")) s = s.substring(s.indexOf("?>") + 2).trim();
@@ -74,6 +81,9 @@ public class XNodeParser {
     public XNode parse(Document d) {
         return parse(JDOMUtil.documentToString(d));
     }
+
+
+    public void suppressMessages(boolean suppress) { _suppressMessages = suppress; }
 
 
     /************************************************************************/
@@ -108,6 +118,9 @@ public class XNodeParser {
                         node.addChild(parse(content, depth + 1));      // recurse
                     }
                     else {
+                        if (content.contains("{")) {
+                            content = JDOMUtil.decodeEscapes(content);
+                        }
                         node.setText(content);
                     }
                 }
@@ -115,12 +128,15 @@ public class XNodeParser {
             return node;
         }
         catch (Exception e) {
-            LogManager.getLogger(this.getClass()).error(
-                    "Invalid format parsing string [{}] - {}", s, e.getMessage());
+            if (! _suppressMessages) {
+                LogManager.getLogger(this.getClass()).error(
+                        "Invalid format parsing string [{}] - {}", s, e.getMessage());
+            }
             return null;
         }
     }
 
+    
     /**
      * Creates a new XNode from the text provided
      * @param s the inner contents of an opening tag (ie. name + attributes)
@@ -252,7 +268,7 @@ public class XNodeParser {
                 accumulator--;
                 if (accumulator > 0) closeIndex++;
             }
-            if (openIndex == openers.size()) {
+            if (openIndex == openers.size() || closeIndex == closers.size()) {
                 return closers.get(closers.size() - 1);
             }
         }

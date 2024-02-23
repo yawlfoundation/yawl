@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -23,7 +23,7 @@ import org.hibernate.HibernateException;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
-import org.yawlfoundation.yawl.worklet.exception.CaseMonitor;
+import org.yawlfoundation.yawl.worklet.exception.ExletRunner;
 import org.yawlfoundation.yawl.worklet.rdr.*;
 import org.yawlfoundation.yawl.worklet.selection.LaunchEvent;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
@@ -41,10 +41,12 @@ import java.util.HashSet;
 public class Persister extends HibernateEngine {
 
     private static Class[] classes = {
-            AdministrationTask.class, CaseMonitor.class,
-            LaunchEvent.class, RdrNode.class, RdrTree.class, RdrTreeSet.class,
-            RdrSet.class, RdrConclusion.class, WorkletEvent.class,
-            WorkItemRecord.class, WorkletRunner.class, WorkletSpecification.class
+            AdministrationTask.class, LaunchEvent.class,
+            RdrNode.class, RdrTree.class, RdrTreeSet.class,
+            RdrSet.class, RdrConclusion.class,
+            WorkletEvent.class, WorkItemRecord.class,
+            WorkletRunner.class, ExletRunner.class,
+            WorkletSpecification.class
     };
 
     private static Persister INSTANCE;
@@ -57,10 +59,10 @@ public class Persister extends HibernateEngine {
 
 
     /** returns the current Persister instance */
-    public static Persister getInstance(boolean persistenceOn) {
+    public static Persister getInstance() {
         if (INSTANCE == null) {
             try {
-                INSTANCE = new Persister(persistenceOn);
+                INSTANCE = new Persister(true);
             }
             catch (HibernateException he) {
                 LogManager.getLogger(Persister.class).error(
@@ -69,9 +71,6 @@ public class Persister extends HibernateEngine {
         }
         return INSTANCE;
     }
-
-
-    public static Persister getInstance() { return getInstance(false); }
 
 
     public static boolean insert(Object o) { return persist(o, DB_INSERT); }

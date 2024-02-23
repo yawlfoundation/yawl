@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema3.0.xsd">
+  <specification uri="CancelShow">
+    <name>CancelShow</name>
+    <documentation>Cancel the show due to poor ticket sales</documentation>
+    <metaData>
+      <title>CancelShow</title>
+      <creator>Adams</creator>
+      <description>Cancel the show due to poor ticket sales</description>
+      <version>0.2</version>
+      <persistent>false</persistent>
+      <identifier>UID_425b7087-79cb-4429-a8ba-0a9e0f4a4dfb</identifier>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="CancelShow" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <processControlElements>
+        <inputCondition id="InputCondition">
+          <flowsInto>
+            <nextElementRef id="_Cancel_Venue" />
+          </flowsInto>
+        </inputCondition>
+        <task id="_Cancel_Venue">
+          <name>Cancel Venue</name>
+          <flowsInto>
+            <nextElementRef id="Refund_Tickets" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Venue&gt;{/CancelShow/VenueName/text()}&lt;/Venue&gt;" />
+              <mapsTo>Venue</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/Cancel_Venue/Venue/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="Cancel_Venue" />
+        </task>
+        <task id="Refund_Tickets">
+          <name>Refund Tickets</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;TicketsSold&gt;{/CancelShow/TicketsSold/text()}&lt;/TicketsSold&gt;" />
+              <mapsTo>TicketsSold</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;TicketsSold&gt;{/Refund_Tickets/TicketsSold/text()}&lt;/TicketsSold&gt;" />
+              <mapsTo>TicketsSold</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="Refund_Tickets" />
+        </task>
+        <outputCondition id="OutputCondition" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Cancel_Venue" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>Venue</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>Venue</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="Refund_Tickets" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+  </specification>
+  <layout>
+    <locale language="en" country="AU"/>
+    <specification id="CancelShow" defaultBgColor="-526351">
+      <size w="69" h="26"/>
+      <net id="CancelShow" bgColor="-526351">
+        <bounds x="0" y="0" w="901" h="445"/>
+        <frame x="0" y="0" w="904" h="448"/>
+        <viewport x="0" y="0" w="904" h="448"/>
+        <vertex id="OutputCondition">
+          <attributes>
+            <bounds x="352" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <container id="Refund_Tickets">
+          <vertex>
+            <attributes>
+              <bounds x="256" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="224" y="64" w="96" h="36"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="_Cancel_Venue">
+          <vertex>
+            <attributes>
+              <bounds x="128" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="96" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <flow source="_Cancel_Venue" target="Refund_Tickets">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="InputCondition" target="_Cancel_Venue">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="Refund_Tickets" target="OutputCondition">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+      </net>
+      <labelFontSize>14</labelFontSize>
+    </specification>
+  </layout>
+</specificationSet>

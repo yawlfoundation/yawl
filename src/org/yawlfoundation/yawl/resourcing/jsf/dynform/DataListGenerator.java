@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -89,13 +89,21 @@ public class DataListGenerator {
             // if subpanel, build inner output recursively
             if (child instanceof SubPanel) {
                 DynFormField field = getField(child, fieldList);
-                result.append(generateDataList((PanelLayout) child,
-                                 field.getSubFieldList())) ;
+                String dataList = generateDataList((PanelLayout) child,
+                        field.getSubFieldList());
+
+                // don't add empty elements for field with minOccurs=0
+                if (field.hasZeroMinimum() && StringUtil.unwrap(dataList).isEmpty()) {
+                    continue;
+                }
+
+                result.append(dataList);
             }
 
-            // if a complextype choice, then deal with it
+            // if a complextype choice, then forward start and stop to correct posns
             else if (child instanceof RadioButton) {
                 SelectedChoiceBounds.calcBounds(children);
+                i = SelectedChoiceBounds.start - 1;   // will readd +1 in next loop
                 stop = SelectedChoiceBounds.stop;
             }
 

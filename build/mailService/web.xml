@@ -81,6 +81,15 @@
     </context-param>
 
     <context-param>
+         <param-name>transportStrategy</param-name>
+         <param-value>SSL</param-value>
+         <description>
+            The transport encryption used for connecting to the host. Choose between
+             PLAIN, SSL (default) and TLS.
+         </description>
+     </context-param>
+
+    <context-param>
         <param-name>mailUserName</param-name>
         <param-value></param-value>
         <description>

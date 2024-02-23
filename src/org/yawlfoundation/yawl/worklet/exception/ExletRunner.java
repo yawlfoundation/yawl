@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -19,22 +19,21 @@
 package org.yawlfoundation.yawl.worklet.exception;
 
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.AbstractRunner;
 import org.yawlfoundation.yawl.worklet.selection.RunnerMap;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
-import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
-/** The HandlerRunner class manages an exception handling process. An instance
- *  of this class is created for each exception process raised by a case. The CaseMonitor
- *  class maintains the current set of HandlerRunners for a case (amongst other things).
+/**
+ * The ExletRunner class manages an exception handling process. An instance
+ *  of this class is created for each exception process raised by a case.
  *  This class also manages running worklet instances for a 'parent' case
  *  when required.
  *
@@ -42,41 +41,41 @@ import java.util.Set;
  *  sequential set of exception handling primitives for this particular handler.
  *
  *  @author Michael Adams
- *  @version 0.8, 04-09/2006; updated for 3.1 9/2015
+ *  @version 0.8, 04-09/2006; updated for v4 9/2015
  */
 
 public class ExletRunner extends AbstractRunner {
 
     private RdrConclusion _conclusion = null ;      // steps to run for this handler
-    private CaseMonitor _parentMonitor = null ;     // case that generated this instance
     private int _actionIndex = 1 ;                  // index to 'primitives' set
     private boolean _isItemSuspended;               // has excepted item been suspended?
     private boolean _isCaseSuspended;               // has case been suspended?
-    private RunnerMap _worklets;                    // set of running compensations
+    private String _trigger;                        // trigger (external exceptions only)
+    private Element _dataElem;                      // blend of case/item data for compen.
+    private final RunnerMap _worklets = new RunnerMap();  // set of running compensations
 
     // list of suspended items - can be child items, or for whole case
-    private Set<WorkItemRecord> _suspendedItems = null;
+    private Set<String> _suspendedItems = null;
 
 
-   /**
+    /**
      * This constructor is used when an exception is raised at the case level
-     * @param monitor the CaseMonitor for the case the generated the exception
      * @param rdrConc the RdrConclusion of a rule that represents the handling process
      */
-    public ExletRunner(CaseMonitor monitor, RdrConclusion rdrConc, RuleType xType) {
-        _parentMonitor = monitor ;
+    public ExletRunner(String caseID, RdrConclusion rdrConc, RuleType xType) {
         _conclusion = rdrConc ;
         _ruleType = xType ;
-        _caseID = monitor.getCaseID() ;
+        _caseID = caseID;
     }
 
+
     /** This constructor is used when an exception is raised at the workitem level */
-    public ExletRunner(CaseMonitor monitor, WorkItemRecord wir,
-                       RdrConclusion rdrConc, RuleType xType) {
-        this(monitor, rdrConc, xType);
+    public ExletRunner(WorkItemRecord wir, RdrConclusion rdrConc, RuleType xType) {
+        this(wir.getRootCaseID(), rdrConc, xType);
         _wir = wir ;
         _wirID = wir.getID();
     }
+
 
     /** This one's for persistence */
     private ExletRunner() {}
@@ -105,66 +104,59 @@ public class ExletRunner extends AbstractRunner {
     public int getActionCount() { return _conclusion.getCount(); }
 
 
-    /** @return the id of the spec of the case that raised the exception */
-   public YSpecificationID getSpecID() {
-       return _parentMonitor.getSpecID();
-   }
-
-
-    /** @return the CaseMonitor that is the container for this HandlerRunner */
-    public CaseMonitor getOwnerCaseMonitor() {
-        return _parentMonitor ;
-    }
-
-
     /** @return the list of currently suspended workitems for this runner */
-    public Set<WorkItemRecord> getSuspendedItems() {
-       return _suspendedItems ;
-    }
+    public Set<String> getSuspendedItems() { return _suspendedItems ; }
 
+
+    public void setData(Element dataElem) { _dataElem = dataElem; }
+
+
+    /** */
+    public Element getDataForCaseLaunch() {
+        return _dataElem != null ? _dataElem : JDOMUtil.stringToElement(getDataListString());
+    }
 
     /** @return the data params for the parent workitem/case */
-    public Element getDatalist() {
-        return _ruleType.isCaseLevelType() ?_parentMonitor.getCaseData() :
-            getWorkItemData();
+    public Element getWorkItemDatalist() { return getWorkItemData(); }
+
+
+    public Element getWorkItemUpdatedData() { return getWir().getUpdatedData(); }
+
+
+    public void addWorklet(WorkletRunner runner) { _worklets.add(runner); }
+
+    public WorkletRunner removeWorklet(WorkletRunner runner) {
+        return _worklets.remove(runner);
     }
 
-    public Element getUpdatedData() {
-        return _ruleType.isCaseLevelType() ? _parentMonitor.getCaseData() :
-                getWir().getUpdatedData();
+    public WorkletRunner removeWorklet(String caseID) {
+        return _worklets.remove(caseID);
     }
 
-
-    public void addWorklet(WorkletRunner runner) {
-        if (_worklets == null) _worklets = new RunnerMap();
-        _worklets.add(runner);
-        persistThis();
+    public void removeWorklets(Set<WorkletRunner> toRemove) {
+        _worklets.removeRunners(toRemove);
     }
 
-    public void removeWorklet(WorkletRunner runner) {
-        if (_worklets != null) _worklets.remove(runner);
-    }
+    public boolean hasRunningWorklet() { return ! _worklets.isEmpty(); }
 
-    public void removeWorklet(String caseID) {
-        if (_worklets != null) _worklets.remove(caseID);
-    }
+    public Set<WorkletRunner> getWorkletRunners() { return _worklets.getAll(); }
 
-    public boolean hasRunningWorklet() {
-        return ! (_worklets == null || _worklets.isEmpty());
-    }
-
-    public Set<WorkletRunner> getWorkletRunners() {
-        return _worklets != null ? _worklets.getAll() : Collections.<WorkletRunner>emptySet();
-    }
-
-    protected void setWorkletRunners(Set<WorkletRunner> runners) {
-        if (! runners.isEmpty()) {
-            _worklets = new RunnerMap();
-            for (WorkletRunner runner : runners) {
-                _worklets.add(runner);
-            }
+    protected void addWorkletRunners(Set<WorkletRunner> runners) {
+        if (runners != null) {
+            _worklets.addAll(runners);
         }
     }
+
+
+    public Set<WorkletRunner> restoreWorkletRunners() {
+        _worklets.restore(getCaseID());
+        return _worklets.getAll();
+    }
+
+
+    public void setTrigger(String trigger) { _trigger = trigger; }
+
+    public String getTrigger() { return _trigger; }
 
 
     public void setItem(WorkItemRecord item) {
@@ -172,46 +164,44 @@ public class ExletRunner extends AbstractRunner {
         _wirID = item.getID();
     }
 
-    /** called when an action suspends the workitem of this HandlerRunner */
+    /** called when an action suspends the workitem of this ExletRunner */
     public void setItemSuspended() {
         _isItemSuspended = true ;
         persistThis();
     }
 
 
-    /** called when an action unsuspends the workitem of this HandlerRunner */
+    /** called when an action unsuspends the workitem of this ExletRunner */
     public void unsetItemSuspended() {
         _isItemSuspended = false ;
         clearSuspendedItems();
     }
 
-    /** called when an action suspends the case of this HandlerRunner */
+    /** called when an action suspends the case of this ExletRunner */
     public void setCaseSuspended() {
         _isCaseSuspended = true ;
         persistThis();
     }
 
 
-    /** called when an action unsuspends the case of this HandlerRunner */
+    /** called when an action unsuspends the case of this ExletRunner */
     public void clearCaseSuspended() {
         _isCaseSuspended = false ;
         clearSuspendedItems();
     }
 
 
-    public void setOwnerCaseMonitor(CaseMonitor monitor) {
-         _parentMonitor = monitor ;
-     }
-
-
-     /** called when an action suspends the item or parent case of this HandlerRunner */
+     /** called when an action suspends the item or parent case of this ExletRunner */
     public void setSuspendedItems(Set<WorkItemRecord> items) {
-        _suspendedItems = items ;
-         persistThis();
+        _suspendedItems = new HashSet<String>();
+        for (WorkItemRecord wir : items) {
+            _suspendedItems.add(wir.getID());
+        }
+        persistThis();
     }
 
 
-    /** called when an action unsuspends the item or parent case of this HandlerRunner */
+    /** called when an action unsuspends the item or parent case of this ExletRunner */
     public void clearSuspendedItems() {
         _suspendedItems = null ;
         persistThis();
@@ -238,37 +228,6 @@ public class ExletRunner extends AbstractRunner {
     }
 
 
-    public String dump() {
-        StringBuilder s = new StringBuilder("HandlerRunner record:") ;
-        s.append(Library.newline);
-        s.append(super.toString());
-
-        String conc = (_conclusion == null) ? "null" : _conclusion.toString();
-        String parent = (_parentMonitor == null)? "null" :
-                         _parentMonitor.getSpecID() + ": " + _parentMonitor.getCaseID();
-        String index = String.valueOf(_actionIndex);
-        String count = String.valueOf(getActionCount());
-        String itemSusp = String.valueOf(_isItemSuspended);
-        String caseSusp = String.valueOf(_isCaseSuspended);
-        String wirs = "";
-        if (_suspendedItems != null) {
-            for (WorkItemRecord wir : _suspendedItems) {
-               wirs += wir.toXML() + Library.newline ;
-            }
-        }
-
-        s = Library.appendLine(s, "RDRConclusion", conc);
-        s = Library.appendLine(s, "Parent Monitor", parent);
-        s = Library.appendLine(s, "Action Index", index);
-        s = Library.appendLine(s, "Action Count", count);
-        s = Library.appendLine(s, "Item Suspended?", itemSusp);
-        s = Library.appendLine(s, "Case Suspended?", caseSusp);
-        s = Library.appendLine(s, "Suspended Items", wirs);
-
-        return s.toString();
-    }
-
-
     // PERSISTENCE METHODS //
 
     private void setActionIndex(int i) { _actionIndex = i; }
@@ -281,6 +240,6 @@ public class ExletRunner extends AbstractRunner {
         Persister.update(this);
     }
 
-}  // end HandlerRunner class
+}  // end ExletRunner class
 
 

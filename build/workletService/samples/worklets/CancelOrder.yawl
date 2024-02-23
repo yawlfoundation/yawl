@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema3.0.xsd">
+  <specification uri="CancelOrder">
+    <name>CancelOrder</name>
+    <documentation>Cancel an orderwhere no payment was received before timeout.</documentation>
+    <metaData>
+      <title>CancelOrder</title>
+      <creator>Adams</creator>
+      <description>Cancel an orderwhere no payment was received before timeout.</description>
+      <version>0.2</version>
+      <persistent>false</persistent>
+      <identifier>UID_43037a6b-9539-41ee-afff-f53db6dfbae1</identifier>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="CancelOrder" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>2</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <processControlElements>
+        <inputCondition id="InputCondition">
+          <flowsInto>
+            <nextElementRef id="File_Cancellation" />
+          </flowsInto>
+        </inputCondition>
+        <task id="File_Cancellation">
+          <name>File Cancellation</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Item&gt;{/CancelOrder/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;OrderNum&gt;{/CancelOrder/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/CancelOrder/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;OrderNum&gt;{/File_Cancellation/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/File_Cancellation/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Item&gt;{/File_Cancellation/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="File_Cancellation" />
+        </task>
+        <outputCondition id="OutputCondition" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="File_Cancellation" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>2</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+  </specification>
+  <layout>
+    <locale language="en" country="AU"/>
+    <specification id="CancelOrder" defaultBgColor="-526351">
+      <size w="69" h="26"/>
+      <net id="CancelOrder" bgColor="-526351">
+        <bounds x="0" y="0" w="901" h="445"/>
+        <frame x="0" y="0" w="904" h="448"/>
+        <viewport x="0" y="0" w="904" h="448"/>
+        <scale>1.04</scale>
+        <vertex id="OutputCondition">
+          <attributes>
+            <bounds x="224" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <container id="File_Cancellation">
+          <vertex>
+            <attributes>
+              <bounds x="132" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="100" y="64" w="97" h="37"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <flow source="InputCondition" target="File_Cancellation">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="File_Cancellation" target="OutputCondition">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+      </net>
+      <labelFontSize>14</labelFontSize>
+    </specification>
+  </layout>
+</specificationSet>

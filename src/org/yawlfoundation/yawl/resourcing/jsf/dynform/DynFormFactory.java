@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -45,6 +45,8 @@ import org.yawlfoundation.yawl.resourcing.jsf.SessionBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.DynAttributeFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -834,18 +836,17 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
                 }
             }
         }
+        componentList.ensureRadioButtonSelection();
         return componentList;
     }
 
 
     private DynFormComponentList buildChoiceSelector(SubPanel container,
-                                                     DynFormComponentBuilder builder, DynFormField field) {
+                                                     DynFormComponentBuilder builder,
+                                                     DynFormField field) {
         DynFormComponentList compList = new DynFormComponentList();
-
         RadioButton rButton = builder.makeRadioButton(field);
-        rButton.setSelected((container == null) ||
-                isFirstRadioGroupMember(container.getChildren(), rButton.getName()));
-
+        rButton.setSelected(container == null || isMatchingRadioForData(field));
         compList.add(rButton);
         return compList;
     }
@@ -879,15 +880,18 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    private boolean isFirstRadioGroupMember(List content, String groupID) {
-        for (Object component : content) {
-            if (component instanceof RadioButton) {
-                if (((RadioButton) component).getName().equals(groupID)) {
-                    return false;
-                }
+    private boolean isMatchingRadioForData(DynFormField field) {
+        String name = field.getName();
+        String data = field.getParam().getValue();
+        if (data !=  null) {
+            XNodeParser parser = new XNodeParser();
+            XNode dNode = parser.parse(data);
+            if (dNode != null) {
+                XNode child = dNode.getChild(0);
+                return child != null && child.getName().equals(name);
             }
         }
-        return true;
+        return false;
     }
 
 
@@ -988,13 +992,19 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
         char[] chars = text.toCharArray();
 
-        // ignore leading and trailling underscores
+        // ignore leading and trailing underscores
         for (int i = 1; i < chars.length - 1; i++) {
             if (chars[i] == pre) chars[i] = post;
         }
         return new String(chars);
     }
 
+
+    public String getBodyStyle() {
+        String bgColour = getPageBackgroundColour();
+        return "-rave-layout: grid; background-color:" +
+                (bgColour != null ? bgColour : "#FFFFFF");
+    }
 
     // support for decomposition extended attributes
 
@@ -1035,7 +1045,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    private String getFormHeaderFontStyle() {
+    public String getFormHeaderFontStyle() {
         return (getUserAttributes() == null) ? null :
                 getUserAttributes().getFormHeaderFontStyle();
     }

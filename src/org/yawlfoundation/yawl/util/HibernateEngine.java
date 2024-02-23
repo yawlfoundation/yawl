@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -21,15 +21,17 @@ package org.yawlfoundation.yawl.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.c3p0.internal.C3P0ConnectionProvider;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.exception.JDBCConnectionException;
-import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
+import org.hibernate.tool.schema.TargetType;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -77,40 +79,34 @@ public class HibernateEngine {
 
 
     /** initialises hibernate and the required tables */
-    private void initialise(Set<Class> classes, Properties props) throws HibernateException {
-        try {
-            Configuration _cfg = new Configuration();
-
-            // if props supplied, use them instead of hibernate.properties
-            if (props != null) {
-                _cfg.setProperties(props);
-            }
-
-            // add each persisted class to config
-            for (Class persistedClass : classes) {
-                _cfg.addClass(persistedClass);
-            }
-
-           // get a session context
-            _factory = _cfg.buildSessionFactory(new StandardServiceRegistryBuilder().build());
-
-            // check tables exist and are of a matching format to the persisted objects
-            new SchemaUpdate(_cfg).execute(false, true);
-
+    private void initialise(Set<Class> classes, Properties props) {
+        StandardServiceRegistryBuilder standardRegistryBuilder = new StandardServiceRegistryBuilder()
+            .configure();
+        if (props != null) {
+            standardRegistryBuilder.applySettings(props);
         }
-        catch (MappingException me) {
-            _log.error("Could not initialise database connection.", me);
+        StandardServiceRegistry standardRegistry = standardRegistryBuilder.build();
+
+        MetadataSources metadataSources = new MetadataSources(standardRegistry);
+        for (Class clazz : classes) {
+            metadataSources.addClass(clazz);
         }
+
+        Metadata metadata = metadataSources.buildMetadata();
+        _factory = metadata.buildSessionFactory();
+
+        EnumSet<TargetType> targetTypes = EnumSet.of(TargetType.DATABASE);
+        new SchemaUpdate().execute(targetTypes, metadata);
     }
+
 
 
     /** @return true if a table of 'tableName' currently exists and has at least one row */
     public boolean isAvailable(String tableName) {
         try {
-            Session session = _factory.getCurrentSession();
             getOrBeginTransaction();
-            Query query = session.createQuery("from " + tableName).setMaxResults(1);
-            boolean hasTable = query.list().size() > 0;
+            Query query = getSession().createQuery("from " + tableName).setMaxResults(1);
+            boolean hasTable = ! query.list().isEmpty();
             commit();
             return hasTable;
         }
@@ -145,22 +141,18 @@ public class HibernateEngine {
      * @return true if persist was successful, false if otherwise
      */
     public boolean exec(Object obj, int action, boolean commit) {
-
         Transaction tx = null;
         try {
-            Session session = _factory.getCurrentSession();
             tx = getOrBeginTransaction();
-
-            if (action == DB_INSERT) session.save(obj);
-            else if (action == DB_UPDATE) updateOrMerge(session, obj);
-            else if (action == DB_DELETE) session.delete(obj);
-
-            if (commit) tx.commit();
-            return true;
+            boolean success = exec(obj, action, tx);
+            if (success && commit) {
+                commit();
+            }
+            return success;
         }
         catch (HibernateException he) {
-            _log.error("Handled Exception: Error persisting object (" + actionToString(action) +
-                    "): " + obj.toString(), he);
+            _log.error("Handled Exception: Error accessing transaction (" +
+                    actionToString(action) + "): " + obj.toString(), he);
             if (tx != null) tx.rollback();
             return false;
         }
@@ -177,9 +169,8 @@ public class HibernateEngine {
      * @return true if persist was successful, false if otherwise
      */
     public boolean exec(Object obj, int action, Transaction tx) {
-
         try {
-            Session session = _factory.getCurrentSession();
+            Session session = getSession();
             if (action == DB_INSERT) session.save(obj);
             else if (action == DB_UPDATE) updateOrMerge(session, obj);
             else if (action == DB_DELETE) session.delete(obj);
@@ -187,8 +178,8 @@ public class HibernateEngine {
             return true;
         }
         catch (HibernateException he) {
-            _log.error("Handled Exception: Error persisting object (" + actionToString(action) +
-                    "): " + obj.toString(), he);
+            _log.error("Handled Exception: Error persisting object (" +
+                    actionToString(action) + "): " + obj.toString(), he);
             if (tx != null) tx.rollback();
             return false;
         }
@@ -209,8 +200,10 @@ public class HibernateEngine {
 
     public Transaction getOrBeginTransaction() {
         try {
-           Transaction tx = _factory.getCurrentSession().getTransaction();
-           return ((tx != null) && tx.isActive()) ? tx : beginTransaction();
+            Transaction tx = getSession().getTransaction();
+            _log.debug("Transaction GET tx = {}; isActive = {}",
+                    tx, (tx != null && tx.isActive()));
+            return ((tx != null) && tx.isActive()) ? tx : beginTransaction();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error creating or getting transaction", he);
@@ -220,23 +213,22 @@ public class HibernateEngine {
 
 
     /**
-     * executes a Query object based on the sql string passed
-     * @param queryString - the sql query to execute
+     * executes a Query object based on the hql string passed
+     * @param queryString - the hibernate query to execute
      * @return the List of objects returned, or null if the query has some problem
      */
     public List execQuery(String queryString) {
-
         List result = null;
         Transaction tx = null;
         try {
-            Session session = _factory.getCurrentSession();
             tx = getOrBeginTransaction();
-            Query query = session.createQuery(queryString);
+            Query query = getSession().createQuery(queryString);
             if (query != null) result = query.list();
         }
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +
-                    "starting with an empty dataset");
+                    "continuing with an empty dataset");
+            if (tx != null) tx.rollback();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error executing query: " + queryString, he);
@@ -244,7 +236,35 @@ public class HibernateEngine {
         }
 
         return result;
-     }
+    }
+
+
+    /**
+     * executes a plain SQL Query
+     * @param queryString - the SQL query to execute
+     * @return the List of objects returned, or null if the query has some problem
+     */
+    public List execSQLQuery(String queryString) {
+        List result = null;
+        Transaction tx = null;
+        try {
+            tx = getOrBeginTransaction();
+            Query query = getSession().createSQLQuery(queryString);
+            if (query != null) result = query.list();
+            commit();
+        }
+        catch (JDBCConnectionException jce) {
+            _log.error("Caught Exception: Couldn't connect to datasource - " +
+                    "starting with an empty dataset");
+            if (tx != null) tx.rollback();
+        }
+        catch (HibernateException he) {
+            _log.error("Caught Exception: Error executing query: " + queryString, he);
+            rollback();
+        }
+
+        return result;
+    }
 
 
     public int execUpdate(String queryString) {
@@ -256,10 +276,9 @@ public class HibernateEngine {
         int result = -1;
         Transaction tx = null;
         try {
-            Session session = _factory.getCurrentSession();
             tx = getOrBeginTransaction();
-            result = session.createQuery(queryString).executeUpdate();
-            if (commit) tx.commit();
+            result = getSession().createQuery(queryString).executeUpdate();
+            if (commit) commit();
         }
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +
@@ -277,9 +296,8 @@ public class HibernateEngine {
     public Query createQuery(String queryString) {
         Transaction tx = null;
         try {
-            Session session = _factory.getCurrentSession();
             tx = getOrBeginTransaction();
-            return session.createQuery(queryString);
+            return getSession().createQuery(queryString);
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error creating query: " + queryString, he);
@@ -290,26 +308,59 @@ public class HibernateEngine {
 
 
     public Transaction beginTransaction() {
-        return _factory.getCurrentSession().beginTransaction();
+        return getSession().beginTransaction();
     }
 
 
     public Object load(Class claz, Serializable key) {
+        return load(claz, key, true);
+    }
+
+    public Object load(Class claz, Serializable key, boolean doCommit) {
         getOrBeginTransaction();
-        return _factory.getCurrentSession().load(claz, key);
+        Object result = getSession().load(claz, key);
+        Hibernate.initialize(result);
+        if (doCommit) commit();
+        return result;
     }
 
 
     public Object get(Class claz, Serializable key) {
-        getOrBeginTransaction();
-        return _factory.getCurrentSession().get(claz, key);
+        return get(claz, key, true);
     }
 
-    
+    public Object get(Class claz, Serializable key, boolean doCommit) {
+        getOrBeginTransaction();
+        Object result = getSession().get(claz, key);
+        Hibernate.initialize(result);
+        if (doCommit) commit();
+        return result;
+    }
+
+
+    public List getByCriteria(Class claz, Criterion... criteria) {
+        return getByCriteria(claz, true, criteria);
+    }
+
+    public List getByCriteria(Class claz, boolean commit, Criterion... criteria) {
+        getOrBeginTransaction();
+        Criteria c = getSession().createCriteria(claz);
+        for (Criterion criterion : criteria) {
+            c.add(criterion);
+        }
+        List result = c.list();
+        if (commit) commit();
+        return result;
+    }
+
+
     public void commit() {
         try {
-           Transaction tx = _factory.getCurrentSession().getTransaction();
-           if ((tx != null) && tx.isActive()) tx.commit();
+            Transaction tx = getSession().getTransaction();
+            if ((tx != null) && tx.isActive()) {
+                _log.debug("Transaction COMMIT tx: " + tx);
+                tx.commit();
+            }
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error committing transaction", he);
@@ -319,8 +370,8 @@ public class HibernateEngine {
 
     public void rollback() {
         try {
-           Transaction tx = _factory.getCurrentSession().getTransaction();
-           if ((tx != null) && tx.isActive()) tx.rollback();
+            Transaction tx = getSession().getTransaction();
+            if ((tx != null) && tx.isActive()) tx.rollback();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error rolling back transaction", he);
@@ -330,14 +381,6 @@ public class HibernateEngine {
 
     public void closeFactory() {
         if (_factory != null) {
-            if (_factory instanceof SessionFactoryImpl) {
-               SessionFactoryImpl sf = (SessionFactoryImpl) _factory;
-               ConnectionProvider conn = sf.getConnectionProvider();
-               if (conn instanceof C3P0ConnectionProvider) {
-                 ((C3P0ConnectionProvider)conn).stop();
-               }
-            }
-
             _factory.close();
         }
     }
@@ -423,6 +466,11 @@ public class HibernateEngine {
             case DB_INSERT: result = "insert"; break;
         }
         return result ;
+    }
+    
+    
+    private Session getSession() {
+        return _factory.getCurrentSession();
     }
 
     /****************************************************************************/

@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.simulation;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -12,7 +30,6 @@ import java.util.*;
 class SimulatorProperties {
 
     private YSpecificationID specID;
-    private String serverUrl;
     private YSimulator.SimulationType simType;
     private int caseCount;
     private long interval;
@@ -109,7 +126,8 @@ class SimulatorProperties {
 
     private void parseServer(XNode node) {
         String server = node.getChildText("host");
-        serverUrl = "http://" + (server == null ? "localhost" : server) + YSimulator.DEFAULT_URL;
+        String serverUrl = "http://" + (server == null ? "localhost" : server) +
+                YSimulator.DEFAULT_URL;
         ySimulator.connect(serverUrl);
     }
 
@@ -118,36 +136,24 @@ class SimulatorProperties {
         for (XNode taskNode : tasksNode.getChildren()) {
             String taskID = taskNode.getAttributeValue("id");
             for (XNode resourceNode : taskNode.getChildren()) {
-                Set<String> timeSet = parseTimes(resourceNode);
+                String time = resourceNode.getAttributeValue("time");
+                String deviation = resourceNode.getAttributeValue("deviation");
                 String userID = resourceNode.getAttributeValue("userid");
                 int concurrent = StringUtil.strToInt(
                         resourceNode.getAttributeValue("concurrent"), 1);
                 if (userID != null) {
                     addTaskResource(taskID, ySimulator.getParticipantID(userID),
-                            timeSet, concurrent);
+                            time, deviation, concurrent);
                 } else {
                     String roleName = resourceNode.getAttributeValue("role");
                     if (roleName != null) {
                         for (String pid : ySimulator.getPIDsForRole(roleName)) {
-                            addTaskResource(taskID, pid, timeSet, concurrent);
+                            addTaskResource(taskID, pid, time, deviation, concurrent);
                         }
                     }
                 }
             }
         }
-    }
-
-    private Set<String> parseTimes(XNode resourceNode) {
-        Set<String> times = new HashSet<String>();
-        String time = resourceNode.getAttributeValue("time");
-        if (time != null) {
-            times.add(time);
-        } else {
-            for (XNode timeNode : resourceNode.getChildren("time")) {
-                times.add(timeNode.getText());
-            }
-        }
-        return times;
     }
 
 
@@ -190,16 +196,22 @@ class SimulatorProperties {
     }
 
 
-    private void addTaskResource(String taskID, String pid, Set<String> timeSet,
-                                 int concurrent) {
+    private void addTaskResource(String taskID, String pid, String time,
+                                 String deviation, int concurrent) {
+        int iTime = StringUtil.strToInt(time, -1);
+        if (iTime < 0) ySimulator.fail("Invalid time value for resource: " +
+                    taskID + ", " + pid + ", " + iTime);
+        int iDeviation = StringUtil.strToInt(deviation, 0);
+        if (iDeviation < 0) ySimulator.fail("Invalid deviation value for resource: " +
+                    taskID + ", " + pid + ", " + iDeviation);
+        if (iDeviation > iTime) ySimulator.fail(
+                "Deviation value exceeds time value for resource: " +
+                    taskID + ", " + pid + ", " + iDeviation);
+
         TaskResourceSettings resourceSettings = new TaskResourceSettings();
         resourceSettings.setConcurrent(concurrent);
-        for (String timeStr : timeSet) {
-            int time = StringUtil.strToInt(timeStr, -1);
-            if (time < 0) ySimulator.fail("Invalid time value for resource: " +
-                    taskID + ", " + pid + ", " + timeStr);
-            resourceSettings.addTiming(time);
-        }
+        resourceSettings.addTiming(iTime, iDeviation);
+
         Map<String, TaskResourceSettings> timeMap = tasks.get(taskID);
         if (timeMap == null) {
             timeMap = new Hashtable<String, TaskResourceSettings>();
@@ -214,6 +226,7 @@ class SimulatorProperties {
         resources.put(pid, null);
     }
 
+    
     protected TaskResourceSettings getResourceSettings(String task, String pid) {
         Map<String, TaskResourceSettings> settingsMap = tasks.get(task);
         return (settingsMap != null) ? settingsMap.get(pid) : null;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -24,12 +24,12 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -47,7 +47,7 @@ import java.util.Enumeration;
  *
  * @author Michael Adams (refactored for v2.0, 06/2008; 12/2008)
  */
-public class InterfaceA_EngineBasedServer extends HttpServlet {
+public class InterfaceA_EngineBasedServer extends YHttpServlet {
     private EngineGateway _engine;
     private static final Logger logger = LogManager.getLogger(InterfaceA_EngineBasedServer.class);
 
@@ -74,6 +74,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if ("HEAD".equals(request.getMethod())) return;
         doPost(request, response);                       // all gets redirected as posts
     }
 
@@ -107,6 +108,10 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
         try {
             debug(request, "Post");
+            
+            if (_engine.isRedundantMode() && ! isAllowedRedundantAction(action)) {
+                return fail("Engine is in redundant mode, unable to process requests");
+            }
 
             if (action != null) {
                 if ("connect".equals(action)) {
@@ -166,6 +171,19 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 else if ("getExternalDBGateways".equals(action)) {
                     msg.append(_engine.getExternalDBGateways(sessionHandle));
                 }
+                else if ("reannounceEnabledWorkItems".equals(action)) {
+                    msg.append(_engine.reannounceEnabledWorkItems(sessionHandle));
+                }
+                else if ("reannounceExecutingWorkItems".equals(action)) {
+                     msg.append(_engine.reannounceExecutingWorkItems(sessionHandle));
+                 }
+                else if ("reannounceFiredWorkItems".equals(action)) {
+                     msg.append(_engine.reannounceFiredWorkItems(sessionHandle));
+                 }
+                else if ("reannounceWorkItem".equals(action)) {
+                     String itemID = request.getParameter("id");
+                     msg.append(_engine.reannounceWorkItem(itemID, sessionHandle));
+                 }
                 else if ("unload".equals(action)) {
                     String specIdentifier = request.getParameter("specidentifier");
                     String version = request.getParameter("specversion");
@@ -191,10 +209,16 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 else if ("getHibernateStatistics".equals(action)) {
                     msg.append(_engine.getHibernateStatistics(sessionHandle));
                 }
+                else if ("promote".equals(action)) {
+                    msg.append(_engine.promote(sessionHandle));
+                }
+                else if ("demote".equals(action)) {
+                    msg.append(_engine.demote(sessionHandle));
+                }
             }
         }
         catch (Exception e) {
-            logger.error("Exception in Interface B with action: " + action, e);
+            logger.error("Exception in Interface A with action: " + action, e);
         }
         if (msg.length() == 0) {
             msg.append("<failure><reason>Invalid action or exception was thrown." +
@@ -208,14 +232,12 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
     private void debug(HttpServletRequest request, String service) {
         if (logger.isDebugEnabled()) {
-            logger.debug("\nInterfaceA_EngineBasedServer::do{}() request.getRequestURL={}",
-                    service, request.getRequestURL());
-            logger.debug("\nInterfaceA_EngineBasedServer::do{}() request.parameters:",
-                    service);
+            logger.debug("do{}() request.getRequestURL={}", service, request.getRequestURL());
+            logger.debug("do{}() request.parameters:", service);
             Enumeration paramNms = request.getParameterNames();
             while (paramNms.hasMoreElements()) {
                 String name = (String) paramNms.nextElement();
-                logger.debug("\trequest.getParameter({}) = {}", name,request.getParameter(name));
+                logger.debug("request.getParameter({}) = {}", name,request.getParameter(name));
             }
         }
     }

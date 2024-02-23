@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -375,7 +375,7 @@ public class pfOrgData extends AbstractFragmentBean {
             if (hasCyclicReferences(attrib, belongsToID)) return false;
 
             setCommonFields(attrib);
-            String name = toUTF8((String) txtName.getText());
+            String name = _sb.stripXMLChars(toUTF8((String) txtName.getText()));
             if (attrib instanceof Capability) {
                 ((Capability) attrib).setCapability(name);
             }

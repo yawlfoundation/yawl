@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -32,7 +32,7 @@ import java.util.*;
  * Handles the loading, mapping and runtime management of resources from data source.
  *
  * @author Michael Adams
- * @date 4/11/2009 (orginally extracted from ResourceManager class)
+ * @date 4/11/2009 (originally extracted from ResourceManager class)
  */
 
 public class ResourceDataSet {
@@ -1254,7 +1254,7 @@ public class ResourceDataSet {
      * Gets the complete set of Participants that ultimately report to the
      * position(s) held by a Participant
      * @param pid the id of the 'manager' Participant
-     * @return the set of Particpants 'managed' by this Participant
+     * @return the set of Participants 'managed' by this Participant
      */
     public Set<Participant> getParticipantsReportingTo(String pid) {
         Set<Participant> result = new HashSet<Participant>() ;
@@ -1268,9 +1268,9 @@ public class ResourceDataSet {
 
 
     /**
-     * Gets the set of Participants the ultimately report to the Position passed
+     * Gets the set of Participants that ultimately report to the Position passed
      * @param manager the 'manager' Position
-     * @return the set of Particpants 'managed' by this Position
+     * @return the set of Participants 'managed' by this Position
      */
     public Set<Participant> getParticipantsReportingToPosition(Position manager) {
         Set<Participant> result = new HashSet<Participant>() ;

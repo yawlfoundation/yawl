@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,15 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  *  An event log file implementation.
@@ -37,6 +30,8 @@ import java.util.Date;
 
 public class EventLogger {
 
+    private static long lastID = 0;
+
     // event type descriptors
     public static final String eCheckOut = "CheckOutWorkItem";
     public static final String eDecline = "DeclineWorkItem";
@@ -46,15 +41,6 @@ public class EventLogger {
     public static final String eCancel = "WorkletCancelled";
     public static final String eComplete = "WorkletCompleted";
 
-    // path to eventlog csv file
-    private static final String _logPath = Library.wsLogsDir + "eventLog.csv" ;
-
-    // date format for the eventlog
-    private	static SimpleDateFormat _sdfe  = new SimpleDateFormat (
-            "yyyy.MM.dd hh:mm:ss:SS");
-
-
-//===========================================================================//
 
     /**
      *  writes an event to the event log
@@ -65,57 +51,45 @@ public class EventLogger {
      *  @param parentCaseId - the case id of the original workitem
      *  @param xType - the reason for raising a worklet case (maps to WorkletService.XTYPE)
      */
-    public static void log(String event, String caseId,
+    public static boolean log(String event, String caseId,
                            YSpecificationID specId, String taskId,
                            String parentCaseId, int xType) {
 
         if (Persister.getInstance().isPersisting()) {
-            Persister.insert(new WorkletEvent(event, caseId, specId, taskId,
+            return Persister.insert(new WorkletEvent(getNextID(), event, caseId, specId, taskId,
                                 parentCaseId, xType));
         }
-        else {
-            logToCSV(event, caseId, specId, taskId, parentCaseId, xType);
-        }
+        return false;
     }
 
-
-    /** this version is used to log to a CSV file when persistence is OFF */
-    private static void logToCSV(String event, String caseId, YSpecificationID specId,
-                                 String taskId, String parentCaseId, int xType) {
-        StringBuilder s = new StringBuilder() ;
-        s.append(_sdfe.format(new Date())) ; s.append(",") ;
-        s.append(event); s.append(",") ;
-        s.append(caseId); s.append(",") ;
-        s.append(specId.toString()); s.append(",") ;
-        s.append(taskId); s.append(",") ;
-        s.append(parentCaseId); s.append(",") ;
-        s.append(xType);
-
-        try {
-            PrintWriter pLog = new PrintWriter(new FileWriter(_logPath, true));
-            pLog.println(s.toString()) ;
-            pLog.close() ;
-        }
-        catch (IOException e) {
-            LogManager.getLogger(EventLogger.class).error(
-                    "Exception writing to CSV EventLog", e);
-        }
-    }
-
-//===========================================================================//
 
     /**
      *  writes an event to the event log
      *  @param event - the type of event to log
      *  @param wir - the workitem that triggered the event
      */
-    public static void log(String event, WorkItemRecord wir, int xType) {
-        log(event, wir.getCaseID(), new YSpecificationID(wir),
+    public static boolean log(String event, WorkItemRecord wir, int xType) {
+        return log(event, wir.getCaseID(), new YSpecificationID(wir),
                 wir.getTaskID(), "", xType);
     }
 
-//===========================================================================//
-//===========================================================================//
+
+    /**
+     * This non-native private key generation method is required because:
+     *   - on recursive calls, the original implementation (using currentTimeMillis) was
+     *     producing duplicate keys; and
+     *   - H2 databases do not respond well to changing hibernate's key method from
+     *     assigned to native
+     * @return a id key unique to the eventlog table
+     */
+    private static long getNextID() {
+        long id = System.currentTimeMillis();
+        if (lastID == id) {
+            id += 4;
+        }
+        lastID = id;
+        return id;
+    }
 
 }
 

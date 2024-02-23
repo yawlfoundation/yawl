@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,8 +18,9 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
-import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.component.Calendar;
 import com.sun.rave.web.ui.component.Checkbox;
+import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.component.Label;
 import com.sun.rave.web.ui.component.TextArea;
 import com.sun.rave.web.ui.component.TextField;
@@ -35,9 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Hashtable;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -50,7 +49,7 @@ public class DynFormComponentBuilder {
     private boolean focusSet = false ;
     private DynFormFactory _factory ;
     private DynTextParser _textParser;
-    private Hashtable<UIComponent, DynFormField> _componentFieldTable;
+    private Map<UIComponent, DynFormField> _componentFieldTable;
 
     private int _maxDropDownWidth = 0;
     private int _maxLabelWidth = 0;
@@ -67,7 +66,7 @@ public class DynFormComponentBuilder {
 
     public DynFormComponentBuilder(DynFormFactory factory) {
         _factory = factory;
-        _componentFieldTable = new Hashtable<UIComponent, DynFormField>();
+        _componentFieldTable = new HashMap<UIComponent, DynFormField>();
     }
 
 
@@ -100,7 +99,7 @@ public class DynFormComponentBuilder {
                 spc.setOccursButtonsEnablement();
             }    
         }
-        subPanel.setVisible(! field.hasHideAttribute());
+        subPanel.setVisible(! field.isHidden(_factory.getWorkItemData()));
         return subPanel ;
     }
 
@@ -573,7 +572,7 @@ public class DynFormComponentBuilder {
     }
 
 
-    public Hashtable<UIComponent, DynFormField> getComponentFieldMap() {
+    public Map<UIComponent, DynFormField> getComponentFieldMap() {
         return _componentFieldTable;
     }
 

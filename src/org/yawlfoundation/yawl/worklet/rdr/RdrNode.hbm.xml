@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -23,7 +23,7 @@
 
 <hibernate-mapping>
 
-	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrNode" table="RdrNode"  lazy="false">
+	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrNode" table="RdrNode" lazy="false">
 
 	    <id name="id" column="rdrnodeid" type="long" access="field">
     		<generator class="native"/>
@@ -41,7 +41,7 @@
         <many-to-one name="conclusion" cascade="all"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"/>
 
-        <property name="condition"/>
+        <property name="condition" column="ruleCondition"/>
         <property name="description" type="text"/>
         <property name="cornerstoneString" type="text"/>
 

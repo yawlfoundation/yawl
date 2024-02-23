@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,12 +18,10 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.hibernate.Transaction;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
-import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.Collections;
@@ -134,15 +132,7 @@ public class QueueSet {
     /** instantiates the queue if it is not yet instantiated */
     private void checkQueueExists(int queue) {
         if (isNullQueue(queue)) {
-            WorkQueue newQueue = new WorkQueue(_ownerID, queue, _persisting) ;
-            switch (queue) {
-                case WorkQueue.OFFERED    : _qOffered  = newQueue; break;
-                case WorkQueue.ALLOCATED  : _qAllocated = newQueue; break;
-                case WorkQueue.STARTED    : _qStarted = newQueue; break;
-                case WorkQueue.SUSPENDED  : _qSuspended = newQueue; break;
-                case WorkQueue.WORKLISTED : _qWorklisted = newQueue; break;
-                case WorkQueue.UNOFFERED  : _qUnoffered = newQueue;
-            }
+            setQueue(new WorkQueue(_ownerID, queue, _persisting));
         }
     }
 
@@ -190,8 +180,8 @@ public class QueueSet {
     }
 
 
-    public void removeFromQueue(WorkItemRecord wir, int queue) {
-        if (! isNullQueue(queue)) getQueue(queue).remove(wir);
+    public boolean removeFromQueue(WorkItemRecord wir, int queue) {
+        return ! isNullQueue(queue) && getQueue(queue).remove(wir);
     }
 
     public void removeFromQueue(WorkQueue queueToRemove, int queue) {
@@ -226,6 +216,11 @@ public class QueueSet {
         for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
             if (! isNullQueue(queue)) activeSet.add(getQueue(queue));
         return activeSet;
+    }
+
+    public void refresh(WorkItemRecord wir) {
+        for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
+            if (! isNullQueue(queue)) getQueue(queue).refresh(wir);
     }
 
     public boolean hasWorkItemInQueue(String itemID, int queue) {

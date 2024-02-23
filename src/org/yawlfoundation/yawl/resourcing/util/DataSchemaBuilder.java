@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -22,7 +22,6 @@ import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
@@ -191,6 +190,12 @@ public class DataSchemaBuilder {
 
 
     private Element createDataTypeElement(String varName, String dataType, Namespace defNS) {
+
+        // internal types already have a definition 
+        if (YInternalType.isType(dataType)) {
+            return YInternalType.getSchemaFor(dataType, varName);
+        }
+
         Element element = new Element("element", defNS);
         element.setAttribute("name", varName);
 
@@ -297,6 +302,12 @@ public class DataSchemaBuilder {
     private Element cloneElement(Element element, Namespace defNS) {
         Element cloned = new Element(element.getName(), defNS);
         cloned.setAttributes(cloneAttributes(element, defNS));
+
+        // clone appinfo children literally
+        Element parent = element.getParentElement();
+        if (parent != null && parent.getName().equals("appinfo")) {
+            cloned.setText(element.getText());
+        }
         return cloned;
     }
 
@@ -331,7 +342,9 @@ public class DataSchemaBuilder {
     private String getAttributeValue(Attribute attribute, String prefix, Namespace defNS) {
         String value = attribute.getValue();
         if (prefix.length() > 0) {
-            value = value.replaceFirst(prefix, defNS.getPrefix());
+
+            // adding ':' to handle union member types
+            value = value.replace(prefix + ":", defNS.getPrefix() + ":");
         }
         return value;
     }

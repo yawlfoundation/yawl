@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -24,7 +24,6 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -48,13 +47,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
      */
     private String _serviceURI;
 
-
-    /**
-     * a mapping of parameter names and values
-     */
-    private Map<String, String> params = new HashMap<String, String>();
-
-
+    
     /**
      * empty constructor
      */
@@ -73,45 +66,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
     /*******************************************************************************/
-
-    // GET & POST WRAPPER METHODS //
-
-    /**
-     * a wrapper for the executeGet method
-     *
-     * @param action the name of the gateway method to call
-     * @return the resultant reply String
-     * @throws IOException if the service can't be reached
-     */
-    private String performGet(String action, String handle) throws IOException {
-        return executeGet(_serviceURI, prepareParamMap(action, handle));
-
-    }
-
-    /**
-     * a wrapper for the executeGet method - returns a String
-     *
-     * @param action the name of the gateway method to call
-     * @param map    a map of parameters and values
-     * @param handle an active sessionhandle
-     * @return the resultant reply String
-     * @throws java.io.IOException if there's a problem connecting to the engine
-     */
-    private String performGet(String action, Map<String, String> map, String handle)
-            throws IOException {
-        Map<String, String> params = prepareParamMap(action, handle);
-        if (map != null) params.putAll(map);
-        return executeGet(_serviceURI, params);
-    }
-
-    private String performPost(String action, Map<String, String> map, String handle)
-            throws IOException {
-        Map<String, String> params = prepareParamMap(action, handle);
-        if (map != null) params.putAll(map);
-        return executePost(_serviceURI, params);
-    }
-
-
+    
     private String idListToXML(Set<String> idList) {
         StringBuilder ids = new StringBuilder("<ids>");
         if (idList != null) {
@@ -160,7 +115,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
      * @throws IOException
      */
     public void disconnect(String handle) throws IOException {
-        performPost("disconnect", null, handle);
+        executePost(_serviceURI, prepareParamMap("disconnect", handle));
     }
 
 
@@ -182,17 +137,17 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
 
     public String userlogout(String handle) throws IOException {
-        return performPost("userlogout", null, handle);
+        return executePost(_serviceURI, prepareParamMap("userlogout", handle));
     }
 
 
     public String isValidUserSession(String handle) throws IOException {
-        return performGet("isValidUserSession", handle);
+        return executeGet(_serviceURI, prepareParamMap("isValidUserSession", handle));
     }
 
 
     public String checkConnection(String handle) throws IOException {
-        return performGet("checkConnection", handle);
+        return executeGet(_serviceURI, prepareParamMap("checkConnection", handle));
     }
 
 
@@ -213,65 +168,65 @@ public class WorkQueueGatewayClient extends Interface_Client {
     public String getFullNameForUserID(String userid, String handle) throws IOException {
         String result = null;
         if (userid != null) {
-            params.clear();
+            Map<String, String> params = prepareParamMap("getFullNameForUserID", handle);
             params.put("userid", userid);
-            result = performGet("getFullNameForUserID", params, handle);
+            result = executeGet(_serviceURI, params);
         }
         return result;
     }
 
 
     public String getUserPrivileges(String pid, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getUserPrivileges", handle);
         params.put("participantid", pid);
-        return performGet("getUserPrivileges", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getTaskPrivileges(String itemid, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getTaskPrivileges", handle);
         params.put("workitemid", itemid);
-        return performGet("getTaskPrivileges", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getReportingToParticipant(String pid, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getParticipantsReportingTo", handle);
         params.put("participantid", pid);
-        return performGet("getParticipantsReportingTo", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getOrgGroupMembers(String oid, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getOrgGroupMembers", handle);
         params.put("groupid", oid);
-        return performGet("getOrgGroupMembers", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getRoleMembers(String rid, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getRoleMembers", handle);
         params.put("roleid", rid);
-        return performGet("getRoleMembers", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getParticipant(String pid, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getParticipant", handle);
         params.put("participantid", pid);
-        return performGet("getParticipant", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getAllParticipants(String handle) throws IOException {
-        return performGet("getParticipants", handle);
+        return executeGet(_serviceURI, prepareParamMap("getParticipants", handle));
     }
 
 
     public String getDistributionSet(String itemid, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getDistributionSet", handle);
         params.put("workitemid", itemid);
-        return performGet("getDistributionSet", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
     /**
@@ -280,143 +235,158 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     // QUEUE INFO & MANIPULATION //
     public String getAdminQueues(String handle) throws IOException {
-        return performGet("getAdminQueues", handle);
+        return executeGet(_serviceURI, prepareParamMap("getAdminQueues", handle));
+    }
+
+
+    public String getParticipantQueues(String pid, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantQueues", handle);
+        params.put("participantid", pid);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getQueuedWorkItems(String pid, int queue, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getQueuedWorkItems", handle);
         params.put("participantid", pid);
         params.put("queue", String.valueOf(queue));
-        return performGet("getQueuedWorkItems", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getWorkItem(String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getWorkItem", handle);
         params.put("workitemid", itemID);
-        return performGet("getWorkItem", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getWorkItemChildren(String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getWorkItemChildren", handle);
         params.put("workitemid", itemID);
-        return performGet("getWorkItemChildren", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String updateWorkItemData(String itemID, String data, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("updateWorkItemData", handle);
         params.put("workitemid", itemID);
         params.put("data", data);
-        return performGet("updateWorkItemData", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getWorkItemParameters(String itemID, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getWorkItemParameters", handle);
         params.put("workitemid", itemID);
-        return performGet("getWorkItemParameters", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getWorkItemDataSchema(String itemID, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getWorkItemDataSchema", handle);
         params.put("workitemid", itemID);
-        return performGet("getWorkItemDataSchema", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getCaseDataSchema(YSpecificationID specID, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getCaseDataSchema", handle);
         params.putAll(specID.toMap());
-        return performGet("getCaseDataSchema", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getWorkItemOutputOnlyParameters(String itemID, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getWorkItemOutputOnlyParameters", handle);
         params.put("workitemid", itemID);
-        return performGet("getWorkItemOutputOnlyParameters", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String synchroniseCaches(String handle) throws IOException {
-        return performGet("synchroniseCaches", null, handle);
+        return executeGet(_serviceURI, prepareParamMap("synchroniseCaches", handle));
     }
 
 
     public String getParticipantsAssignedWorkItem(String workItemID, int queueType,
                                                   String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getParticipantsAssignedWorkItem", handle);
         params.put("workitemid", workItemID);
         params.put("queue", String.valueOf(queueType));
-        return performGet("getParticipantsAssignedWorkItem", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String acceptOffer(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("acceptOffer", handle);
         params.put("participantid", pid);
         params.put("workitemid", itemID);
-        return performPost("acceptOffer", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String startItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("startWorkItem", handle);
         params.put("participantid", pid);
         params.put("workitemid", itemID);
-        return performPost("startWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String deallocateItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("deallocateWorkItem", handle);
         params.put("participantid", pid);
         params.put("workitemid", itemID);
-        return performPost("deallocateWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String delegateItem(String pFrom, String pTo, String itemID, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("delegateWorkItem", handle);
         params.put("pfrom", pFrom);
         params.put("pto", pTo);
         params.put("workitemid", itemID);
-        return performPost("delegateWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String skipItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("skipWorkItem", handle);
         params.put("participantid", pid);
         params.put("workitemid", itemID);
-        return performPost("skipWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String pileItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("pileWorkItem", handle);
         params.put("participantid", pid);
         params.put("workitemid", itemID);
-        return performPost("pileWorkItem", params, handle);
+        return executePost(_serviceURI, params);
+    }
+
+
+    public String chainCase(String pid, String itemID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("chainCase", handle);
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return executePost(_serviceURI, params);
     }
 
 
     public String suspendItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("suspendWorkItem", handle);
         params.put("participantid", pid);
         params.put("workitemid", itemID);
-        return performPost("suspendWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
@@ -425,79 +395,108 @@ public class WorkQueueGatewayClient extends Interface_Client {
         if (pFrom == null) {
             return reallocateItem(pTo, itemID, handle);    // admin queue realloc
         }
-        params.clear();
+        String action = stateful ? "reallocateStatefulWorkItem" : "reallocateStatelessWorkItem";
+        Map<String, String> params = prepareParamMap(action, handle);
         params.put("pfrom", pFrom);
         params.put("pto", pTo);
         params.put("workitemid", itemID);
-        if (stateful)
-            return performPost("reallocateStatefulWorkItem", params, handle);
-        else
-            return performPost("reallocateStatelessWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String completeItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("completeWorkItem", handle);
         params.put("participantid", pid);
         params.put("workitemid", itemID);
-        return performPost("completeWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String unsuspendItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("unsuspendWorkItem", handle);
         params.put("participantid", pid);
         params.put("workitemid", itemID);
-        return performPost("unsuspendWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String offerItem(Set<String> pids, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("offerWorkItem", handle);
         params.put("participantids", idListToXML(pids));
         params.put("workitemid", itemID);
-        return performPost("offerWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String reofferItem(Set<String> pids, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("reofferWorkItem", handle);
         params.put("participantids", idListToXML(pids));
         params.put("workitemid", itemID);
-        return performPost("reofferWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String allocateItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("allocateWorkItem", handle);
         params.put("participantids", idStringToXML(pid));
         params.put("workitemid", itemID);
-        return performPost("allocateWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String reallocateItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("reallocateWorkItem", handle);
         params.put("participantids", idStringToXML(pid));
         params.put("workitemid", itemID);
-        return performPost("reallocateWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String restartItem(String pid, String itemID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("restartWorkItem", handle);
         params.put("participantids", idStringToXML(pid));
         params.put("workitemid", itemID);
-        return performPost("restartWorkItem", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String redirectWorkItemToYawlService(String itemID, String serviceName,
                                                 String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("redirectWorkItemToYawlService", handle);
         params.put("workitemid", itemID);
         params.put("serviceName", serviceName);
-        return performPost("redirectWorkItemToYawlService", params, handle);
+        return executePost(_serviceURI, params);
+    }
+
+
+    public String getChainedCases(String pid, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getChainedCases", handle);
+        params.put("participantid", pid);
+        return executeGet(_serviceURI, params);
+    }
+
+
+    public String getPiledItems(String pid, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getPiledItems", handle);
+        params.put("participantid", pid);
+        return executeGet(_serviceURI, params);
+    }
+
+
+    public String unchainCase(String caseID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("unchainCase", handle);
+        params.put("caseid", caseID);
+        return executePost(_serviceURI, params);
+    }
+
+
+    public String unpileTask(YSpecificationID specID, String taskID, String pid,
+                             String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("unpileTask", handle);
+        params.putAll(specID.toMap());
+        params.put("taskid", taskID);
+        params.put("participantid", pid);
+        return executePost(_serviceURI, params);
     }
 
 
@@ -507,89 +506,89 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     // SPEC AND INSTANCE ACTIONS //
     public String getLoadedSpecs(String handle) throws IOException {
-        return performGet("getLoadedSpecs", handle);
+        return executeGet(_serviceURI, prepareParamMap("getLoadedSpecs", handle));
     }
 
 
     public String getSpecList(String handle) throws IOException {
-        return performGet("getSpecList", handle);
+        return executeGet(_serviceURI, prepareParamMap("getSpecList", handle));
     }
 
 
     public String getSpecData(YSpecificationID specID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getSpecData", handle);
         params.putAll(specID.toMap());
-        return performGet("getSpecData", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String uploadSpecification(String fileContents, String fileName, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("uploadSpecification", handle);
         params.put("filecontents", fileContents);
         params.put("filename", fileName);
-        return performPost("uploadSpecification", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String unloadSpecification(YSpecificationID specID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("unloadSpecification", handle);
         params.putAll(specID.toMap());
-        return performPost("unloadSpecification", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String launchCase(YSpecificationID specID, String caseData, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("launchCase", handle);
         params.putAll(specID.toMap());
         params.put("casedata", caseData);
-        return performPost("launchCase", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String getRunningCases(YSpecificationID specID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getRunningCases", handle);
         params.putAll(specID.toMap());
-        return performGet("getRunningCases", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String cancelCase(String caseID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("cancelCase", handle);
         params.put("caseid", caseID);
-        return performPost("cancelCase", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String updateWIRCache(WorkItemRecord wir, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("updateWorkItemCache", handle);
         params.put("wir", wir.toXML());
-        return performPost("updateWorkItemCache", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String getDecompID(WorkItemRecord wir, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getDecompID", handle);
         params.put("workitemid", wir.getID());
-        return performGet("getDecompID", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
     public String getCaseData(String caseID, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getCaseData", handle);
         params.put("caseid", caseID);
-        return performGet("getCaseData", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
     public String getWorkItemDurationsForParticipant(YSpecificationID specID,
                                                      String taskName, String pid, String handle)
             throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getWorkItemDurationsForParticipant", handle);
         params.putAll(specID.toMap());
         params.put("taskname", taskName);
         params.put("participantid", pid);
-        return performGet("getWorkItemDurationsForParticipant", params, handle);
+        return executeGet(_serviceURI, params);
     }
 
 
@@ -599,27 +598,55 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     // REGISTERED SERVICE INFO //
     public String getRegisteredServices(String handle) throws IOException {
-        return performGet("getRegisteredServices", handle);
+        return executeGet(_serviceURI, prepareParamMap("getRegisteredServices", handle));
     }
 
 
     public String removeRegisteredService(String id, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("removeRegisteredService", handle);
         params.put("serviceid", id);
-        return performPost("removeRegisteredService", params, handle);
+        return executePost(_serviceURI, params);
     }
 
 
     public String addRegisteredService(String uri, String name, String password, String doco,
                                        boolean assignable, String handle) throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("addRegisteredService", handle);
         params.put("uri", uri);
         params.put("name", name);
         params.put("password", password);
         params.put("doco", doco);
         params.put("assignable", String.valueOf(assignable));
-        return performPost("addRegisteredService", params, handle);
+        return executePost(_serviceURI, params);
     }
 
+    public String removeExternalClient(String id, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeExternalClient", handle);
+        params.put("name", id);
+        return executePost(_serviceURI, params);
+    }
+
+
+    public String addExternalClient(String name, String password, String doco, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("addExternalClient", handle);
+        params.put("name", name);
+        params.put("password", password);
+        params.put("doco", doco);
+        return executePost(_serviceURI, params);
+    }
+
+    public String addResourceEventListener(String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("addResourceEventListener", handle);
+        params.put("uri", uri);
+        return executePost(_serviceURI, params);
+    }
+
+
+    public String removeResourceEventListener(String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeResourceEventListener", handle);
+        params.put("uri", uri);
+        return executePost(_serviceURI, params);
+    }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -374,6 +374,50 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         return executePost(_backEndURIStr, params);
     }
 
+
+    /**
+     * Causes the engine to re-announce all workitems which are in an "enabled" state.<P>
+     *
+     * @return The number of enabled workitems that were reannounced
+     */
+    public String reannounceEnabledWorkItems(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("reannounceEnabledWorkItems", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+    /**
+     * Causes the engine to re-announce all workitems which are in an "executing" state.<P>
+     *
+     * @return The number of executing workitems that were reannounced
+     */
+    public String reannounceExecutingWorkItems(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("reannounceExecutingWorkItems", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+    /**
+     * Causes the engine to re-announce all workitems which are in an "fired" state.<P>
+     *
+     * @return The number of fired workitems that were reannounced
+     */
+    public String reannounceFiredWorkItems(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("reannounceFiredWorkItems", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+    /**
+     * Causes the engine to re-announce a specific workitem in one of the following states:
+     * <li>Enabled
+     * <li>Executing
+     * <li>Fired
+     */
+    public String reannounceWorkItem(String itemID, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("reannounceWorkItem", sessionHandle);
+        params.put("id", itemID);
+        return executeGet(_backEndURIStr, params);
+    }
+
+
     public String getBuildProperties(String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getBuildProperties", sessionHandle);
         return executeGet(_backEndURIStr, params);
@@ -402,6 +446,16 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("getHibernateStatistics", sessionHandle);
         return executeGet(_backEndURIStr, params);
     }
+
+    public String promote(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("promote", sessionHandle);
+        return executePost(_backEndURIStr, params);
+    }
+
+    public String demote(String sessionHandle) throws IOException {
+         Map<String, String> params = prepareParamMap("demote", sessionHandle);
+         return executePost(_backEndURIStr, params);
+     }
 
 
 }

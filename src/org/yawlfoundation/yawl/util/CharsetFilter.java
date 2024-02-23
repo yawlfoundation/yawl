@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -19,6 +19,8 @@
 package org.yawlfoundation.yawl.util;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -39,6 +41,15 @@ public class CharsetFilter implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain next)
             throws IOException, ServletException {
+
+        // security check: suppress stack trace if faces path browsed
+        String requestURI = ((HttpServletRequest) request).getRequestURI();
+        if (requestURI != null && 
+                requestURI.contains("/faces/") && requestURI.endsWith("/")) {
+            ((HttpServletRequest) request).getSession();
+            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
         // Respect the client-specified character encoding
         // (see HTTP specification section 3.4.1)

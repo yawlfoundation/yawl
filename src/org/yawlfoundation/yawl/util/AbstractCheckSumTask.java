@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.util;
 
 import org.apache.tools.ant.BuildException;
@@ -10,8 +28,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Michael Adams
@@ -23,6 +39,7 @@ public abstract class AbstractCheckSumTask extends Task {
     private String _antToDir;
     private String _antToFile;
     private String _antAppName;
+    protected String _antLocations;
     private List<String> _antIncludes;
     private List<String> _antExcludes;
     private Project _project;
@@ -32,9 +49,8 @@ public abstract class AbstractCheckSumTask extends Task {
     private static final SimpleDateFormat DATE_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    protected static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     protected static final String COMMENT =
-           "<!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->";
+           "This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE";
 
 
     // these setters are called from the Ant task
@@ -53,6 +69,8 @@ public abstract class AbstractCheckSumTask extends Task {
     public void setExcludes(String excludes) {
         _antExcludes = toList(excludes);
     }
+
+    public void setLocations(String locations) { _antLocations = locations; }
 
 
     protected String getAppName() { return _antAppName; }
@@ -182,6 +200,37 @@ public abstract class AbstractCheckSumTask extends Task {
 
     private String removeLastChar(String s) {
         return s.substring(0, s.length()-1);
+    }
+
+
+    /**************************************************************************/
+
+    protected abstract class FileLocations {
+
+        protected XNode paths = new XNode("paths");    // default
+        protected Map<String, String> locations = new HashMap<String, String>();
+
+        public FileLocations(String fileName) {
+            if (fileName != null) {
+                String xml = StringUtil.fileToString(fileName);
+                if (xml != null) {
+                    XNode root = new XNodeParser().parse(xml);
+                    if (root != null) {
+                        paths = root.getChild("paths");
+                        loadLocations(root);
+                    }
+                }
+            }
+        }
+
+        public XNode getPaths() { return paths; }
+
+        public String get(String fileName) {
+            String path = locations.get(fileName);
+            return path != null ? path : "";
+        }
+
+        public abstract void loadLocations(XNode root);
     }
 
 }

@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema3.0.xsd">
+  <specification uri="SendReminder">
+    <name>SendReminder</name>
+    <documentation>Simple follow up request after timeout</documentation>
+    <metaData>
+      <title>SendReminder</title>
+      <creator>Adams</creator>
+      <description>Simple follow up request after timeout</description>
+      <version>0.6</version>
+      <persistent>false</persistent>
+      <identifier>UID_7f12c563-d237-4c41-9586-258eea4ace4d</identifier>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="SendReminder" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>3</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>4</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>3</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>4</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <processControlElements>
+        <inputCondition id="InputCondition">
+          <flowsInto>
+            <nextElementRef id="Send_Request" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Send_Request">
+          <name>Send</name>
+          <flowsInto>
+            <nextElementRef id="Receive_Reply" />
+            <isDefaultFlow />
+          </flowsInto>
+          <join code="xor" />
+          <split code="xor" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Item&gt;{/SendReminder/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Cost&gt;{/SendReminder/Cost/text()}&lt;/Cost&gt;" />
+              <mapsTo>Cost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/SendReminder/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Name&gt;{/Send_Request/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Cost&gt;{/Send_Request/Cost/text()}&lt;/Cost&gt;" />
+              <mapsTo>Cost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Item&gt;{/Send_Request/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="Send_Request" />
+        </task>
+        <task id="Receive_Reply">
+          <name>Receive</name>
+          <flowsInto>
+            <nextElementRef id="Archive" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Paid&gt;{/SendReminder/Paid/text()}&lt;/Paid&gt;" />
+              <mapsTo>Paid</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Item&gt;{/SendReminder/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;OrderNum&gt;{/SendReminder/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/SendReminder/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;OrderNum&gt;{/Receive_Reply/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Item&gt;{/Receive_Reply/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Paid&gt;{/Receive_Reply/Paid/text()}&lt;/Paid&gt;" />
+              <mapsTo>Paid</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/Receive_Reply/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </completedMappings>
+          <timer>
+            <trigger>OnExecuting</trigger>
+            <duration>PT5S</duration>
+          </timer>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="Receive_Reply" />
+        </task>
+        <task id="Archive">
+          <name>Archive</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition" />
+          </flowsInto>
+          <join code="and" />
+          <split code="and" />
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="Archive" />
+        </task>
+        <outputCondition id="OutputCondition" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Archive" xsi:type="WebServiceGatewayFactsType">
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="Receive_Reply" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>3</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>3</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="Send_Request" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+  </specification>
+  <layout>
+    <locale language="en" country="AU"/>
+    <specification id="SendReminder" defaultBgColor="-526351">
+      <size w="69" h="26"/>
+      <net id="SendReminder" bgColor="-526351">
+        <bounds x="0" y="0" w="901" h="445"/>
+        <frame x="0" y="0" w="904" h="448"/>
+        <viewport x="0" y="0" w="904" h="448"/>
+        <vertex id="OutputCondition">
+          <attributes>
+            <bounds x="480" y="33" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="33" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <container id="Archive">
+          <vertex>
+            <attributes>
+              <bounds x="384" y="33" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="352" y="65" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="Receive_Reply">
+          <vertex>
+            <attributes>
+              <bounds x="256" y="33" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="224" y="67" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="Send_Request">
+          <vertex>
+            <attributes>
+              <bounds x="128" y="33" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="96" y="65" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <flow source="Receive_Reply" target="Archive">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="287" y="39.5"/>
+              <value x="384" y="39.5"/>
+            </points>
+          </attributes>
+        </flow>
+        <flow source="Archive" target="OutputCondition">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="415" y="39.5"/>
+              <value x="480" y="39.5"/>
+            </points>
+          </attributes>
+        </flow>
+        <flow source="Send_Request" target="Receive_Reply">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="159" y="39.5"/>
+              <value x="256" y="39.5"/>
+            </points>
+          </attributes>
+        </flow>
+        <flow source="InputCondition" target="Send_Request">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="63" y="39.5"/>
+              <value x="128" y="39.5"/>
+            </points>
+          </attributes>
+        </flow>
+      </net>
+      <labelFontSize>14</labelFontSize>
+    </specification>
+  </layout>
+</specificationSet>

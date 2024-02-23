@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -31,9 +32,7 @@ import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This adapter class adds a transformation layer to the resource gateway client,
@@ -66,6 +65,8 @@ public class WorkQueueGatewayClientAdapter {
     }
 
     public String getClientURI() { return _uri; }
+
+    public WorkQueueGatewayClient getClient() { return _wqclient; }
 
 
     public boolean successful(String result) {
@@ -308,6 +309,16 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public QueueSet getParticipantQueues(String pid, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = _wqclient.getParticipantQueues(pid, handle);
+        successCheck(xml);
+        QueueSet result = new QueueSet(pid, QueueSet.setType.participantSet, false);
+        result.fromXML(xml);
+        return result;
+    }
+
+
     public Set<WorkItemRecord> getQueuedWorkItems(String pid, int queue, String handle)
             throws IOException, ResourceGatewayException {
         String xml = _wqclient.getQueuedWorkItems(pid, queue, handle);
@@ -418,6 +429,12 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public String chainCase(String pid, String itemID, String handle)
+             throws IOException, ResourceGatewayException {
+         return successCheck(_wqclient.chainCase(pid, itemID, handle));
+     }
+
+
     public String suspendItem(String pid, String itemID, String handle)
             throws IOException, ResourceGatewayException {
         return successCheck(_wqclient.suspendItem(pid, itemID, handle));
@@ -459,6 +476,37 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public Set<String> getChainedCases(String pid, String handle)
+                throws IOException, ResourceGatewayException {
+        String xml = successCheck(_wqclient.getChainedCases(pid, handle));
+        XNode root = new XNodeParser().parse(xml);
+        if (root != null) {
+            Set<String> caseSet = new HashSet<>();
+            root.getChildren().forEach(node -> caseSet.add(node.getText()));
+            return caseSet;
+        }
+        return Collections.emptySet();
+    }
+
+
+    public String getPiledItems(String pid, String handle)
+                    throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.getPiledItems(pid, handle));
+    }
+
+
+    public String unchainCase(String caseID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.unchainCase(caseID, handle));
+    }
+
+
+    public String unpileTask(YSpecificationID specID, String taskID, String pid, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.unpileTask(specID, taskID, pid, handle));
+    }
+
+    
     public String redirectWorkItemToYawlService(String itemID, String serviceName,
                                                 String handle)
             throws IOException, ResourceGatewayException {
@@ -466,6 +514,7 @@ public class WorkQueueGatewayClientAdapter {
                 serviceName, handle));
     }
 
+    
     /**
      * ****************************************************************************
      */
@@ -561,6 +610,29 @@ public class WorkQueueGatewayClientAdapter {
         return _wqclient.addRegisteredService(service.getURI(), service.get_serviceName(),
                 service.getPassword(), service.getDocumentation(), service.isAssignable(),
                 handle);
+    }
+
+
+    public String removeExternalClient(String id, String handle) throws IOException {
+        return _wqclient.removeExternalClient(id, handle);
+    }
+
+
+    public String addExternalClient(YExternalClient client, String handle)
+            throws IOException {
+        return _wqclient.addExternalClient(client.getUserName(),
+                client.getPassword(), client.getDocumentation(),  handle);
+    }
+
+
+
+    public boolean addResourceEventListener(String uri, String handle) throws IOException {
+        return successful(_wqclient.addResourceEventListener(uri, handle));
+    }
+
+
+    public boolean removeResourceEventListener(String uri, String handle) throws IOException {
+        return successful(_wqclient.removeResourceEventListener(uri, handle));
     }
 
 }

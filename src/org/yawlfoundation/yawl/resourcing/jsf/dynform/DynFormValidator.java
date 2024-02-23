@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -119,22 +119,28 @@ public class DynFormValidator {
 
 
     private boolean validateField(FieldBase field) {
-        boolean result;
+        boolean result = true;
         String text = (String) field.getText();
         DynFormField input = _componentFieldLookup.get(field);
-        if ((input != null) && (! input.hasSkipValidationAttribute())) {
-            if (isTimerExpiryField(input))
-                result = validateExpiry(input, text);
-            else
-                result = validateField(input, text);
+        if (input != null) {
+            if (! input.hasSkipValidationAttribute()) {
+                result = isTimerExpiryField(input) ? validateExpiry(input, text) :
+                        validateField(input, text);
+            }
         }
         else {
 
             // strip type out of tooltip - this construct was necessary
             // since the whole string is passed with an offset, causing
             // equals to fail in the validateField method
-            String type = new String(field.getToolTip().split(" ")[5]);
-            result = validateBase(field.getId(), type, text, true);
+            String toolTip = field.getToolTip();
+            if (toolTip != null) {
+                String[] parts = toolTip.split("\\s+");
+                if (parts.length > 5) {
+                    String type = parts[5];
+                    result = validateBase(field.getId(), type, text, true);
+                }
+            }
         }
         field.setStyleClass(getStyleClass(input, result));
 

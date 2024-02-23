@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -43,12 +43,27 @@
         </component>
 
         <property name="_wirID" column="wirID" access="field"/>
+        
+        <property name="_parentCaseID" column="parentCaseID" access="field"/>
+        <property name="_ruleNodeId"  column="ruleNodeId" type="long" access="field"/>
+
+        <component name="_parentSpecID" access="field"
+                   class="org.yawlfoundation.yawl.engine.YSpecificationID">
+            <property name="identifier" column="parentSpecID"/>
+            <component name="version"
+                       class="org.yawlfoundation.yawl.elements.YSpecVersion">
+                <property name="version" column="parentSpecVersion"/>
+            </component>
+            <property name="uri" column="parentSpecURI"/>
+        </component>
 
         <property name="_ruleType" column="ruleType" access="field">
             <type name="org.hibernate.type.EnumType">
                 <param name="enumClass">org.yawlfoundation.yawl.worklet.rdr.RuleType</param>
             </type>
         </property>
+
+        <property name="wirString"     type="text"/>
 
     </class>
 	

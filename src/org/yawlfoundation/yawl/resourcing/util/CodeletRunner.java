@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletExecutionException;
+import org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask;
 
 import java.util.List;
 
@@ -41,12 +42,15 @@ public class CodeletRunner implements Runnable {
     private TaskInformation _taskInfo;
     private AbstractCodelet _codelet;
     private boolean _init;                                 // is this an init or a resume
+    private boolean _persisting;
 
     
-    public CodeletRunner(WorkItemRecord wir, TaskInformation taskInfo, boolean init) {
+    public CodeletRunner(WorkItemRecord wir, TaskInformation taskInfo,
+                         boolean init, boolean persisting) {
         _wir = wir;
         _taskInfo = taskInfo;
         _init = init;
+        _persisting = persisting;
     }
 
 
@@ -59,26 +63,25 @@ public class CodeletRunner implements Runnable {
         ResourceManager rm = ResourceManager.getInstance();
 
         try {
-
             if (codeletName == null) throw new CodeletExecutionException("Codelet name is null.");
-
-            // get the workitem's data parameters
-            List<YParameter> inputs = _taskInfo.getParamSchema().getInputParams();
-            List<YParameter> outputs = _taskInfo.getParamSchema().getOutputParams();
-
+            
             // get class instance
             _codelet = PluginFactory.newCodeletInstance(codeletName);
-            if (_codelet != null) {
-                _codelet.setWorkItem(_wir);
-                if (_init)
-                    _codelet.init();
-                else
-                    _codelet.resume();
+            if (_codelet == null) throw new CodeletExecutionException(
+                    "Codelet '" + codeletName + "' could not be located.");
 
-                result = _codelet.execute(_wir.getDataList(), inputs, outputs);
+            _codelet.setWorkItem(_wir);
+            if (_init) _codelet.init();
+            else _codelet.resume();
+
+            if (_persisting && _codelet.getPersist()) {
+                new PersistedAutoTask(_wir);
             }
-            else throw new CodeletExecutionException("Codelet '" + codeletName +
-                    "' could not be located.");
+            
+            // re-execute codelet with the workitem's data parameters
+            List<YParameter> inputs = _taskInfo.getParamSchema().getInputParams();
+            List<YParameter> outputs = _taskInfo.getParamSchema().getOutputParams();
+            result = _codelet.execute(_wir.getDataList(), inputs, outputs);
         }
         catch (Exception e) {
             LogManager.getLogger(this.getClass()).error(
@@ -100,7 +103,4 @@ public class CodeletRunner implements Runnable {
         if (_codelet != null) _codelet.shutdown();
     }
 
-    public boolean persist() {
-        return (_codelet != null) && _codelet.getPersist() ; 
-    }
-}
+ }

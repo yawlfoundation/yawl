@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine;
 
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.HashMap;
@@ -176,7 +177,7 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
             setUri(parts[0]);
         }
         else if (parts.length == 3) {
-            setIdentifier(parts[0]);
+            if (!StringUtil.isNullOrEmpty(parts[0])) setIdentifier(parts[0]);
             setVersion(new YSpecVersion(parts[1]));
             setUri(parts[2]);
         }

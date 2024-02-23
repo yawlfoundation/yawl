@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -30,6 +30,9 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrConditionException;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrConditionFunctions;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrFunctionLoader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +81,8 @@ public class ConditionEvaluator {
     private static final String[] _AllOps     = { "*", "/", "+", "-", ">=", "<=",
             "<", ">", "!=", "=", "&", "|", "!"} ;
 
+    private boolean _isDesignTime = false;
+
     private static final Logger _log = LogManager.getLogger(ConditionEvaluator.class);
 
 
@@ -93,7 +98,8 @@ public class ConditionEvaluator {
      *
      *  @return the boolean result of the evaluation
      */
-    public boolean evaluate(String cond, Element data) throws RdrConditionException {
+    public boolean evaluate(String cond, Element data, boolean isDesignTime)
+            throws RdrConditionException {
         if (StringUtil.isNullOrEmpty(cond)) {
             throw new RdrConditionException("Cannot evaluate tree: condition is empty");
         }
@@ -101,6 +107,7 @@ public class ConditionEvaluator {
             throw new RdrConditionException("Cannot evaluate tree: data element is null");
         }
 
+        _isDesignTime = isDesignTime;
         String result;
 
         // DEBUG: log received items
@@ -119,6 +126,12 @@ public class ConditionEvaluator {
         if (isBoolean(result))
             return result.equalsIgnoreCase("TRUE") ;
         else throw new RdrConditionException(getMessage(1));   // result not T/F
+    }
+
+
+    // default runtime call
+    public boolean evaluate(String cond, Element data) throws RdrConditionException {
+        return evaluate(cond, data, false);
     }
 
     //==========================================================================//
@@ -365,9 +378,10 @@ public class ConditionEvaluator {
      *  STRING MANIPULATION METHODS
      */
 
-    /** removes the double quotes from around a string */
+    /** removes the double quotes or parentheses from around a string */
     private String deQuote(String s) {
-        return s.substring(1, s.length() - 1) ;
+        return s.startsWith("\"") || s.startsWith("(") || s.startsWith("{") ?
+                s.substring(1, s.length() - 1) : s ;
     }
 
 
@@ -449,7 +463,7 @@ public class ConditionEvaluator {
         try {
             if (expr.startsWith("{")) expr = deQuote(expr);      // remove braces
             String query = String.format("boolean(%s)", expr);
-            return SaxonUtil.evaluateQuery(query, new Document(data));
+            return SaxonUtil.evaluateQuery(query, new Document(data.clone()));
         }
         catch (SaxonApiException sae) {
             throw new RdrConditionException("Invalid XPath expression (" + expr + ").");
@@ -621,7 +635,7 @@ public class ConditionEvaluator {
             tmp++ ;                                       // add one more for the ']'
         }
 
-        if (tmp > 0) return s.substring(start, tmp);
+        if (tmp > 0) return s.substring(start, tmp).trim();
         throw new RdrConditionException("Invalid expression: unbalanced parentheses");
     }
 
@@ -688,8 +702,11 @@ public class ConditionEvaluator {
             }
             else {
                 // evaluate parenthesised sub-expressions first
-                subExpr = extractSubExpr(s) ;                      // get ( subexpr )
-                ans = parseAndEvaluate(deQuote(subExpr), data) ;   // recurse
+                subExpr = extractSubExpr(s);                       // get ( subexpr )
+                String internal = deQuote(subExpr);
+
+                // recurse if required
+                ans = (internal.isEmpty()) ? internal : parseAndEvaluate(internal, data);
                 s = replaceStr(s, subExpr, ans) ;                  // insert result
             }
             parIndex = s.indexOf('(');
@@ -723,7 +740,7 @@ public class ConditionEvaluator {
 
         // one token left - can be boolean string or single (boolean) function call
         if (isFunctionCall(tokens[0]))
-            tokens[0] = evalFunction(tokens[0], data);
+            tokens[0] = _isDesignTime ? "true" : evalFunction(tokens[0], data);
         if (negation) {
             tokens[0] = tokens[0].equalsIgnoreCase("true") ? "false" : "true";
         }
@@ -751,12 +768,12 @@ public class ConditionEvaluator {
 
         // make sure any data variables used contain valid data
         if ((lOp.equals("undefined")) || (rOp.equals("undefined") ) ||
-                (lOp.length() == 0 )  || (rOp.length() == 0) ) {
+                (lOp.length() == 0)  || (rOp.length() == 0) ) {
             throw new RdrConditionException(getMessage(12)) ;
         }
 
         // make sure the two operands are the same data type
-        if (!getType(lOp).equals(getType(rOp))) {
+        if (!compatibleDataTypes(lOp, rOp)) {
             throw new RdrConditionException(getMessage(15) + ". Left = " +
                     lOp + ", Right = " + rOp) ;
         }
@@ -812,9 +829,16 @@ public class ConditionEvaluator {
 
     /** translates a bad result to 'undefined' */
     private String getFunctionResult(String func, Element data) throws RdrConditionException {
-        return clarifyResult(evalFunction(func, data));
+        return clarifyResult(evalFunction(func, data), null);
     }
 
+
+    private boolean compatibleDataTypes(String lOp, String rOp) {
+        String lType = getType(lOp);
+        String rType = getType(rOp);
+        return "string".equals(lType) || "string".equals(rType) ||
+                getType(lOp).equals(getType(rOp));
+    }
 
     /** retrieves the value for a variable or function from the datalist Element */
     private String getVarValue(String var, Element data) {
@@ -830,19 +854,30 @@ public class ConditionEvaluator {
             if (varElement != null) {
                 result = varElement.getText();
                 String type = varElement.getAttributeValue("type");
-                if (type != null && type.equals("string")) {
-                    result = "\"" + result + "\"";
-                }
+                result = clarifyResult(result, type);
             }
-
         }
-        return clarifyResult(result);
+        return result;
     }
 
 
-    private String clarifyResult(String result) {
-        if (result == null || result.equals("null")) result = "undefined";
-        else if (result.length() == 0) result = "nodata";
+    private String clarifyResult(String result, String type) {
+        if (result == null || result.equals("null")) {
+            result = "undefined";
+        }
+        else if (type != null) {
+            if (type.equals("string")) {
+                result = "\"" + result + "\"";
+            }
+            else if (result.length() == 0) {
+                if (type.equals("boolean")) {
+                    result = "false";
+                }
+                else {
+                    result = "0";          // assuming numeric
+                }
+            }
+        }
         return result;
     }
 
@@ -858,8 +893,13 @@ public class ConditionEvaluator {
     /** get the value of the 'this' argument */
     private String getThisData(Element data) {
         String result = null;
-        Element eThis = data.getChild("process_info").getChild("workItemRecord");
-        if (eThis != null) result = JDOMUtil.elementToString(eThis);
+        Element eProcessInfo = data.getChild("process_info");
+        if (eProcessInfo != null) {
+            Element eThis = eProcessInfo.getChild("workItemRecord");
+            if (eThis != null) {
+                result = JDOMUtil.elementToString(eThis);
+            }
+        }
         return result;
     }
 
@@ -973,7 +1013,8 @@ public class ConditionEvaluator {
 
         try {
             //		    t.p(t.evalExpression("27", "!=", "26")) ;
-            s = "cost(case()) > 5";
+           // s = "cost(case()) > 5";
+            s = "1 = (1";
             boolean b = t.evaluate(s, e) ;
             t.p("expression: " + s + ", returns: " + b) ;
         }

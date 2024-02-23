@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -31,10 +31,7 @@ import javax.naming.directory.*;
 import javax.naming.ldap.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Author: Michael Adams
@@ -44,9 +41,9 @@ import java.util.Properties;
 public class LDAPSource extends DataSource {
 
     private Properties _props = null;
-    private Hashtable<String, String> _attributeMap = null;
     private Hashtable<String, Object> _environment = null;
-    private Hashtable<String, String> _user2nameMap = null;
+    private HashMap<String, String> _attributeMap = null;
+    private HashMap<String, String> _user2nameMap = null;
     private HashMap<String, Role> _roles = null;
     private Logger _log;
 
@@ -73,12 +70,13 @@ public class LDAPSource extends DataSource {
     private void initMaps() {
         _roles = new HashMap<String, Role>();
         if (getProperty("delegateauthentication").equalsIgnoreCase("true")) {
-            _user2nameMap = new Hashtable<String, String>();
+            _user2nameMap = new HashMap<String, String>();
         }
     }
 
     private String getProperty(String key) {
-        return _props.getProperty(key);
+        String property = _props.getProperty(key);
+        return property != null ? property : "";                 // ensure not null
     }
 
     /**
@@ -87,9 +85,9 @@ public class LDAPSource extends DataSource {
      * to the actual corresponding attribute name as read from the properties file.
      * @return a populated map of attribute names
      */
-    private Hashtable<String, String> getAttributeMap() {
+    private Map<String, String> getAttributeMap() {
         if (_attributeMap == null) {
-            _attributeMap = new Hashtable<String, String>();
+            _attributeMap = new HashMap<String, String>();
             if (_props != null) {
 
                 // these are mandatory
@@ -128,10 +126,12 @@ public class LDAPSource extends DataSource {
         Context ctx = new InitialContext(getEnvironment());
 
         for (String binding : getProperty("binding").split(";")) {
-            NamingEnumeration list = ctx.list(binding);
-            while (list.hasMore()) {
-                NameClassPair nc = (NameClassPair) list.next();
-                nameList.put(nc.getName(), binding);
+            if (isNotNullOrEmpty(binding)) {
+                NamingEnumeration list = ctx.list(binding);
+                while (list.hasMore()) {
+                    NameClassPair nc = (NameClassPair) list.next();
+                    nameList.put(nc.getName(), binding);
+                }
             }
         }
         ctx.close();
@@ -160,6 +160,7 @@ public class LDAPSource extends DataSource {
                 new PagedResultsControl(maxSize, Control.CRITICAL) });
 
         for (String binding : getProperty("binding").split(";")) {
+            if (binding.isEmpty()) continue;
             do {
                 NamingEnumeration controlledList = ctx.list(binding);
                 while (controlledList != null && controlledList.hasMore()) {
@@ -189,7 +190,8 @@ public class LDAPSource extends DataSource {
 
 
     private String[] getAttributeIDNames() {
-        return getAttributeMap().values().toArray(new String[0]);
+        Collection<String> idNames = getAttributeMap().values();
+        return idNames.toArray(new String[idNames.size()]);
     }
 
 
@@ -202,7 +204,15 @@ public class LDAPSource extends DataSource {
         if (_environment == null) {
             _environment = new Hashtable<String, Object>();
             if (_props != null) {
-                String url = String.format("ldap://%s:%s", getProperty("host"), getProperty("port"));
+                String scheme = "ldap";
+                String protocol = getProperty("securityprotocol");
+                if (isNotNullOrEmpty(protocol)) {
+                    _environment.put(Context.SECURITY_PROTOCOL, protocol);
+                    scheme += "s";
+                }
+                String url = String.format("%s://%s:%s", scheme, getProperty("host"),
+                        getProperty("port"));
+
                 _environment.put(Context.PROVIDER_URL, url);
                 _environment.put(Context.INITIAL_CONTEXT_FACTORY, getProperty("contextfactory"));
                 _environment.put(Context.SECURITY_AUTHENTICATION, getProperty("authentication"));
@@ -216,7 +226,7 @@ public class LDAPSource extends DataSource {
 
     private boolean matchesObjectClassFilter(DirContext ctx, String entry)  throws NamingException {
         String filter = getProperty("objectClassFilter");
-        if ((filter == null) || (filter.length() == 0) || filter.equals("*")) {
+        if ((filter == null) || (filter.isEmpty()) || filter.equals("*")) {
             return true;
         }
         DirContext classes = ctx.getSchemaClassDefinition(entry);
@@ -291,7 +301,7 @@ public class LDAPSource extends DataSource {
                 p.setPassword(loadUserPassword(attributes));
             }
 
-            // set the roles for the particpant - may be enum or csv list
+            // set the roles for the participant - may be enum or csv list
             if (hasEnumeratedRoles()) {
                 setRoles(p, attributes);
             }
@@ -366,7 +376,9 @@ public class LDAPSource extends DataSource {
         if (getAttributeMap().get("password") != null) {
             try {
                 byte[] pwBytes = getByteValue(attributes, "password");
-                password = PasswordEncryptor.encrypt(new String(pwBytes));
+                if (pwBytes != null) {
+                    password = PasswordEncryptor.encrypt(new String(pwBytes));
+                }
             }
             catch (Exception e) {
                 // do nothing - null will be returned
@@ -412,7 +424,7 @@ public class LDAPSource extends DataSource {
 
     private int getMaxSizeLimit() {
         String limit = getProperty("maxSizeLimit");
-        if (limit != null) {
+        if (isNotNullOrEmpty(limit)) {
             try {
                 return new Integer(limit.trim());
             }
@@ -451,25 +463,18 @@ public class LDAPSource extends DataSource {
         return rds;
     }
 
-    public void update(Object obj) {
+    public void update(Object obj) { }
 
-    }
+    public boolean delete(Object obj) { return false; }
 
-    public boolean delete(Object obj) {
-        return false;
-    }
+    public String insert(Object obj) { return null; }
 
-    public String insert(Object obj) {
-        return null;
-    }
-
-    public void importObj(Object obj) {
-
-    }
+    public void importObj(Object obj) {  }
 
     public int execUpdate(String query) {
         return -1;
     }
+
 
     public boolean authenticate(String userid, String password) throws
             YAuthenticationException {
@@ -482,7 +487,7 @@ public class LDAPSource extends DataSource {
             throw new YAuthenticationException("Unknown userid");
         }
 
-        Hashtable<String,Object> env = getEnvironment() ;
+        Hashtable<String,Object> env = new Hashtable<String, Object>(getEnvironment());
         String userBinding = _user2nameMap.get(userid) + "," + getProperty("binding");
         Object prevID = env.put(Context.SECURITY_PRINCIPAL, userBinding);
         Object prevPW = env.put(Context.SECURITY_CREDENTIALS, password);

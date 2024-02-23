@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,10 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.time;
 
-import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YPersistenceManager;
-import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.xml.datatype.Duration;
@@ -87,14 +84,13 @@ public class YWorkItemTimer implements YTimedObject {
     public void setPersisting(boolean persist) { _persisting = persist; }
     
 
-    public void persistThis(boolean insert) {
+    public void unpersistThis() {
         if (_persisting) {
             YPersistenceManager pmgr = YEngine.getPersistenceManager();
             if (pmgr != null) {
                 try {
                     boolean localTransaction = pmgr.startTransaction();
-                    if (insert) pmgr.storeObjectFromExternal(this);
-                    else pmgr.deleteObjectFromExternal(this);
+                    pmgr.deleteObjectFromExternal(this);
                     if (localTransaction) pmgr.commit();
                 }
                 catch (YPersistenceException ype) {
@@ -118,6 +114,7 @@ public class YWorkItemTimer implements YTimedObject {
 
             
     public void handleTimerExpiry() {
+        unpersistThis();                                 // unpersist this timer
         YEngine engine = YEngine.getInstance();
         YWorkItem item = engine.getWorkItem(_ownerID) ;
         if (item != null) {
@@ -143,7 +140,7 @@ public class YWorkItemTimer implements YTimedObject {
                 else if (item.hasUnfinishedStatus()) {
                     if (item.requiresManualResourcing())              // not an autotask
                         engine.completeWorkItem(item, item.getDataString(), null,
-                                YEngine.WorkItemCompletion.Force) ;
+                                WorkItemCompletion.Force) ;
                     engine.getAnnouncer().announceTimerExpiryEvent(item);
                 }
             }
@@ -151,13 +148,12 @@ public class YWorkItemTimer implements YTimedObject {
                 // handle exc.
             }
         }
-        persistThis(false) ;                                 // unpersist this timer
     }
 
 
     // unpersist this timer when the workitem is cancelled
     public void cancel() {
-        persistThis(false) ;
+        unpersistThis() ;
     }
 
 }

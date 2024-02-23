@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,16 +18,14 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.QueueSet;
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.*;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -204,6 +202,12 @@ public class WorkQueueGateway extends HttpServlet {
         } else if (action.equals("getAdminQueues")) {
             QueueSet qSet = _rm.getAdminQueues();
             result = qSet.toXML();                                    // set never null
+        } else if (action.equals("getParticipantQueues")) {
+            Participant p = getOrgDataSet().getParticipant(pid);
+            if (p != null) {
+                QueueSet qSet = p.getWorkQueues();
+                result = qSet.toXML();                                    // set never null
+            } else result = fail("Unknown participant id: " + pid);
         } else if (action.equals("getWorkItem")) {
             result = _rm.getWorkItem(itemid);
         } else if (action.equals("getWorkItemChildren")) {
@@ -288,6 +292,8 @@ public class WorkQueueGateway extends HttpServlet {
             result = doResourceAction(req, action);
         } else if (action.equals("completeWorkItem")) {
             result = doResourceAction(req, action);
+        } else if (action.equals("chainCase")) {
+             result = doResourceAction(req, action);
         } else if (action.equals("offerWorkItem")) {
             result = doAdminQueueAction(req, action);
         } else if (action.equals("allocateWorkItem")) {
@@ -318,6 +324,64 @@ public class WorkQueueGateway extends HttpServlet {
             String serviceName = req.getParameter("serviceName");
             result = _rm.redirectWorkItemToYawlService(itemid, serviceName);
         }
+        else if (action.equals("addResourceEventListener")) {
+            String uri = req.getParameter("uri");
+            result = _rm.addEventListener(uri);
+        }
+        else if (action.equals("removeResourceEventListener")) {
+            String uri = req.getParameter("uri");
+            _rm.removeEventListener(uri);
+            result = success;
+        }
+        else if (action.equals("getChainedCases")) {
+           Participant p = getOrgDataSet().getParticipant(pid);
+           if (p != null) {
+               Set<String> cases = _rm.getChainedCases(p);
+               XNode root = new XNode("chainedcases");
+               for (String item : cases) {
+                   root.addChild("item", item);
+               }
+               result = root.toString();
+           }
+           else result = fail("Unknown participant: " + pid);
+        }
+        else if (action.equals("getPiledItems")) {
+            Participant p = getOrgDataSet().getParticipant(pid);
+            if (p != null) {
+                XNode root = new XNode("piledTasks");
+                Set<ResourceMap> taskMaps = _rm.getPiledTaskMaps(p);
+                for (ResourceMap map : taskMaps) {
+                    XNode taskNode = root.addChild("task");
+                    taskNode.addChild(map.getSpecID().toXNode());
+                    taskNode.addChild("taskid", map.getTaskID());
+                }
+                result = root.toString();
+            }
+            else result = fail("Unknown participant: " + pid);
+        }
+        else if (action.equals("unchainCase")) {
+            String caseID = req.getParameter("caseid");
+            if (caseID != null) {
+                _rm.removeChain(caseID);
+                result = success;
+            }
+            else {
+                result = fail("Missing case id parameter");
+            }
+        }
+        else if (action.equals("unpileTask")) {
+            YSpecificationID specID = new YSpecificationID(specid, specversion, specuri);
+            String taskID = req.getParameter("taskid");
+            ResourceMap map = _rm.getCachedResourceMap(specID, taskID);
+            if (map != null) {
+                Participant p = getOrgDataSet().getParticipant(pid);
+                result = _rm.unpileTask(map, p);
+            }
+            else {
+                result = fail("Unknown specification or task");
+            }
+        }
+
 
         // the following calls are convenience pass-throughs to engine interfaces A & B
 
@@ -348,6 +412,14 @@ public class WorkQueueGateway extends HttpServlet {
                 ysr.set_assignable(assignable.equals("true"));
             }
             result = response(_rm.addRegisteredService(ysr));
+        } else if (action.equals("addExternalClient")) {
+            String name = req.getParameter("name");
+            String pw = req.getParameter("password");
+            String doco = req.getParameter("doco");
+            result = response(_rm.addExternalClient(new YExternalClient(name, pw, doco)));
+        } else if (action.equals("removeExternalClient")) {
+            String id = req.getParameter("name");
+            result = response(_rm.removeExternalClient(id));
         }
 
         return result;
@@ -450,10 +522,16 @@ public class WorkQueueGateway extends HttpServlet {
                 }
 
                 if (_rm.start(p, wir)) {
-
-                    // if wir was prev. started, it is the child already
-                    WorkItemRecord child = wir.hasStatus(WorkItemRecord.statusExecuting) ?
-                            wir : _rm.getExecutingChild(wir);
+                    WorkItemRecord child;
+                    switch (wir.getStatus()) {
+                        case WorkItemRecord.statusFired :  // MI instance - refresh
+                            child = _rm.getCachedWorkItem(wir.getID()); break;
+                        case WorkItemRecord.statusExecuting :  // already is the child
+                            child = wir; break;
+                        default :
+                            child = _rm.getExecutingChild(wir); break;
+                    }
+                    
                     if (child != null) {
                         child.setResourceStatus(WorkItemRecord.statusResourceStarted);
                         result = child.toXML();
@@ -461,6 +539,10 @@ public class WorkQueueGateway extends HttpServlet {
                             "' has started, but could not retrieve its executing child.");
                 } else result = fail("Could not start workitem: " + wir.getID());
             } else result = fail("Unoffered', 'Offered' or 'Allocated", "started", wir);
+        } else if (action.equals("completeWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
+                result = _rm.checkinItem(p, wir);
+            } else result = fail("Started", "completed", wir);
         } else if (action.equals("deallocateWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
                 successful = _rm.deallocateWorkItem(p, wir);
@@ -488,11 +570,12 @@ public class WorkQueueGateway extends HttpServlet {
                 successful = _rm.unsuspendWorkItem(p, wir);
                 result = successful ? success : fail("Could not unsuspend workitem: " +
                         wir.getID());
-            } else result = fail("Suspended", "unsuspended", wir);
-        } else if (action.equals("completeWorkItem")) {
-            if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
-                result = _rm.checkinItem(p, wir);
-            } else result = fail("Started", "completed", wir);
+            }
+            else result = fail("Suspended", "unsuspended", wir);
+        } else if (action.equals("chainCase")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceOffered)) {
+                result = _rm.chainCase(p, wir);
+            } else result = fail("Offered", "chained", wir);
         }
         return result;
     }

@@ -66,7 +66,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 _engine.completeWorkItem(wiDecideName_Executing,
                         "<DecideAlbumName>" +
                         "<nameOfRecord>The Fred experience.</nameOfRecord>" +
-                        "</DecideAlbumName>", null, YEngine.WorkItemCompletion.Normal);
+                        "</DecideAlbumName>", null, WorkItemCompletion.Normal);
             }
             {
                 //execute task "decideSongs"
@@ -98,7 +98,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                                     "<sequenceNumber>1</sequenceNumber>" +
                                 "</song>" +
                             "</songlist>" +
-                        "</DecideWhichSongsToRecord>", null,  YEngine.WorkItemCompletion.Normal);
+                        "</DecideWhichSongsToRecord>", null,  WorkItemCompletion.Normal);
             }
             {
                 //execute task "prepare" this is the first task of a decomposition

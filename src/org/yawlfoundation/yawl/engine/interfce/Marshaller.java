@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -30,8 +30,8 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -147,7 +147,7 @@ public class Marshaller {
     /**
      * Creates a list of SpecificationDatas from formatted XML.
      * These are brief meta data summary
-     * information objects that describe a worklfow specification.
+     * information objects that describe a workflow specification.
      * @param specificationSummaryListXML
      * @return  the list
      */
@@ -214,11 +214,8 @@ public class Marshaller {
         String caseID = workItemElement.getChildText("caseid");
         String taskID = workItemElement.getChildText("taskid");
         String specURI = workItemElement.getChildText("specuri");
-        String enablementTime = workItemElement.getChildText("enablementTime");
-        if (caseID != null && taskID != null && specURI != null &&
-            enablementTime != null && status != null) {
-
-            wir = new WorkItemRecord(caseID, taskID, specURI, enablementTime, status);
+        if (caseID != null && taskID != null && specURI != null && status != null) {
+            wir = new WorkItemRecord(caseID, taskID, specURI, status);
 
             wir.setExtendedAttributes(unmarshalWorkItemAttributes(workItemElement));
             wir.setUniqueID(workItemElement.getChildText("uniqueid"));
@@ -232,9 +229,6 @@ public class Marshaller {
             wir.setDeferredChoiceGroupID(workItemElement.getChildText(
                                                               "deferredChoiceGroupID"));
             wir.setSpecVersion(workItemElement.getChildText("specversion"));
-            wir.setFiringTime(workItemElement.getChildText("firingTime"));
-            wir.setStartTime(workItemElement.getChildText("startTime"));
-            wir.setCompletionTimeMs(workItemElement.getChildText("completionTime"));
             wir.setEnablementTimeMs(workItemElement.getChildText("enablementTimeMs"));
             wir.setFiringTimeMs(workItemElement.getChildText("firingTimeMs"));
             wir.setStartTimeMs(workItemElement.getChildText("startTimeMs"));
@@ -271,7 +265,7 @@ public class Marshaller {
     }
 
 
-    public static Hashtable<String, String> unmarshalWorkItemAttributes(Element item) {
+    public static Map<String, String> unmarshalWorkItemAttributes(Element item) {
         YAttributeMap result = new YAttributeMap();
         result.fromJDOM(item.getAttributes());
         return result ;

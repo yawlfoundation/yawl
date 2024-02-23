@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.controlpanel.components;
 
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
@@ -26,13 +44,12 @@ import java.io.IOException;
  */
 public class ToolBar extends JToolBar implements ActionListener, EngineStatusListener {
 
-    private static final String YAWL_URL = "http://www.yawlfoundation.org/";
-    private static final String EXAMPLES_URL = YAWL_URL + "pages/resources/examples.html";
-    private static final String MANUAL_URL = YAWL_URL + "manuals/YAWLUserManual3.0.pdf";
+    private static final String EXAMPLES_URL = "http://www.yawlfoundation.org/pages/resources/examples.html";
+    private static final String MANUAL_URL = "https://yawlfoundation.github.io/assets/files/YAWLUserManual5.0.pdf";
 
     private static final Dimension spacer = new Dimension(11,16);
 
-    private YControlPanel _mainWindow;
+    private final YControlPanel _mainWindow;
 
     private JButton _btnStart;
     private JButton _btnStop;
@@ -199,7 +216,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
 
     private void checkForUpdates() {
-        _mainWindow.showComponentsPanel();
+        _mainWindow.showComponentsPane();
         new UpdateLoader(_mainWindow).execute();
     }
 
@@ -235,7 +252,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
     private String getLogonURL() {
         int port = TomcatUtil.getTomcatServerPort();
-        return "http://localhost:" + port + "/resourceService";
+        return "http://localhost:" + port + "/yawlui";
     }
 
 

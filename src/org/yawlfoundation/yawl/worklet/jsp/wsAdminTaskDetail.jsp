@@ -1,7 +1,7 @@
 <%@ page import="org.yawlfoundation.yawl.worklet.admin.AdministrationTask"%>
 
 <%--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -24,7 +24,7 @@
 <%
     String wsTaskID = request.getParameter("id");
     String buttonText = request.getParameter("submit");
-    AdministrationTask wsTask = _exceptionService.getAdminTask(wsTaskID);
+    AdministrationTask wsTask = _adminTasksManager.getTask(Integer.parseInt(wsTaskID));
 
     if (buttonText != null) {
         response.sendRedirect(response.encodeURL("/workletService/wsAdminTasks"));

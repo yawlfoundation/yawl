@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -78,9 +78,11 @@ public class CostGateway extends HttpServlet {
             String iaURI = (ixURI != null) ? ixURI.replace("/ix", "/ia") : null;
             _service.setEngineLogonName(engineLogonName);
             _service.setEngineLogonPassword(engineLogonPassword);
-            _sessions = new Sessions();
-            _sessions.setupInterfaceA(iaURI, engineLogonName, engineLogonPassword);
-        } catch (Exception e) {
+            _sessions = new Sessions(iaURI, engineLogonName, engineLogonPassword);
+
+            _service.setXSDPath(context.getResource("/xsd/costmodel.xsd"));
+        }
+        catch (Exception e) {
             _log.error("Cost Service Initialisation Exception", e);
         }
     }

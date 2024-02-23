@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -132,7 +132,7 @@ public class CompleteCaseDeleteCase {
 		ProcletModels pmodels = ProcletModels.getInstance();
 		ProcletModel pmodel = pmodels.getProcletClass(classID);
 		ProcletBlock blockExc = pmodel.getBlock("exception");
-		WorkItemRecord wir = new WorkItemRecord(procletID,"exception",classID,"","");
+		WorkItemRecord wir = new WorkItemRecord(procletID,"exception",classID, "");
 
 		returnList.add(emids);
 		returnList.add(wir);
@@ -237,7 +237,7 @@ public class CompleteCaseDeleteCase {
 						}
 					}
 					String id = BlockCP.getUniqueID();
-					wir = new WorkItemRecord(procletID,blockID,classID,"","");
+					wir = new WorkItemRecord(procletID,blockID,classID, "");
 					ProcletModels pmodelsInst = ProcletModels.getInstance();
 					ProcletModel pmodel = pmodelsInst.getProcletClass(classID);
 					ProcletBlock block = pmodel.getBlock(blockID);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -20,10 +20,7 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.engine.ObserverGateway;
-import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
@@ -68,7 +65,7 @@ public interface InterfaceBClient {
 
     YWorkItem startWorkItem(YWorkItem workItem, YClient client) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YEngineStateException;
 
-    void completeWorkItem(YWorkItem workItem, String data, String logPredicate, YEngine.WorkItemCompletion flag) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YEngineStateException;
+    void completeWorkItem(YWorkItem workItem, String data, String logPredicate, WorkItemCompletion flag) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YEngineStateException;
 
     void rollbackWorkItem(String workItemID) throws YStateException, YPersistenceException, YLogException;
 

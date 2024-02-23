@@ -1,5 +1,6 @@
-.idea/
+.idea/*
 classes/
 output/
 temp/
 
+!/src/org/yawlfoundation/yawl/balancer/output/

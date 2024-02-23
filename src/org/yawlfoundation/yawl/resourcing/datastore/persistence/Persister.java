@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -70,7 +70,7 @@ public final class Persister implements Serializable {
        }
        else if (className.endsWith("SpecLog")) {
            List<SpecLog> slList = _db.getObjectsForClass(className) ;
-           for (SpecLog sl : slList) result.put(sl.getSpecID().getKey() + sl.getVersion(), sl) ;
+           for (SpecLog sl : slList) result.put(sl.getSpecID().toKeyString(), sl) ;
        }
        commit();
        return result ;
@@ -89,9 +89,9 @@ public final class Persister implements Serializable {
        return _db.getObjectsForClassWhere(className, whereClause) ;
     }
 
-    public List execQuery(String query) {
-        return _db.execQuery(query);
-    }
+    public List execQuery(String query) { return _db.execQuery(query); }
+
+    public List execSQLQuery(String query) { return _db.execSQLQuery(query); }
 
     public int execUpdate(String statement) {
         return _db.execUpdate(statement);

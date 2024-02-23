@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="layout">%d{DEFAULT} [%-5p] %-20c{1} :- %m%n</Property>
+    </Properties>
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="${layout}"/>
+        </Console>
+        <RollingFile name="FILE_HIBERNATE"
+                     fileName="${env:CATALINA_HOME}/logs/yawl_hibernate.log"
+                     filePattern="${env:CATALINA_HOME}/logs/yawl_hibernate.%d{yyyy-dd-MM}.log">
+            <PatternLayout pattern="${layout}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE_PROCLET"
+                     fileName="${env:CATALINA_HOME}/logs/yawl_procletService.log"
+                     filePattern="${env:CATALINA_HOME}/logs/yawl_procletService.%d{yyyy-dd-MM}.log">
+            <PatternLayout pattern="${layout}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE_RESOURCING"
+                     fileName="${env:CATALINA_HOME}/logs/yawl_resourceService.log"
+                     filePattern="${env:CATALINA_HOME}/logs/yawl_resourceService.%d{yyyy-dd-MM}.log">
+            <PatternLayout pattern="${layout}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE_ROOT"
+                     fileName="${env:CATALINA_HOME}/logs/default.log"
+                     filePattern="${env:CATALINA_HOME}/logs/default.%d{yyyy-dd-MM}.log">
+            <PatternLayout pattern="${layout}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE_SCHEDULING"
+                     fileName="${env:CATALINA_HOME}/logs/yawl_schedulingService.log"
+                     filePattern="${env:CATALINA_HOME}/logs/yawl_schedulingService.%d{yyyy-dd-MM}.log">
+            <PatternLayout pattern="${layout}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE_WORKLET"
+                     fileName="${env:CATALINA_HOME}/logs/yawl_workletService.log"
+                     filePattern="${env:CATALINA_HOME}/logs/yawl_workletService.%d{yyyy-dd-MM}.log">
+            <PatternLayout pattern="${layout}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE_YAWL"
+                     fileName="${env:CATALINA_HOME}/logs/yawl_engine.log"
+                     filePattern="${env:CATALINA_HOME}/logs/yawl_engine.%d{yyyy-dd-MM}.log">
+            <PatternLayout pattern="${layout}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.hibernate"
+                level="ERROR"
+                additivity="false">
+            <AppenderRef ref="FILE_HIBERNATE"/>
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
+        <Logger name="org.hibernate.cache"
+                level="ERROR"
+                additivity="false">
+            <AppenderRef ref="FILE_HIBERNATE"/>
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
+        <Logger name="org.yawlfoundation.yawl"
+                level="WARN"
+                additivity="false">
+            <AppenderRef ref="FILE_YAWL"/>
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
+        <Logger name="org.yawlfoundation.yawl.procletService"
+                level="INFO"
+                additivity="false">
+            <AppenderRef ref="FILE_PROCLET"/>
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
+        <Logger name="org.yawlfoundation.yawl.resourcing"
+                level="INFO"
+                additivity="false">
+            <AppenderRef ref="FILE_RESOURCING"/>
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
+        <Logger name="org.yawlfoundation.yawl.scheduling"
+                level="DEBUG"
+                additivity="false">
+            <AppenderRef ref="FILE_SCHEDULING"/>
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
+        <Logger name="org.yawlfoundation.yawl.worklet"
+                level="INFO"
+                additivity="false">
+            <AppenderRef ref="FILE_WORKLET"/>
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
+        <Root level="ERROR">
+            <AppenderRef ref="FILE_ROOT"/>
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+     </Loggers>
+</Configuration>

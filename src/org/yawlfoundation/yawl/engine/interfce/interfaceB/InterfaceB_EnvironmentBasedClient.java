@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -50,7 +50,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     /**
      * Constructor.
      * @param backEndURIStr the back end uri of where to find
-     * the engine.  A default deployment this value is
+     * the engine.  A default deployment of this value is
      * http://localhost:8080/yawl/ib
      */
     public InterfaceB_EnvironmentBasedClient(String backEndURIStr) {
@@ -262,7 +262,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     /**
      * Creates a list of SpecificationData objects for the specifications currently
      * loaded into the engine. These are brief meta data summary
-     * information objects that describe a worklfow specification.
+     * information objects that describe a workflow specification.
      * @param sessionHandle the session handle
      * @return  the list of spec data objects
      * @throws IOException if engine can't be found.
@@ -305,6 +305,21 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
+     * Gets an XML representation of some summary information of a workflow specification.
+     * @param specID the specid.
+     * @param sessionHandle the session handle
+     * @return the XML representation, or an XML diagnostic error message.
+     * @throws IOException if the engine can't be found.
+     */
+    public String getSpecificationData(YSpecificationID specID, String sessionHandle)
+                                                                 throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationData", sessionHandle);
+        params.putAll(specID.toMap());
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    /**
      * Gets an XML representation of a workflow specification for a specified, currently
      * executing case.
      * @param caseID the identifier of a currently executing case.
@@ -315,6 +330,22 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String getSpecificationForCase(String caseID, String sessionHandle)
                                                                  throws IOException {
         Map<String, String> params = prepareParamMap("getSpecificationForCase", sessionHandle);
+        params.put("caseID", caseID);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    /**
+     * Gets an XML representation of a workflow specification id for a specified,
+     * currently executing case.
+     * @param caseID the identifier of a currently executing case.
+     * @param sessionHandle the session handle
+     * @return the XML representation, or an XML diagnostic error message.
+     * @throws IOException if the engine can't be found.
+     */
+    public String getSpecificationIDForCase(String caseID, String sessionHandle)
+                                                                 throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationIDForCase", sessionHandle);
         params.put("caseID", caseID);
         return stripOuterElement(executeGet(_backEndURIStr, params));
     }
@@ -353,17 +384,24 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     /**
      * Allow a client to obtain ownership of a unit of work. This means that the
      * workitem must be enabled or fired first, and that upon successful checkout the
-     * workitem will be exectuing.
+     * workitem will be executing.
      * @param workItemID the workitem id.
+     * @param logPredicate configurable logging string to be logged with the checkout
      * @param sessionHandle the sessionhandle
      * @return in case of success returns a WorkItemRecord object of the created
      * workitem. In case of failure returns a diagnostic XML message.
      * @throws IOException if the engine can't be found.
      */
-    public String checkOutWorkItem(String workItemID, String sessionHandle) throws IOException {
+    public String checkOutWorkItem(String workItemID, String logPredicate, String sessionHandle)
+            throws IOException {
         Map<String, String> params = prepareParamMap("checkout", sessionHandle);
         params.put("workItemID", workItemID);
+        if (logPredicate != null) params.put("logPredicate", logPredicate);
         return executePost(_backEndURIStr, params);
+    }
+
+    public String checkOutWorkItem(String workItemID, String sessionHandle) throws IOException {
+        return checkOutWorkItem(workItemID, null, sessionHandle);
     }
 
 
@@ -603,7 +641,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * </pre>
      * If there are no case params then null should be passed.
      * @param sessionHandle the session handle
-     * @return returns a diagnostic message in case of failure
+     * @return the case identifier, or a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
     public String launchCase(String specID, String caseParams, String sessionHandle)
@@ -626,30 +664,43 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param logData a list of log data items for logging when the case starts
      *                (can be null)
      * @param sessionHandle the session handle
-     * @return returns a diagnostic message in case of failure
+     * @return the case identifier, or a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
     public String launchCase(YSpecificationID specID, String caseParams,
                              YLogDataItemList logData, String sessionHandle)
             throws IOException {
-        Map<String, String> params = prepareParamMap("launchCase", sessionHandle);
-        params.putAll(specID.toMap());
-        if (logData != null) params.put("logData", logData.toXML());
-        if (caseParams != null) params.put("caseParams", caseParams);
-        return executePost(_backEndURIStr, params);
+        return launchCase(specID, caseParams, sessionHandle, logData, null);
     }
 
 
-    /** 
-     * Override of launchCase to provide the ability to add a listener
-     * for the Case-Completion event
+    /**
+     * Launches a case instance.
+     * @param specID the specification id (see SpecificationData.getID())
+     * @param caseParams the case params in XML.
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
+     * @param caseID a pre-selected, unique case identifier
+     * @param sessionHandle the session handle
+     * @return the case identifier, or a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             YLogDataItemList logData, String caseID, String sessionHandle)
+            throws IOException {
+        return launchCase(specID, caseParams, sessionHandle, caseID, logData, null);
+    }
+
+
+    /**
+     * Launches a case instance.
      * @deprecated superseded by launchCase(YSpecificationID, String, String)
      * @param specID the specification id (see SpecificationData.getID())
      * @param caseParams the case params in XML. 
      * @param sessionHandle the session handle
      * @param completionObserverURI the URI of the IB service that will listen
      *        for a case-completed event
-     * @return returns a diagnostic message in case of failure
+     * @return the case identifier, or a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
     public String launchCase(String specID, String caseParams, 
@@ -661,8 +712,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Override of launchCase to provide the ability to add a listener
-     * for the Case-Completion event
+     * Launches a case instance.
      * @param specID the specification id
      * @param caseParams the case params in XML.
      * @param logData a list of log data items for logging when the case starts
@@ -670,22 +720,42 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param sessionHandle the session handle
      * @param completionObserverURI the URI of the IB service that will listen
      *        for a case-completed event
-     * @return returns a diagnostic message in case of failure
+     * @return the case identifier, or a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
     public String launchCase(YSpecificationID specID, String caseParams,
                              String sessionHandle, YLogDataItemList logData,
                              String completionObserverURI)
                                      throws IOException {
-        Map<String, String> params = buildLaunchCaseParamMap(specID, caseParams, 
-                sessionHandle, logData, completionObserverURI);
-        return executePost(_backEndURIStr, params);
+        return launchCase(specID, caseParams, sessionHandle, null, logData,
+                  completionObserverURI);
+    }
+
+
+    /**
+     * Launches a case instance.
+     * @param specID the specification id
+     * @param caseParams the case params in XML.
+     * @param caseID the pre-selected, unique case identifier
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
+     * @param sessionHandle the session handle
+     * @param completionObserverURI the URI of the IB service that will listen
+     *        for a case-completed event
+     * @return the case identifier, or a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, String caseID,
+                             YLogDataItemList logData, String completionObserverURI)
+            throws IOException {
+        return launchCase(specID, caseParams, sessionHandle, caseID, logData,
+                  completionObserverURI, 0);
     }
     
     
     /**
-     * Override of launchCase to provide the ability to delay the launch for
-     * a period
+     * Launches a case instance after a delay.
      * @param specID the specification id
      * @param caseParams the case params in XML.
      * @param logData a list of log data items for logging when the case starts
@@ -694,22 +764,41 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param completionObserverURI the URI of the IB service that will listen
      *        for a case-completed event
      * @param mSec the number of milliseconds to wait before launching the case
-     * @return returns a diagnostic message in case of failure
+     * @return the case identifier, or a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
     public String launchCase(YSpecificationID specID, String caseParams,
                              String sessionHandle, YLogDataItemList logData,
                              String completionObserverURI, long mSec) throws IOException {
-        Map<String, String> params = buildLaunchCaseParamMap(specID, caseParams, 
-                sessionHandle, logData, completionObserverURI);
-        params.put("mSec", String.valueOf(mSec));
-        return executePost(_backEndURIStr, params);
+        return launchCase(specID, caseParams, sessionHandle, null, logData,
+                  completionObserverURI, mSec);
     }
 
 
     /**
-     * Override of launchCase to provide the ability to delay the launch until a
-     * specific date and time
+     * Launches a case instance after a delay.
+     * @param specID the specification id
+     * @param caseParams the case params in XML.
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
+     * @param sessionHandle the session handle
+     * @param caseID the pre-selected, unique case identifier
+     * @param completionObserverURI the URI of the IB service that will listen
+     *        for a case-completed event
+     * @param mSec the number of milliseconds to wait before launching the case
+     * @return the case identifier, or a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, String caseID, YLogDataItemList logData,
+                             String completionObserverURI, long mSec) throws IOException {
+        return launchCase(specID, caseParams, sessionHandle, caseID, logData,
+                  completionObserverURI, mSec, null, null);
+    }
+
+
+    /**
+     * Launches a case instance after a delay.
      * @param specID the specification id
      * @param caseParams the case params in XML.
      * @param logData a list of log data items for logging when the case starts
@@ -718,22 +807,41 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param completionObserverURI the URI of the IB service that will listen
      *        for a case-completed event
      * @param start the date and time when the case is to be launched
-     * @return returns a diagnostic message in case of failure
+     * @return the case identifier, or a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
     public String launchCase(YSpecificationID specID, String caseParams,
                              String sessionHandle, YLogDataItemList logData,
                              String completionObserverURI, Date start) throws IOException {
-        Map<String, String> params = buildLaunchCaseParamMap(specID, caseParams,
-                sessionHandle, logData, completionObserverURI);
-        params.put("start", String.valueOf(start.getTime()));
-        return executePost(_backEndURIStr, params);
+        return launchCase(specID, caseParams, sessionHandle, null, logData,
+                  completionObserverURI, start);
     }
 
 
     /**
-     * Override of launchCase to provide the ability to delay the launch for
-     * a period
+     * Launches a case instance after a delay.
+     * @param specID the specification id
+     * @param caseParams the case params in XML.
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
+     * @param sessionHandle the session handle
+     * @param caseID the pre-selected, unique case identifier
+     * @param completionObserverURI the URI of the IB service that will listen
+     *        for a case-completed event
+     * @param start the date and time when the case is to be launched
+     * @return the case identifier, or a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, String caseID, YLogDataItemList logData,
+                             String completionObserverURI, Date start) throws IOException {
+        return launchCase(specID, caseParams, sessionHandle, caseID, logData,
+                  completionObserverURI, 0, start, null);
+    }
+
+
+    /**
+     * Launches a case instance after a delay.
      * @param specID the specification id
      * @param caseParams the case params in XML.
      * @param logData a list of log data items for logging when the case starts
@@ -741,33 +849,69 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param sessionHandle the session handle
      * @param completionObserverURI the URI of the IB service that will listen
      *        for a case-completed event
-     * @param wait a Duration object that specifies a period to to wait before l
-     *             aunching the case
-     * @return returns a diagnostic message in case of failure
+     * @param wait a Duration object that specifies a period to to wait before 
+     *             launching the case
+     * @return the case identifier, or a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
-
     public String launchCase(YSpecificationID specID, String caseParams,
                              String sessionHandle, YLogDataItemList logData,
                              String completionObserverURI, Duration wait) throws IOException {
-        Map<String, String> params = buildLaunchCaseParamMap(specID, caseParams,
-                sessionHandle, logData, completionObserverURI);
-        params.put("wait", wait.toString());
-        return executePost(_backEndURIStr, params);
+        return launchCase(specID, caseParams, sessionHandle, null, logData,
+                completionObserverURI, wait);
     }
 
 
-    // builds a parameter map for a launchCase call
-    private Map<String, String> buildLaunchCaseParamMap(YSpecificationID specID,
-                                 String caseParams, String sessionHandle,
-                                 YLogDataItemList logData, String completionObserverURI) {
+    /**
+     * Launches a case instance after a delay.
+     * @param specID the specification id
+     * @param caseParams the case params in XML.
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
+     * @param sessionHandle the session handle
+     * @param caseID the pre-selected, unique case identifier
+     * @param completionObserverURI the URI of the IB service that will listen
+     *        for a case-completed event
+     * @param wait a Duration object that specifies a period to to wait before
+     *             launching the case
+     * @return the case identifier, or a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, String caseID, YLogDataItemList logData,
+                             String completionObserverURI, Duration wait) throws IOException {
+        return launchCase(specID, caseParams, sessionHandle, caseID, logData,
+                completionObserverURI, 0, null, wait);
+    }
+
+
+    // launches a case instance
+    private String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, String caseID,
+                             YLogDataItemList logData, String completionObserverURI,
+                             long mSec, Date start, Duration wait) throws IOException {
         Map<String, String> params = prepareParamMap("launchCase", sessionHandle);
         params.putAll(specID.toMap());
+
+        // all these are optional
+        if (caseID != null) params.put("caseid", caseID);
         if (logData != null) params.put("logData", logData.toXML());
         if (caseParams != null) params.put("caseParams", caseParams);
         if (completionObserverURI != null)
             params.put("completionObserverURI", completionObserverURI);
-        return params;
+
+        // add any delay (also optional)
+        if (mSec > 0) {
+            params.put("mSec", String.valueOf(mSec));
+        }
+        else if (start != null) {
+            params.put("start", String.valueOf(start.getTime()));
+        }
+        else if (wait != null) {
+            params.put("wait", wait.toString());
+        }
+        
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -826,6 +970,26 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String getCaseState(String caseID, String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getCaseState", sessionHandle);
         params.put("caseID", caseID);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    public String exportCaseState(String caseID, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("exportCaseState", sessionHandle);
+        params.put("caseID", caseID);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    public String exportAllCaseStates(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("exportAllCaseStates", sessionHandle);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    public String importCases(String xml, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("importCases", sessionHandle);
+        params.put("xml", xml);
         return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
@@ -1005,6 +1169,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String postToExternalURL(String url, Map<String, String> params) throws IOException {
         return executePost(url, params);
     }
+
+
+    public String pollPerfStats(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("pollPerfStats", sessionHandle);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+     }
 
 
     /**

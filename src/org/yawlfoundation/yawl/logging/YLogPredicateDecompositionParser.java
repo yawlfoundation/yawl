@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -34,30 +34,30 @@ public class YLogPredicateDecompositionParser extends YPredicateParser {
         _decomp = decomp;
     }
 
-    protected String valueOf(String s) {
-        if (s.equals("${decomp:name}")) {
-            s = _decomp.getName();
+    protected String valueOf(String predicate) {
+        String resolved = "n/a";
+        if (predicate.equals("${decomp:name}")) {
+            resolved = _decomp.getID();
         }
-        else if (s.equals("${decomp:spec:name}")) {
-            s = _decomp.getSpecification().getName();
+        else if (predicate.equals("${decomp:spec:name}")) {
+            resolved = _decomp.getSpecification().getName();
         }
-        else if (s.equals("${decomp:inputs}")) {
-            s = namesToCSV(_decomp.getInputParameterNames());
+        else if (predicate.equals("${decomp:inputs}")) {
+            resolved = namesToCSV(_decomp.getInputParameterNames());
         }
-        else if (s.equals("${decomp:outputs}")) {
-            s = namesToCSV(_decomp.getOutputParameterNames());           
+        else if (predicate.equals("${decomp:outputs}")) {
+            resolved = namesToCSV(_decomp.getOutputParameterNames());
         }
-        else if (s.equals("${decomp:doco}")) {
-            s = _decomp.getDocumentation();
-        }
-        else if (s.startsWith("${decomp:attribute:")) {
-            String value = getAttributeValue(_decomp.getAttributes(), s);
-            s = (value != null) ? value : "n/a";
+        else if (predicate.startsWith("${decomp:attribute:")) {
+            resolved = getAttributeValue(_decomp.getAttributes(), predicate);
         }
         else {
-            s = super.valueOf(s);
+            resolved = super.valueOf(predicate);
         }
-        return s;
+        if (resolved == null || "null".equals(resolved) || predicate.equals(resolved)) {
+            resolved = "n/a";
+        }
+        return resolved;
     }
 
 }

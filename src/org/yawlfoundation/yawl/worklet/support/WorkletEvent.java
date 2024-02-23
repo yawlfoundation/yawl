@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -44,8 +44,9 @@ public class WorkletEvent {
     private WorkletEvent() {}                  // empty cons. required for persistence
 
     /** the one and only constructor */
-    public WorkletEvent(String event, String caseId, YSpecificationID specId,
+    public WorkletEvent(long id, String event, String caseId, YSpecificationID specId,
                          String taskId, String parentCaseId, int xType) {
+        _id = id;
         _event = event;
         _caseId = caseId ;
         _specId = specId ;
@@ -53,7 +54,6 @@ public class WorkletEvent {
         _parentCaseId = parentCaseId ;
         _xType = xType ;
         _stamp = _sdfe.format(new Date());
-        _id = new Date().getTime();
     }
 
     /** getters & setters used by persistence */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -31,12 +31,12 @@ public class YTimer extends Timer {
     public enum TimeUnit { YEAR, MONTH, WEEK, DAY, HOUR, MIN, SEC, MSEC }
 
     private static YTimer _me;
-    private final Hashtable<String, TimeKeeper> _runners;
+    private final Map<String, TimeKeeper> _runners;
 
 
     private YTimer() {
         super(true) ;
-        _runners = new Hashtable<String, TimeKeeper>();
+        _runners = new HashMap<String, TimeKeeper>();
     }
 
 

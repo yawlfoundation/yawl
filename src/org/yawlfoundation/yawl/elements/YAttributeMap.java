@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.jdom2.Attribute;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.DynamicValue;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -26,12 +27,12 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import java.util.*;
 
 /**
- * An extended Hashtable of key=attribute pairs.
+ * An extended map of key=attribute pairs.
  * @author Michael Adams
  * @since 2.1
  * @date 11/11/2009
  */
-public class YAttributeMap extends Hashtable<String, String> {
+public class YAttributeMap extends TreeMap<String, String> {
 
     // a map of dynamically constructed values (each time the attributes are read)
     Map<String, DynamicValue> _dynamics;
@@ -40,7 +41,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      * Construct an (initially) empty attribute map.
      */
     public YAttributeMap() {
-        _dynamics = new Hashtable<String, DynamicValue>();
+        _dynamics = new TreeMap<String, DynamicValue>();
     }
 
     /**
@@ -164,7 +165,7 @@ public class YAttributeMap extends Hashtable<String, String> {
         String xml = "";
         String value = getValue(key);
         if (value != null) {
-            xml = String.format("%s=\"%s\"", key, JDOMUtil.encodeEscapes(value));
+            xml = String.format("%s=\"%s\"", key, JDOMUtil.encodeAttributeEscapes(value));
         }
         return xml;
     }
@@ -179,7 +180,7 @@ public class YAttributeMap extends Hashtable<String, String> {
     public String toXMLElement(String key) {
         String xml = "";
         String value = getValue(key);
-        if (value != null) xml = StringUtil.wrap(JDOMUtil.encodeEscapes(value), key);
+        if (value != null) xml = StringUtil.wrap(JDOMUtil.encodeAttributeEscapes(value), key);
         return xml;
     }
 
@@ -208,6 +209,16 @@ public class YAttributeMap extends Hashtable<String, String> {
              xml += " " + toXMLElement(key);
         }
         return xml;
+    }
+
+
+    public void fromXMLElements(String xml) {
+        Element root = JDOMUtil.stringToElement(xml);
+        if (root != null) {
+            for (Element child : root.getChildren()) {
+                put(child.getName(), child.getText());
+            }
+        }
     }
 
 

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app version="2.4">
+
+    <display-name>DemoService</display-name>
+    <description>
+        This simple custom YAWL Service allows the processing of demo specifications.
+        Author: Michael Adams
+    </description>
+
+
+    <!-- Context parameters -->
+
+    <context-param>
+        <description>The URL of the YAWL Engine's interface B</description>
+        <param-name>InterfaceB_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ib</param-value>
+    </context-param>
+
+    <context-param>
+        <description>
+            The class name of this service's Interface B Controller implementation.
+        </description>
+        <param-name>InterfaceBWebSideController</param-name>
+        <param-value>org.yawlfoundation.yawl.demoService.DemoService</param-value>
+    </context-param>
+
+    <context-param>
+        <description>
+            The name of the logon used by this service to connect with the engine.
+            This value must match that used to register the service with the YAWL Engine.
+        </description>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>demoService</param-value>
+    </context-param>
+
+    <context-param>
+        <description>
+            The password for the logon used by this service to connect with the engine.
+            This value must match that used to register the service with the YAWL Engine.
+        </description>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yDemo</param-value>
+    </context-param>
+
+
+    <!-- CharsetFilter - ensures all text transport is encoded as UTF-8  -->
+
+     <filter>
+       <filter-name>CharsetFilter</filter-name>
+       <filter-class>org.yawlfoundation.yawl.util.CharsetFilter</filter-class>
+         <init-param>
+           <param-name>requestEncoding</param-name>
+           <param-value>UTF-8</param-value>
+         </init-param>
+     </filter>
+
+     <filter-mapping>
+       <filter-name>CharsetFilter</filter-name>
+       <url-pattern>/*</url-pattern>
+     </filter-mapping>
+
+
+    <!-- Servlet definitions -->
+
+    <servlet>
+        <description>
+            The name of the YAWL interface class that listens for notification of
+            work items from the engine. Shouldn't need to ever change this.
+        </description>
+        <servlet-name>InterfaceB_Servlet</servlet-name>
+        <servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedServer
+        </servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>InterfaceB_Servlet</servlet-name>
+        <url-pattern>/ib</url-pattern>
+    </servlet-mapping>
+
+
+    <session-config>
+        <session-timeout>60</session-timeout>    <!-- minutes -->
+    </session-config>
+
+
+    <!--<error-page>-->
+        <!--<error-code>404</error-code>-->
+        <!--<location>/error</location>-->
+    <!--</error-page>-->
+
+</web-app>

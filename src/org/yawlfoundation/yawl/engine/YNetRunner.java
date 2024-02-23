@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -55,7 +55,7 @@ import java.util.*;
  */
 public class YNetRunner {
 
-    public static enum ExecutionStatus { Normal, Suspending, Suspended, Resuming }
+    public enum ExecutionStatus { Normal, Suspending, Suspended, Resuming }
 
     private static final Logger _logger = LogManager.getLogger(YNetRunner.class);
 
@@ -71,8 +71,8 @@ public class YNetRunner {
     private YEngine _engine;
     private YAnnouncer _announcer;
     private boolean _cancelling;
-    private final Set<String> _enabledTaskNames = new HashSet<String>();
-    private final Set<String> _busyTaskNames = new HashSet<String>();
+    private Set<String> _enabledTaskNames = new HashSet<String>();
+    private Set<String> _busyTaskNames = new HashSet<String>();
     private String _caseID = null;
     private String _containingTaskID = null;
     private YNetData _netdata = null;
@@ -96,7 +96,7 @@ public class YNetRunner {
 
 
     public YNetRunner(YPersistenceManager pmgr, YNet netPrototype, Element paramsData,
-                      String caseID) throws YDataStateException, YPersistenceException {
+                      String caseID) throws YStateException, YDataStateException, YPersistenceException {
          this();
 
         // initialise and persist case identifier - if caseID is null, a new one is supplied
@@ -166,8 +166,11 @@ public class YNetRunner {
 
 
     public Set<YAnnouncement> refreshAnnouncements() {
-         Set<YAnnouncement> current = _announcements;
-        _announcements = new HashSet<YAnnouncement>();
+        Set<YAnnouncement> current = new HashSet<>();
+        if (_announcements != null) {
+            current.addAll(_announcements);
+        }
+        _announcements = new HashSet<>();
         return current;
     }
 
@@ -272,6 +275,10 @@ public class YNetRunner {
         return _busyTaskNames;
     }
 
+    protected void setEnabledTaskNames(Set<String> names) { _enabledTaskNames = names; }
+
+    protected void setBusyTaskNames(Set<String> names) { _busyTaskNames = names; }
+
 
     public long getStartTime() { return _startTime; }
 
@@ -309,7 +316,7 @@ public class YNetRunner {
             // if root net can't continue it means a case completion
             if ((_engine != null) && isRootNet()) {
                 announceCaseCompletion();
-                if (endOfNetReached() && warnIfNetNotEmpty(pmgr)) {
+                if (endOfNetReached() && warnIfNetNotEmpty()) {
                     _cancelling = true;                       // flag its not a deadlock                                   
                 }
 
@@ -329,7 +336,7 @@ public class YNetRunner {
                                      "OnCompletion", predicate, "string"));
                     }
                 }                
-                YEventLogger.getInstance().logNetCompleted(pmgr, _caseIDForNet, logData);
+                YEventLogger.getInstance().logNetCompleted(_caseIDForNet, logData);
             }
             if (! _cancelling && deadLocked()) notifyDeadLock(pmgr);
             cancel(pmgr);
@@ -423,7 +430,7 @@ public class YNetRunner {
         if (busyCompositeTask.t_complete(pmgr, caseIDForSubnet, rawSubnetData)) {
             _busyTasks.remove(busyCompositeTask);
             if (pmgr != null) pmgr.updateObject(this);
-            logCompletingTask(pmgr, caseIDForSubnet, busyCompositeTask);
+            logCompletingTask(caseIDForSubnet, busyCompositeTask);
 
             //check to see if completing this task resulted in completing the net.
             if (endOfNetReached()) {
@@ -516,7 +523,8 @@ public class YNetRunner {
 
         // notify exception checkpoint to service if available
         if (_announcer.hasInterfaceXListeners()) {
-            _announcer.announceCheckWorkItemConstraints(workItem, outputData, false);
+            _announcer.announceCheckWorkItemConstraints(
+                    workItem, _net.getInternalDataDocument(), false);
         }
         _logger.debug("<-- completeWorkItemInTask");
         return success;
@@ -594,7 +602,10 @@ public class YNetRunner {
                 }
             }
             else if (group.hasEmptyTasks()) {
-                processEmptyTask(group.getRandomEmptyTaskFromGroup(), pmgr);
+                YAtomicTask atomic = group.getRandomEmptyTaskFromGroup();
+                if (! (enabledTasks.contains(atomic) || endOfNetReached())) {
+                    processEmptyTask(atomic, pmgr);
+                }
             }
             else {
                 String groupID = group.getDeferredChoiceID();       // null if <2 tasks
@@ -617,8 +628,12 @@ public class YNetRunner {
             throws YDataStateException, YStateException, YQueryException,
             YPersistenceException {
 
+        _enabledTasks.add(task);
+        _enabledTaskNames.add(task.getID());
         YWorkItem item = createEnabledWorkItem(pmgr, _caseIDForNet, task);
         if (groupID != null) item.setDeferredChoiceGroupID(groupID);
+        if (pmgr != null) pmgr.updateObject(this);
+
         YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
         YAnnouncement announcement = _announcer.createAnnouncement(wsgw.getYawlService(),
                 item, YEngineEvent.ITEM_ADD);
@@ -627,9 +642,6 @@ public class YNetRunner {
             _announcer.announceCheckWorkItemConstraints(item,
                     _net.getInternalDataDocument(), true);
         }
-        _enabledTasks.add(task);
-        _enabledTaskNames.add(task.getID());
-        if (pmgr != null) pmgr.updateObject(this);
 
         return announcement;
     }
@@ -662,10 +674,17 @@ public class YNetRunner {
     protected void processEmptyTask(YAtomicTask task,YPersistenceManager pmgr)
             throws YDataStateException, YStateException, YQueryException,
             YPersistenceException {
-        YIdentifier id = task.t_fire(pmgr).get(0);
-        task.t_start(pmgr, id);
-        _busyTasks.add(task);                             // pre-req for completeTask
-        completeTask(pmgr, null, task, id, null);
+        try {
+            if (task.t_enabled(_caseIDForNet)) {            // may be already processed
+                YIdentifier id = task.t_fire(pmgr).get(0);
+                task.t_start(pmgr, id);
+                _busyTasks.add(task);                        // pre-req for completeTask
+                completeTask(pmgr, null, task, id, null);
+            }
+        }
+        catch (YStateException yse) {
+            // ignore - task already removed due to alternate path or case completion
+        }
     }
 
     
@@ -685,7 +704,7 @@ public class YNetRunner {
             if (announcement != null) _announcements.add(announcement);
 
             // log it
-            YEventLogger.getInstance().logWorkItemEvent(pmgr, wItem,
+            YEventLogger.getInstance().logWorkItemEvent(wItem,
                     YWorkItemStatus.statusWithdrawn, null);
 
             // cancel any live timer
@@ -780,7 +799,7 @@ public class YNetRunner {
         if (taskExited) {
             if (workItem != null) {
                 for (YWorkItem removed : _workItemRepository.removeWorkItemFamily(workItem)) {
-                    if (! removed.hasCompletedStatus()) {      // MI fired or incomplete
+                    if (! (removed.hasCompletedStatus() || removed.isParent())) {      // MI fired or incomplete
                         _announcer.announceCancelledWorkItem(removed);
                     }
                 }
@@ -798,7 +817,7 @@ public class YNetRunner {
                         synchronized (parentRunner) {
                             if (_containingCompositeTask.t_isBusy()) {
 
-                                warnIfNetNotEmpty(pmgr);
+                                warnIfNetNotEmpty();
 
                                 Document dataDoc = _net.usesSimpleRootData() ?
                                                    _net.getInternalDataDocument() :
@@ -810,7 +829,7 @@ public class YNetRunner {
                                             dataDoc);
 
                                 _logger.debug("YNetRunner::completeTask() finished local task: {}," +
-                                        " composite task: {}, caseid for decomposed net: {}" +
+                                        " composite task: {}, caseid for decomposed net: {}",
                                         atomicTask, _containingCompositeTask, _caseIDForNet);
                             }
                         }
@@ -853,7 +872,7 @@ public class YNetRunner {
         _busyTasks = new HashSet<YTask>();
 
         if (_containingCompositeTask != null) {
-            YEventLogger.getInstance().logNetCancelled(pmgr,
+            YEventLogger.getInstance().logNetCancelled(
                     getSpecificationID(), this, _containingCompositeTask.getID(), null);
         }
         if (isRootNet()) _workItemRepository.removeWorkItemsForCase(_caseIDForNet);
@@ -876,8 +895,8 @@ public class YNetRunner {
     }
 
 
-    private void logCompletingTask(YPersistenceManager pmgr, YIdentifier caseIDForSubnet,
-                                  YCompositeTask busyCompositeTask) {
+    private void logCompletingTask(YIdentifier caseIDForSubnet,
+                                   YCompositeTask busyCompositeTask) {
         YLogPredicate logPredicate = busyCompositeTask.getDecompositionPrototype().getLogPredicate();
         YLogDataItemList logData = null;
         if (logPredicate != null) {
@@ -888,7 +907,7 @@ public class YNetRunner {
                         "OnCompletion", predicate, "string"));
             }
         }
-        YEventLogger.getInstance().logNetCompleted(pmgr, caseIDForSubnet, logData);
+        YEventLogger.getInstance().logNetCompleted(caseIDForSubnet, logData);
     }
 
 
@@ -959,7 +978,7 @@ public class YNetRunner {
     }
 
 
-    private boolean warnIfNetNotEmpty(YPersistenceManager pmgr) {
+    private boolean warnIfNetNotEmpty() {
         List<YExternalNetElement> haveTokens = new ArrayList<YExternalNetElement>();
         for (YExternalNetElement element : _net.getNetElements().values()) {
             if (! (element instanceof YOutputCondition)) {  // ignore end condition tokens
@@ -974,7 +993,7 @@ public class YNetRunner {
                     for (YIdentifier id : exeCondition.getIdentifiers()) {
                         YWorkItem executingItem = _workItemRepository.get(
                                 id.toString(), element.getID());
-                        if (executingItem != null) executingItem.setStatusToDiscarded(pmgr);
+                        if (executingItem != null) executingItem.setStatusToDiscarded();
                     }
                 }
             }
@@ -1032,9 +1051,9 @@ public class YNetRunner {
 
 
    /** these two methods are here to support persistence of the IB Observer */
-    private String get_caseObserverStr() { return _caseObserverStr ; }
+    protected String get_caseObserverStr() { return _caseObserverStr ; }
 
-    private void set_caseObserverStr(String obStr) { _caseObserverStr = obStr ; }
+    protected void set_caseObserverStr(String obStr) { _caseObserverStr = obStr ; }
 
 
     /** cancels the specified task */
@@ -1116,10 +1135,12 @@ public class YNetRunner {
 
     public void restoreTimerStates() {
         if (! _timerStates.isEmpty()) {
-            for (String taskName : _timerStates.keySet()) {
+            for (String timerKey : _timerStates.keySet()) {
                 for (YTask task : _netTasks) {
-                    if (task.getName().equals(taskName)) {
-                        String stateStr = _timerStates.get(taskName);
+                    String taskName = task.getName();
+                    if (taskName == null) taskName = task.getID();
+                    if (taskName != null && taskName.equals(timerKey)) {
+                        String stateStr = _timerStates.get(timerKey);
                         YTimerVariable timerVar = task.getTimerVariable();
                         timerVar.setState(YWorkItemTimer.State.valueOf(stateStr), true);
                         break;
@@ -1165,7 +1186,7 @@ public class YNetRunner {
 
     private YTimerVariable getTimerVariable(String taskName) {
         for (YTask task : _netTasks) {
-            if (task.getName().equals(taskName)) {
+            if (task.getName() != null && task.getName().equals(taskName)) {
                 return task.getTimerVariable();
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -245,7 +245,7 @@ public class DynFormField implements Cloneable {
 
 
     public boolean hasZeroMinimum() {
-        return (_minoccurs == 0);
+        return  (hasParent() && _parent.hasZeroMinimum()) || _minoccurs == 0;
     }
     
     public void setEnumeratedValues(List<String> enumValues) {
@@ -255,14 +255,14 @@ public class DynFormField implements Cloneable {
 
     public List<String> getEnumeratedValues() {
         List<String> values = null;
-        if ((_union != null) && _union.hasEnumeration()) {
+        if (_union != null && _union.hasEnumeration()) {
             values = _union.getEnumeration();
         }
-        else if ((_restriction != null) && _restriction.hasEnumeration()) {
+        else if (_restriction != null && _restriction.hasEnumeration()) {
             values = _restriction.getEnumeration();
         }
-        if ((values != null) && (! isRequired())) {
-            values.add(0, "<-- Choose (optional) -->");
+        if (values != null && ! isRequired()) {
+            values.add(0, isInputOnly() ? " " : "<-- Choose (optional) -->");
         }
         return values;
     }

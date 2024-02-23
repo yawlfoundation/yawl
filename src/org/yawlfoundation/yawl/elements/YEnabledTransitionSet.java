@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -94,9 +94,14 @@ public class YEnabledTransitionSet {
         Set<String> priorSet = new HashSet<String>();
         for (YFlow flow : task.getPresetFlows()) {
             YNetElement prior = flow.getPriorElement();
-            if (prior != null) priorSet.add(prior.getID()) ;
+            if (isEnablingCondition(prior)) priorSet.add(prior.getID()) ;
         }
         return priorSet;
+    }
+
+
+    private boolean isEnablingCondition(YNetElement element) {
+        return (element instanceof YCondition) && ((YCondition) element).containsIdentifier();
     }
 
 

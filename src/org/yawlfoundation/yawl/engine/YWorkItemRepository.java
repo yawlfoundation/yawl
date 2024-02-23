@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -45,7 +45,7 @@ public class YWorkItemRepository {
     private final Logger _logger;
 
     public YWorkItemRepository() {
-        _itemMap = new ConcurrentHashMap<String, YWorkItem>(500);
+        _itemMap = new ConcurrentHashMap<>(500);
         _logger = LogManager.getLogger(YWorkItemRepository.class);
     }
 
@@ -191,7 +191,7 @@ public class YWorkItemRepository {
                 if (! foundOne) itemsToRemove.add(workitem.getIDString());
             }
         }
-        removeItems(itemsToRemove);
+        if (! itemsToRemove.isEmpty()) removeItems(itemsToRemove);
     }
 
 

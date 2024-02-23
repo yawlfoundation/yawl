@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -672,8 +672,32 @@ public class SessionBean extends AbstractSessionBean {
     public void checkLogon() {
         if (! _rm.isValidUserSession(sessionhandle)) {
             doLogout();
-            gotoPage("Login");
+
+            // security: force redirect otherwise repeated requests
+            // can trick the application bypass login
+            try {
+                FacesContext.getCurrentInstance().getExternalContext().redirect("Login.jsp");
+            }
+            catch (IOException ignore) {
+                //
+            }
         }
+    }
+    
+    /**
+     * @return whether the current session is valid
+     */
+    public boolean isLoggedIn() {
+        return _rm.isValidUserSession(sessionhandle);
+    }
+
+
+    public boolean isAdminSession() {
+        return _rm.isAdminSession(sessionhandle);
+    }
+
+    public UserPrivileges getSessionPrivileges() {
+        return _rm.getSessionPrivileges(sessionhandle);
     }
 
 
@@ -1044,10 +1068,12 @@ public class SessionBean extends AbstractSessionBean {
         if (pidList != null) {
             if (action.startsWith("Re")) {
                 wir = getChosenWIR(WorkQueue.WORKLISTED);
+                if (wir == null) return false;
                 _rm.reassignWorklistedItem(wir, pidList, action) ;
             }
             else  {
                 wir = getChosenWIR(WorkQueue.UNOFFERED);
+                if (wir == null) return false;
                 success = _rm.assignUnofferedItem(wir, pidList, action) ;
             }
         }
@@ -1195,6 +1221,7 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public Participant setEditedParticipant(String pid) throws CloneNotSupportedException {
+        setEditedParticipantToNull();                        // remove any previous
         Participant p = getParticipantMap().get(pid);
         if (p != null) {
             preEditAttributes = p.getAttributeReferences();
@@ -2218,7 +2245,9 @@ public class SessionBean extends AbstractSessionBean {
             int i = 0;
             for (AbstractResource resource : attribute.getResources()) {
                 Participant p = (Participant) resource;
-                orgDataMembers[i++] = new Option(p.getID(), p.getFullName()) ;
+                if (! (p == null || p.getID() == null || p.getFullName() == null)) {
+                    orgDataMembers[i++] = new Option(p.getID(), p.getFullName());
+                }
             }
         }
         else orgDataMembers = null;
@@ -2475,7 +2504,7 @@ public class SessionBean extends AbstractSessionBean {
     public void setCalMgtMinDate(Date date) { calMgtMinDate = date; }
 
 
-    private Date calMgtMaxDate = createDate("2020-01-01");
+    private Date calMgtMaxDate = createDate("2030-01-01");
 
     public Date getCalMgtMaxDate() { return calMgtMaxDate; }
 
@@ -2659,6 +2688,16 @@ public class SessionBean extends AbstractSessionBean {
     public String getCalDataTableStyle() {
         int height = 20 * (calendarRows.size() + 1);
         return String.format("height: %dpx", Math.min(height, 330));
+    }
+
+    public String stripXMLChars(String s) {
+        if (StringUtil.isNullOrEmpty(s)) return s;
+
+        StringBuilder sb = new StringBuilder(s.length());
+        for (char c : s.toCharArray()) {
+            if (! (c == '<' || c == '>' || c == '&')) sb.append(c);
+        }
+        return sb.toString();
     }
     
     /******************************************************************************/

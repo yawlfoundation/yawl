@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -30,7 +30,7 @@ import java.util.Vector;
 
 /**
  * This class has control over data structures that allow for
- * storing an identifer and managing a set of children.
+ * storing an identifier and managing a set of children.
  *
  * @author Lachlan Aldred
  * @author Michael Adams (refactored for v2.0, 06/08 & 04/09)

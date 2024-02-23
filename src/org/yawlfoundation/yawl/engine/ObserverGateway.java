@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -160,7 +160,7 @@ public interface ObserverGateway {
      * @param id the identifier of the deadlocked case
      * @param tasks the set of deadlocked tasks
      */
-    public void announceDeadlock(Set<YAWLServiceReference> services, YIdentifier id,
+    void announceDeadlock(Set<YAWLServiceReference> services, YIdentifier id,
                                Set<YTask> tasks);
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -37,8 +37,8 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,8 +58,7 @@ import static org.yawlfoundation.yawl.engine.announcement.YEngineEvent.*;
 public class InterfaceB_EngineBasedClient extends Interface_Client implements ObserverGateway {
 
     protected static final Logger _logger = LogManager.getLogger(InterfaceB_EngineBasedClient.class);
-    private static final ExecutorService _executor =
-            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private final Map<YAWLServiceReference, ExecutorService> _executorMap = new ConcurrentHashMap<>();
 
 
     /**
@@ -74,8 +73,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param announcement
      */
     public void announceFiredWorkItem(YAnnouncement announcement) {
-        _executor.execute(new Handler(announcement.getYawlService(),
-                announcement.getItem(), ITEM_ADD));
+        Map<String, String> paramsMap = prepareParamMap(ITEM_ADD);
+        paramsMap.put("workItem", announcement.getItem().toXML());
+        YAWLServiceReference service = announcement.getYawlService();
+        Handler handler = new Handler(service, paramsMap);
+        handler.setWorkItem(announcement.getItem());         // needed for possible redirect
+        getServiceExecutor(service).execute(handler);
     }
 
 
@@ -102,7 +105,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param workItem the work item to cancel.
      */
     public void cancelWorkItem(YAWLServiceReference yawlService, YWorkItem workItem) {
-        _executor.execute(new Handler(yawlService, workItem, ITEM_CANCEL));
+        Map<String, String> paramsMap = prepareParamMap(ITEM_CANCEL);
+        paramsMap.put("workItem", workItem.toXML());
+        getServiceExecutor(yawlService).execute(new Handler(yawlService, paramsMap));
     }
 
 
@@ -111,9 +116,10 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param announcement the yawl service reference.
      */
     public void announceTimerExpiry(YAnnouncement announcement) {
+        Map<String, String> paramsMap = prepareParamMap(TIMER_EXPIRED);
+        paramsMap.put("workItem", announcement.getItem().toXML());
         YAWLServiceReference yawlService = announcement.getYawlService();
-        YWorkItem workItem = announcement.getItem();
-        _executor.execute(new Handler(yawlService, workItem, TIMER_EXPIRED));
+        getServiceExecutor(yawlService).execute(new Handler(yawlService, paramsMap));
     }
 
 
@@ -122,19 +128,16 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * suspended) as opposed to entering the 'suspending' state.
      */
     public void announceCaseSuspended(Set<YAWLServiceReference> services, YIdentifier caseID) {
-        for (YAWLServiceReference service : services) {
-            _executor.execute(new Handler(service, caseID, CASE_SUSPENDED));
-        }
+        announceCaseSuspensionState(services, caseID, CASE_SUSPENDED);
     }
+
 
     /**
      * Called by the engine to announce when a case starts to suspends (i.e. enters the
      * suspending state) as opposed to entering the fully 'suspended' state.
      */
     public void announceCaseSuspending(Set<YAWLServiceReference> services, YIdentifier caseID) {
-        for (YAWLServiceReference service : services) {
-            _executor.execute(new Handler(service, caseID, CASE_SUSPENDING));
-        }
+        announceCaseSuspensionState(services, caseID, CASE_SUSPENDING);
     }
 
     /**
@@ -142,9 +145,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * or 'suspended' state.
      */
     public void announceCaseResumption(Set<YAWLServiceReference> services, YIdentifier caseID) {
-        for (YAWLServiceReference service : services) {
-            _executor.execute(new Handler(service, caseID, CASE_RESUMED));
-        }
+        announceCaseSuspensionState(services, caseID, CASE_RESUMED);
     }
 
     /**
@@ -158,9 +159,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                                              YWorkItem workItem,
                                              YWorkItemStatus oldStatus,
                                              YWorkItemStatus newStatus) {
+        Map<String, String> paramsMap = prepareParamMap(ITEM_STATUS);
+        paramsMap.put("workItem", workItem.toXML());
+        paramsMap.put("oldStatus", oldStatus.toString());
+        paramsMap.put("newStatus", newStatus.toString());
         for (YAWLServiceReference service : services) {
-            _executor.execute(new Handler(service, workItem, oldStatus.toString(),
-                                            newStatus.toString(), ITEM_STATUS));
+            getServiceExecutor(service).execute(new Handler(service, paramsMap));
         }
     }
 
@@ -177,9 +181,13 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     public void announceCaseStarted(Set<YAWLServiceReference> services,
                                     YSpecificationID specID, YIdentifier caseID,
                                     String launchingService, boolean delayed) {
+        Map<String, String> paramsMap = prepareParamMap(CASE_START);
+        paramsMap.putAll(specID.toMap());
+        paramsMap.put("caseID", caseID.toString());
+        paramsMap.put("launchingService", launchingService);
+        paramsMap.put("delayed", String.valueOf(delayed));
         for (YAWLServiceReference service : services) {
-            _executor.execute(
-                    new Handler(service, specID, caseID, launchingService, delayed, CASE_START));
+            getServiceExecutor(service).execute(new Handler(service, paramsMap));
         }
     }
 
@@ -203,8 +211,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void announceCaseCompletion(YAWLServiceReference yawlService, 
                                        YIdentifier caseID, Document caseData) {
-        _executor.execute(new Handler(yawlService, caseID, caseData, CASE_COMPLETE));
+        Map<String, String> paramsMap = prepareParamMap(CASE_COMPLETE);
+        paramsMap.put("caseID", caseID.toString());
+        paramsMap.put("casedata", JDOMUtil.documentToString(caseData));
+        getServiceExecutor(yawlService).execute(new Handler(yawlService, paramsMap));
     }
+
 
     /**
      * Called by the engine when it has completed initialisation and is running
@@ -212,8 +224,10 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param maxWaitSeconds the maximum seconds to wait for services to be contactable
      */
     public void announceEngineInitialised(Set<YAWLServiceReference> services, int maxWaitSeconds) {
+        Map<String, String> paramsMap = prepareParamMap(ENGINE_INIT);
+        paramsMap.put("maxWaitSeconds", String.valueOf(maxWaitSeconds));
         for (YAWLServiceReference service : services) {
-            _executor.execute(new Handler(service, maxWaitSeconds, ENGINE_INIT));
+            getServiceExecutor(service).execute(new Handler(service, paramsMap));
         }
     }
 
@@ -224,10 +238,13 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void announceCaseCancellation(Set<YAWLServiceReference> services,
                                                YIdentifier id) {
+        Map<String, String> paramsMap = prepareParamMap(CASE_CANCELLED);
+        paramsMap.put("caseID", id.toString());
         for (YAWLServiceReference service : services) {
-            _executor.execute(new Handler(service, id, CASE_CANCELLED));
+            getServiceExecutor(service).execute(new Handler(service, paramsMap));
         }
     }
+
 
     /**
      * Called by the engine to announce the deadlock of a case
@@ -237,11 +254,15 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void announceDeadlock(Set<YAWLServiceReference> services, YIdentifier id,
                                Set<YTask> tasks) {
+        Map<String, String> paramsMap = prepareParamMap(CASE_DEADLOCKED);
+        paramsMap.put("caseID", id.toString());
+        Set<String> list = new HashSet<String>();
+        for (YTask task : tasks) list.add(task.getID());
+        paramsMap.put("tasks", list.toString());
         for (YAWLServiceReference service : services) {
-            _executor.execute(new Handler(service, id, tasks, CASE_DEADLOCKED));
+            getServiceExecutor(service).execute(new Handler(service, paramsMap));
         }
     }
-
 
 
     /**
@@ -249,7 +270,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void shutdown() {
         HttpURLValidator.cancelAll();
-        _executor.shutdownNow();
+        for (ExecutorService executor : _executorMap.values()) {
+            executor.shutdownNow();
+        }
 
     	// Nothing else to do - Interface B Clients handle shutdown within their own servlet.
     }
@@ -283,6 +306,32 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         return paramResults.toArray(new YParameter[paramResults.size()]);
     }
 
+
+    private void announceCaseSuspensionState(Set<YAWLServiceReference> services,
+                                         YIdentifier caseID, YEngineEvent event) {
+        Map<String, String> paramsMap = prepareParamMap(event);
+        paramsMap.put("caseID", caseID.toString());
+        for (YAWLServiceReference service : services) {
+            getServiceExecutor(service).execute(new Handler(service, paramsMap));
+        }
+    }
+
+    
+    private Map<String, String> prepareParamMap(YEngineEvent event) {
+        return super.prepareParamMap(event.label(), null);
+    }
+
+    // use a different 2-thread executor for each destination service
+    private ExecutorService getServiceExecutor(YAWLServiceReference service) {
+        ExecutorService executor = _executorMap.get(service);
+        if (executor == null) {
+            executor = Executors.newFixedThreadPool(2);
+            _executorMap.put(service, executor);
+        }
+        return executor;
+    }
+
+
     /*******************************************************************************/
     /*******************************************************************************/
 
@@ -292,115 +341,37 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
 
     private class Handler implements Runnable {
+
+        private final YAWLServiceReference _yawlService;
+        private final Map<String, String> _paramsMap ;
         private YWorkItem _workItem;
-        private YAWLServiceReference _yawlService;
-        private YEngineEvent _command;
-        private YSpecificationID _specID;
-        private YIdentifier _caseID;
-        private Document _caseData;
-        private Set<YTask> _tasks;
-        private String _launchingService;
-        private String _oldStatus;
-        private String _newStatus;
-        private boolean _delayed;
-        private int _pingTimeout = 5;
 
-        public Handler(YAWLServiceReference yawlService, YWorkItem workItem, YEngineEvent command) {
-            _workItem = workItem;
+        public Handler(YAWLServiceReference yawlService, Map<String, String> paramsMap) {
             _yawlService = yawlService;
-            _command = command;
+            _paramsMap = paramsMap;
         }
 
-        public Handler(YAWLServiceReference yawlService, YWorkItem workItem,
-                       String oldStatus, String newStatus, YEngineEvent command) {
-            _workItem = workItem;
-            _yawlService = yawlService;
-            _command = command;
-            _oldStatus = oldStatus;
-            _newStatus = newStatus;
-        }
-
-        public Handler(YAWLServiceReference yawlService, YIdentifier caseID,
-                        Document casedata, YEngineEvent command) {
-            _yawlService = yawlService;
-            _caseID = caseID;
-            _command = command;
-            _caseData = casedata;
-        }
-
-        public Handler(YAWLServiceReference yawlService, int pingTimeout, YEngineEvent command) {
-            _yawlService = yawlService;
-            _pingTimeout = pingTimeout;
-            _command = command;
-        }
-
-        public Handler(YAWLServiceReference yawlService, YIdentifier id, YEngineEvent command) {
-            _yawlService = yawlService;
-            _caseID = id;
-            _command = command;
-        }
-        
-        public Handler(YAWLServiceReference yawlService, YIdentifier id,
-                       Set<YTask> tasks, YEngineEvent command) {
-            _yawlService = yawlService;
-            _caseID = id;
-            _tasks = tasks;
-            _command = command;
-        }
-
-        public Handler(YAWLServiceReference yawlService, YSpecificationID specID,
-                YIdentifier id, String launchingService, boolean delayed, YEngineEvent command) {
-            _yawlService = yawlService;
-            _specID = specID;
-            _caseID = id;
-            _launchingService = launchingService;
-            _delayed = delayed;
-            _command = command;            
-        }
+        void setWorkItem(YWorkItem item) { _workItem = item; }
 
 
         /**
-         * Load parameter map as required, then POST the message to the custom service
+         * POST the message to the custom service
          */
-        public void run() {
-            Map<String, String> paramsMap = prepareParamMap(_command.label(), null);
-            if (_workItem != null) paramsMap.put("workItem", _workItem.toXML());
-            if (_caseID != null) paramsMap.put("caseID", _caseID.toString());
+         public void run() {
+            String event = _paramsMap.get("action");
             try {
-                switch (_command) {
-                    case ITEM_STATUS: {
-                        paramsMap.put("oldStatus", _oldStatus);
-                        paramsMap.put("newStatus", _newStatus);
-                        break;
-                    }
-                    case CASE_START: {
-                        paramsMap.putAll(_specID.toMap());
-                        paramsMap.put("launchingService", _launchingService);
-                        paramsMap.put("delayed", String.valueOf(_delayed));
-                        break;
-                    }
-                    case CASE_COMPLETE: {
-                        paramsMap.put("casedata", JDOMUtil.documentToString(_caseData));
-                        break;
-                    }
-                    case CASE_DEADLOCKED: {
-                        Set<String> list = new HashSet<String>();
-                        for (YTask task : _tasks) list.add(task.getID());
-                        paramsMap.put("tasks", list.toString());
-                        break;
-                    }
-                    case ENGINE_INIT: {
-                        HttpURLValidator.pingUntilAvailable(_yawlService.getURI(), _pingTimeout);
-                        break;
-                    }
+                if (event.equals(ENGINE_INIT.label())) {
+                    int maxWait = Integer.parseInt(_paramsMap.get("maxWaitSeconds"));
+                    HttpURLValidator.pingUntilAvailable(_yawlService.getURI(), maxWait);
                 }
-                executePost(_yawlService.getURI(), paramsMap);
+                
+                executePost(_yawlService.getURI(), _paramsMap);
             }
             catch (ConnectException ce) {
-                if (_command == ITEM_ADD) {
+                if (event.equals(ITEM_ADD.label())) {
                     redirectWorkItem(true);
                 }
-                else if (_command == ENGINE_INIT) {
+                else if (event.equals(ENGINE_INIT.label())) {
                     try {
                         _logger.warn("Failed to announce engine initialisation to {} at URI {}",
                             _yawlService.getServiceName(), _yawlService.getURI());
@@ -413,12 +384,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             }
             catch (IOException e) {
 
-                if (_command == ITEM_ADD) {
+                if (event.equals(ITEM_ADD.label())) {
                     redirectWorkItem(false);
                 }
 
                 // ignore broadcast announcements for missing services
-                else if (! _command.isBroadcast()) {
+                else if (! YEngineEvent.fromString(event).isBroadcast()) {
                     _logger.warn("Failed to call YAWL service", e);
                 }
             }            

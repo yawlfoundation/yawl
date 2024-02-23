@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -72,4 +72,6 @@ public interface InterfaceX_Service {
 
      void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException ;
+
+//     void setEngineLogonCredentials(String user, String password);
 }

@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.controlpanel.cli;
 
 import org.yawlfoundation.yawl.controlpanel.update.Differ;
@@ -5,6 +23,7 @@ import org.yawlfoundation.yawl.controlpanel.update.UpdateChecker;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateRow;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.Console;
 
@@ -22,10 +41,13 @@ public class CliUpdateSwitcher {
     public boolean handle(String[] args) {
         String arg = args[0].toLowerCase();
         if (arg.equals("-start")) {
-            return doStart();
+            return doStart(getPortArg(args));
         }
         if (arg.equals("-stop")) {
             return doStop();
+        }
+        if (arg.equals("-restart")) {
+            return doRestart(getPortArg(args));
         }
         if (arg.equals("-update") || arg.equals("-u")) {
             return doUpdates();
@@ -50,13 +72,13 @@ public class CliUpdateSwitcher {
             System.out.println("Command Line Usage:\n\n" +
                     FileUtil.getJarName() + " option [argument]\n\n" +
                     "where option is one of \n\n" +
-                    "-start:              Start the YAWL engine\n" +
-                    "-stop:               Stop the YAWL engine\n" +
-                    "-status:             Check whether the YAWL engine is running or stopped\n" +
-                    "-update:             Update installed components\n" +
-                    "-versions:           List installed and available components and their versions\n" +
-                    "-add [component]:    Add the named component (and perform updates)\n" +
-                    "-remove [component]: Remove the named component\n");
+                    "-start               // Start the YAWL engine\n" +
+                    "-stop                // Stop the YAWL engine\n" +
+                    "-status              // Check whether the YAWL engine is running or stopped\n" +
+                    "-update              // Update installed components\n" +
+                    "-versions            // List installed and available components and their versions\n" +
+                    "-add [component]     // Add the named component (and perform updates)\n" +
+                    "-remove [component]  // Remove the named component\n");
             return true;
         }
 
@@ -71,7 +93,8 @@ public class CliUpdateSwitcher {
     }
 
 
-    private boolean doStart() {
+    private boolean doStart(int port) {
+        updatePort(port);
         new CliStarter().run();
         return true;
     }
@@ -80,6 +103,11 @@ public class CliUpdateSwitcher {
     private boolean doStop() {
         new CliStopper().run();
         return true;
+    }
+
+
+    private boolean doRestart(int port) {
+        return doStop() & doStart(port);
     }
 
 
@@ -206,6 +234,16 @@ public class CliUpdateSwitcher {
         if (!updater.hasErrors()) {
             System.out.println(msg);
         }
+    }
+
+
+    private int getPortArg(String[] args) {
+        return args.length > 1 ? StringUtil.strToInt(args[1], 0) : 0;
+    }
+
+
+    private void updatePort(int port) {
+        if (port > 0) TomcatUtil.setTomcatServerPort(port);
     }
 
 

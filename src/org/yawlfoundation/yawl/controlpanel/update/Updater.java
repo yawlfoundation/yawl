@@ -1,12 +1,31 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.controlpanel.update;
 
-import org.yawlfoundation.yawl.controlpanel.components.ComponentsPanel;
+import org.yawlfoundation.yawl.controlpanel.components.ComponentsPane;
 import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateRow;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTableModel;
+import org.yawlfoundation.yawl.controlpanel.util.CursorUtil;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebXmlReader;
@@ -29,14 +48,16 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         Download, Verify, StopEngine, Update, StartEngine, Complete, Finalise
     }
 
-    private ComponentsPanel _componentsPanel;
+    private ComponentsPane _componentsPane;
     private ProgressPanel _progressPanel;
     private Downloader _downloader;
+    private List<UpdateRow> _appRows;
+    private UpdateChecker _checker;
     private boolean _cycled;                            // was engine running at init?
 
     protected Differ _differ;
     protected List<AppUpdate> _installs;
-    protected List<String> _downloads;
+    protected List<FileNode> _downloads;
     protected List<String> _deletions;
     protected State _state;
     protected boolean _updatingThis;                      // updating control panel?
@@ -47,25 +68,28 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     protected Updater(UpdateTableModel model) {
         _differ = model.getDiffer();
-        _installs = getInstallList(model.getRows());
+        _appRows = model.getRows();
     }
 
 
-    public Updater(ComponentsPanel componentsPanel) {
-        this((UpdateTableModel) componentsPanel.getTable().getModel());
-        _componentsPanel = componentsPanel;
-        _progressPanel = componentsPanel.getProgressPanel();
+    public Updater(ComponentsPane componentsPane) {
+        this((UpdateTableModel) componentsPane.getTable().getModel());
+        _componentsPane = componentsPane;
+        _progressPanel = componentsPane.getProgressPanel();
     }
 
 
     // entry point - start the update process
     public void start() {
         Publisher.addEngineStatusListener(this);
-        setState(State.Download);
+        setWaitCursor();
+        if (prepareDiffer()) {
+            setState(State.Download);
+        }
     }
 
 
-    // events from Downloader & Verifier processes
+    // events from Downloader, Verifier & prepareDiffer processes
     public void propertyChange(PropertyChangeEvent event) {
         if (event.getPropertyName().equals("state")) {
             Object stateValue = event.getNewValue();
@@ -76,8 +100,12 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                 if (event.getSource() instanceof Verifier) {
                     verifyCompleted(((Verifier) event.getSource()));
                 }
-                else {
+                else if (event.getSource() instanceof Downloader) {
                     downloadCompleted();
+                }
+                else {
+                    _differ = _checker.getDiffer();
+                    setState(State.Download);        // differ ready - start the process
                 }
              }
         }
@@ -117,13 +145,14 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     protected void download() {
+        _installs = getInstallList(_appRows);
         List<AppUpdate> updates = getUpdatesList();
         updates.addAll(_installs);
         if (! updates.isEmpty()) {
             _downloads = getDownloadList(updates);
             _deletions = getDeletionList(updates);
             if (! _downloads.isEmpty()) {
-                getProgressPanel().setText("Downloading files...");
+                showProgress("Downloading files...");
                 download(updates);            // download & verify updated/new files
             }
             else if (! _deletions.isEmpty()) {
@@ -137,7 +166,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     // Starts the verify swing worker
     protected void verify() {
         getProgressPanel().setIndeterminate(true);
-        getProgressPanel().setText("Verifying downloads...");
+        showProgress("Verifying downloads...");
         Verifier verifier = new Verifier(getMd5Map());
         verifier.addPropertyChangeListener(this);
         verifier.execute();
@@ -160,7 +189,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     private void update() {
         getProgressPanel().setIndeterminate(true);
-        getProgressPanel().setText("Updating files...");
+        showProgress("Updating files...");
         File tomcatDir = new File(TomcatUtil.getCatalinaHome());
         doUpdates(tomcatDir);
         doDeletions(tomcatDir);
@@ -171,7 +200,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     private void startEngine() {
-        getProgressPanel().setText((_cycled ? "Res" : "S") + "tarting Engine...");
+        showProgress((_cycled ? "Res" : "S") + "tarting Engine...");
         try {
             TomcatUtil.start();
         }
@@ -184,9 +213,9 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     // Update process completed - do cleanup
     private void complete() {
-        if (_componentsPanel != null) {
+        if (_componentsPane != null) {
             File checkSum = FileUtil.getLocalCheckSumFile();
-            _componentsPanel.refresh(new Differ(checkSum, checkSum), true);
+            _componentsPane.refresh(new Differ(checkSum, checkSum), true);
         }
         updateServiceRegistration();
         new UserPreferences().setPostUpdatesCompleted(false);
@@ -200,19 +229,20 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     protected void finalise() {
         Publisher.removeEngineStatusListener(this);
         getProgressPanel().setVisible(false);
+        resetCursor();
     }
 
 
-    protected List<String> getDownloadList(List<AppUpdate> updates) {
+    protected List<FileNode> getDownloadList(List<AppUpdate> updates) {
         consolidateLibs(updates);
-        List<String> fileNames = new ArrayList<String>();
+        List<FileNode> fileNodes = new ArrayList<FileNode>();
         for (AppUpdate list : updates) {
             if (list.isControlPanelApp()) {
                 _updatingThis = true;
             }
-            fileNames.addAll(list.getDownloadNames());
+            fileNodes.addAll(list.getDownloads());
         }
-        return fileNames;
+        return fileNodes;
     }
 
 
@@ -246,7 +276,10 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         if (updatesList == null) return null;
         Map<String,String> map = new HashMap<String, String>();
         for (AppUpdate list : updatesList) {
-             map.putAll(list.getMd5Map());
+            if (list.isUIApp()) {
+                continue;
+            }
+            map.putAll(list.getMd5Map());
         }
         return map;
     }
@@ -292,9 +325,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     protected void download(List<AppUpdate> updates) {
         long downloadSize = getDownloadSize(updates);
         getProgressPanel().setDownloadSize(downloadSize);
-        _downloader = new Downloader(UpdateChecker.SOURCE_URL,
-                UpdateChecker.SF_DOWNLOAD_SUFFIX, _downloads,
-                downloadSize, FileUtil.getTmpDir());
+        _downloader = new Downloader(_downloads, downloadSize, FileUtil.getTmpDir());
         _downloader.addPropertyChangeListener(this);
         _downloader.execute();
     }
@@ -352,25 +383,36 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                 "Update Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    protected void showWarning(String message) {
+        JOptionPane.showMessageDialog(getProgressPanel().getParent(),
+                 message,"Warning", JOptionPane.WARNING_MESSAGE);
+    }
+
 
 
     // 5. COPY in new files -> startEngine
     protected File doUpdates(File tomcatDir)  {
         File tmpDir = FileUtil.getTmpDir();
         int port = TomcatUtil.getTomcatServerPort();
-        for (String fileName : _downloads) {
-            if (! isControlPanelFileName(fileName)) {            // do CP last
-                File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
-                File target = getCopyTarget(tomcatDir, fileName);
-                copy(source, target);
-                if (port != 8080 && fileName.endsWith("web.xml")) {
-                    updatePort(target, port);
+        for (FileNode fileNode : _downloads) {
+            if (fileNode instanceof YawlUiUpdater.UIFileNode) {
+                ((YawlUiUpdater.UIFileNode) fileNode).doUpdate(tmpDir);
+            }
+            else {
+                String fileName = fileNode.getDiskFilePath();
+                if (!isControlPanelFileName(fileName)) {            // do CP last
+                    File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
+                    File target = getCopyTarget(tomcatDir, fileName);
+                    copy(source, target);
+                    if (port != 8080 && fileName.endsWith("web.xml")) {
+                        updatePort(target, port);
+                    }
                 }
             }
         }
 
         // copy downloaded checksums.xml to lib
-        File source = new File(tmpDir, UpdateChecker.CHECKSUM_FILE);
+        File source = new File(tmpDir, UpdateConstants.CHECK_FILE);
         File target = FileUtil.getLocalCheckSumFile();
         copy(source, target);
 
@@ -409,14 +451,15 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     protected boolean onlyUpdatingControlPanel() {
-        return _downloads.size() == 1 && isControlPanelFileName(_downloads.get(0));
+        return _downloads.size() == 1 && isControlPanelFileName(_downloads.get(0).getURLFilePath());
     }
 
 
     private boolean updateThis() {
         File tmpDir = FileUtil.getTmpDir();
         File tomcatDir = new File(TomcatUtil.getCatalinaHome());
-        for (String fileName : _downloads) {
+        for (FileNode fileNode : _downloads) {
+            String fileName = fileNode.getDiskFilePath();
             if (isControlPanelFileName(fileName)) {
                 File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
                 File target = getCopyTarget(tomcatDir, fileName);
@@ -462,7 +505,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                         success = false;
                     }
                     if (! success) {
-                        showError("Service '" + appName + "' has been successfully " +
+                        showWarning("Service '" + appName + "' has been successfully " +
                                 "removed, but\n" +
                                 "failed to deregister from the YAWL Engine.");
                     }
@@ -483,7 +526,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                     else success = false;
 
                     if (! success) {
-                        showError("Service '" + appName + "' has been successfully " +
+                        showWarning("Service '" + appName + "' has been successfully " +
                                 "added, but\n" +
                                 "failed to register with the YAWL Engine.");
                     }
@@ -559,5 +602,31 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             StringUtil.replaceInFile(webxml, ":8080", ":" + port);
         }
     }
+
+
+    private void showProgress(final String text) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                getProgressPanel().setText(text);
+            }
+        });
+    }
+
+
+    private boolean prepareDiffer() {
+        boolean prepared = _differ != null && _differ.hasLatestChecksums();
+        if (! prepared) {
+            _checker = new UpdateChecker();
+            _checker.addPropertyChangeListener(this);
+            _checker.execute();
+        }
+        return prepared;
+    }
+
+
+    protected void resetCursor() { CursorUtil.showDefaultCursor(); }
+
+    protected void setWaitCursor() { CursorUtil.showWaitCursor(); }
 
 }

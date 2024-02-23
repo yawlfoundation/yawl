@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -22,7 +22,11 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import java.util.Hashtable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A 'stringified' record of a workitem for passing across various HTTP interfaces
@@ -51,12 +55,15 @@ public class WorkItemRecord implements Cloneable {
     public static final String statusDiscarded = "Discarded";
 
     // workitem resourcing statuses
-    public final static String statusResourceOffered = "Offered" ;
-    public final static String statusResourceAllocated = "Allocated" ;
-    public final static String statusResourceStarted = "Started" ;
-    public final static String statusResourceSuspended = "Suspended" ;
-    public final static String statusResourceUnoffered = "Unoffered" ;
-    public final static String statusResourceUnresourced = "Unresourced" ;
+    public static final String statusResourceOffered = "Offered" ;
+    public static final String statusResourceAllocated = "Allocated" ;
+    public static final String statusResourceStarted = "Started" ;
+    public static final String statusResourceSuspended = "Suspended" ;
+    public static final String statusResourceUnoffered = "Unoffered" ;
+    public static final String statusResourceUnresourced = "Unresourced" ;
+
+    private static final DateFormat DATE_FORMAT =
+            new SimpleDateFormat("MMM dd yyyy H:mm:ss");
 
     // item identifiers
     private long _id;                                    // hibernate primary key
@@ -73,19 +80,12 @@ public class WorkItemRecord implements Cloneable {
     private String _codelet;
 
     // task/decomp level attribs
-    private Hashtable<String, String> _attributeTable;
-    private String _extendedAttributes = "";
+    private Map<String, String> _attributeTable;
 
     // identifies this item as a member of a group of deferred choice items
     private String _deferredChoiceGroupID = null;
 
-    // life-cycle time stamps
-    private String _enablementTime;
-    private String _firingTime;
-    private String _startTime;
-    private String _completionTime;
-
-    // ... and their millisecond equivalents
+    // status timestamps
     private String _enablementTimeMs;
     private String _firingTimeMs;
     private String _startTimeMs ;
@@ -105,11 +105,9 @@ public class WorkItemRecord implements Cloneable {
 
     // initial data params and values
     private Element _dataList;
-    private String _dataListString;
 
-    // interim data store - for use by custome services for temp storage
+    // interim data store - for use by custom services for data change storage
     private Element _dataListUpdated;
-    private String _dataListUpdatedString;
 
     // configurable logging predicates
     private String _logPredicateStarted;
@@ -128,28 +126,15 @@ public class WorkItemRecord implements Cloneable {
     public WorkItemRecord() {}                     // for reflection
 
     // called by Marshaller.unmarshallWorkItem
-    public WorkItemRecord(String caseID, String taskID, String specURI,
-                          String enablementTime, String status) {
+    public WorkItemRecord(String caseID, String taskID, String specURI, String status) {
         _taskID = taskID;
         _caseID = caseID;
         _specURI = specURI;
-        _enablementTime = enablementTime;
         _status = status;
     }
 
-    public void restoreDataList() {
-        if (_dataListString != null)
-            _dataList = JDOMUtil.stringToElement(_dataListString) ;
-        if (_dataListUpdatedString != null)
-            _dataListUpdated = JDOMUtil.stringToElement(_dataListUpdatedString) ;
-    }
-
-    public void restoreAttributeTable() {
-        _attributeTable = attributeStringToTable();
-    }
 
     public void resetDataState() {
-        _dataListUpdatedString = null;
         _dataListUpdated = null ; 
     }
 
@@ -183,24 +168,11 @@ public class WorkItemRecord implements Cloneable {
 
     public void setDeferredChoiceGroupID(String id) { _deferredChoiceGroupID = id ; }
 
-    public void setExtendedAttributes(Hashtable<String, String> attribs) {
-        _attributeTable = attribs ;
-        _extendedAttributes = attributeTableToAttributeString() ;
+    public void setExtendedAttributes(Map<String, String> attrMap) {
+        _attributeTable = attrMap ;
     }
 
-    public void setExtendedAttributes(String attribStr) {
-        _extendedAttributes = attribStr ;
-        _attributeTable = attributeStringToTable();
-    }
-
-    public void setEnablementTime(String time) { _enablementTime = time; }
-
-    public void setFiringTime(String time) { _firingTime = time; }
-
-    public void setStartTime(String time) { _startTime = time; }
-
-    public void setCompletionTime(String time) { _completionTime = time; }
-
+    
     public void setEnablementTimeMs(String time) { _enablementTimeMs = time; }
 
     public void setFiringTimeMs(String time) { _firingTimeMs = time; }
@@ -226,21 +198,12 @@ public class WorkItemRecord implements Cloneable {
     public void setCompletedBy(String resource) { _completedBy = resource; }
 
 
-    public void setDataList(Element dataList) {
-        _dataList = dataList;
-        _dataListString = JDOMUtil.elementToStringDump(_dataList) ;
-    }
-
-    public void setDataListString(String dataStr) {
-        _dataListString = dataStr ;
-        _dataList = JDOMUtil.stringToElement(dataStr) ;
-    }
+    public void setDataList(Element dataList) { _dataList = dataList; }
 
     public void setTag(String tag) { _tag = tag ; }
 
     public void setUpdatedData(Element dataListUpdated) {
         _dataListUpdated = dataListUpdated;
-        _dataListUpdatedString = JDOMUtil.elementToString(dataListUpdated);
     }
 
     public void setCustomFormURL(String url) { _customFormURL = url ; }
@@ -279,29 +242,30 @@ public class WorkItemRecord implements Cloneable {
 
     public String getAllowsDynamicCreation() { return _allowsDynamicCreation ; }
 
+    public boolean isDynamicCreationAllowed() {
+        return _allowsDynamicCreation != null &&
+                _allowsDynamicCreation.equalsIgnoreCase("true");
+    }
+
     public String getDeferredChoiceGroupID() { return _deferredChoiceGroupID ; }
 
     public String getRequiresManualResourcing() { return _requiresManualResourcing; }
 
+    public boolean isManualResourcingRequired() { return !isAutoTask(); }
+
     public String getCodelet() { return _codelet; }
 
-    public String getExtendedAttributes() { return _extendedAttributes ; }
-
-    public Hashtable<String, String> getAttributeTable() {
-        if ((_extendedAttributes.length() > 0) && (_attributeTable == null))
-            _attributeTable = attributeStringToTable();
-        return _attributeTable;
-    }
+    public Map<String, String> getAttributeTable() { return _attributeTable; }
 
     public String getID() { return _caseID + ":" + _taskID; }
 
-    public String getEnablementTime() { return _enablementTime; }
+    public String getEnablementTime() { return getFormattedDate(getEnablementTimeMs()); }
 
-    public String getFiringTime() { return _firingTime; }
+    public String getFiringTime() { return getFormattedDate(getFiringTimeMs()); }
 
-    public String getStartTime() { return _startTime; }
+    public String getStartTime() { return getFormattedDate(getStartTimeMs()); }
 
-    public String getCompletionTime() { return _completionTime; }
+    public String getCompletionTime() { return getFormattedDate(getCompletionTimeMs()); }
 
     public String getEnablementTimeMs() { return _enablementTimeMs; }
 
@@ -334,21 +298,14 @@ public class WorkItemRecord implements Cloneable {
     /** @deprecated - use getDataList() */
     public Element getWorkItemData() { return getDataList(); }
 
-    public Element getDataList() {
-        if (_dataList == null) _dataList = JDOMUtil.stringToElement(_dataListString);
-        return _dataList;
-    }
+    public Element getDataList() { return _dataList; }
 
-    public String getDataListString() { return _dataListString; }
+    public String getDataListString() { return get_dataList(); }
+
 
     public String getTag() { return _tag ; }
 
-    public Element getUpdatedData() {
-        if (_dataListUpdated == null) {
-            _dataListUpdated = JDOMUtil.stringToElement(_dataListUpdatedString);
-        }
-        return _dataListUpdated;
-    }
+    public Element getUpdatedData() { return _dataListUpdated; }
 
     public String getIDForDisplay() {
         return _caseID + ":" + _taskName ;
@@ -368,7 +325,18 @@ public class WorkItemRecord implements Cloneable {
             int firstDot = _caseID.indexOf('.');
             return (firstDot > -1) ? _caseID.substring(0, firstDot) : _caseID;
         }
-        return _caseID ;
+        return null;
+    }
+
+    public String getNetID() {
+        if (_status.equals(statusIsParent)) {
+            return _caseID;
+        }
+        if (_caseID != null) {
+            int pos = _caseID.lastIndexOf('.');
+            return (pos < 0) ? _caseID : _caseID.substring(0, pos);
+        }
+        return null;
     }
 
     public String getParentID() {
@@ -444,7 +412,7 @@ public class WorkItemRecord implements Cloneable {
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<workItemRecord");
-        xml.append(_extendedAttributes != null? _extendedAttributes : "")
+        xml.append(attributeTableToString())
            .append(">")
            .append(StringUtil.wrap(getID(), "id"))
            .append(StringUtil.wrap(_specVersion, "specversion"))
@@ -452,16 +420,16 @@ public class WorkItemRecord implements Cloneable {
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_uniqueID, "uniqueid"))
-           .append(StringUtil.wrap(_taskName, "taskname"));
-        if (_documentation != null) xml.append(StringUtil.wrap(_documentation, "documentation"));
+           .append(StringUtil.wrapEscaped(_taskName, "taskname"));
+
+        if (_documentation != null) {
+            xml.append(StringUtil.wrapEscaped(_documentation, "documentation"));
+        }
+
         xml.append(StringUtil.wrap(_allowsDynamicCreation, "allowsdynamiccreation"))
            .append(StringUtil.wrap(_requiresManualResourcing, "requiresmanualresourcing"))
            .append(StringUtil.wrap(_codelet, "codelet"))
            .append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupid"))
-           .append(StringUtil.wrap(_enablementTime, "enablementTime"))
-           .append(StringUtil.wrap(_firingTime, "firingTime"))
-           .append(StringUtil.wrap(_startTime, "startTime"))
-           .append(StringUtil.wrap(_completionTime, "completionTime"))
            .append(StringUtil.wrap(_enablementTimeMs, "enablementTimeMs"))
            .append(StringUtil.wrap(_firingTimeMs, "firingTimeMs"))
            .append(StringUtil.wrap(_startTimeMs, "startTimeMs"))
@@ -474,12 +442,13 @@ public class WorkItemRecord implements Cloneable {
            .append(StringUtil.wrap(_completedBy, "completedBy"))
            .append(StringUtil.wrap(_tag, "tag"))
            .append(StringUtil.wrap(_customFormURL, "customform"))
-           .append(StringUtil.wrap(_logPredicateStarted, "logPredicateStarted"))
-           .append(StringUtil.wrap(_logPredicateCompletion, "logPredicateCompletion"));
+           .append(StringUtil.wrapEscaped(_logPredicateStarted, "logPredicateStarted"))
+           .append(StringUtil.wrapEscaped(_logPredicateCompletion, "logPredicateCompletion"));
 
-        if (_specIdentifier != null)
+        if (_specIdentifier != null) {
             xml.append(StringUtil.wrap(_specIdentifier, "specidentifier"));
-
+        }
+        
         xml.append("<data>")
            .append(_dataList != null? JDOMUtil.elementToStringDump(_dataList) : "")
            .append("</data>")
@@ -495,35 +464,30 @@ public class WorkItemRecord implements Cloneable {
     /**************************************************************************/
 
 
-    private String attributeTableToAttributeString() {
-        if ((_attributeTable == null) || _attributeTable.isEmpty()) return "" ;
+    private String attributeTableToString() {
+        if (_attributeTable == null || _attributeTable.isEmpty()) return "" ;
         
         StringBuilder xml = new StringBuilder();
         for (String key : _attributeTable.keySet()) {
             xml.append(" ")
                .append(key)
                .append("=\"")
-               .append(_attributeTable.get(key))
+               .append(JDOMUtil.encodeAttributeEscapes(_attributeTable.get(key)))
                .append("\"");
         }
         return xml.toString();
     }
 
 
-    private Hashtable<String, String> attributeStringToTable() {
-        if ((_extendedAttributes == null) || (_extendedAttributes.length() == 0))
-            return null;
-
-        Hashtable<String, String> table = new Hashtable<String, String>();
-
-        // split into key, value, key, value, ...
-        String[] attributes = _extendedAttributes.split("\\s*=\\s*\"|\\s*\"\\s*");
-        for (int i=0; i < attributes.length - 1; i=i+2) {
-            table.put(attributes[i].trim(), attributes[i+1].trim());
+    private String getFormattedDate(String msStr) {
+        if (! StringUtil.isNullOrEmpty(msStr)) {
+            long ms = StringUtil.strToLong(msStr, 0);
+            if (ms > 0) {
+                return DATE_FORMAT.format(new Date(ms));
+            }
         }
-        return table;
+        return "";
     }
-
 
     /*******************************************************************************/
 
@@ -536,17 +500,46 @@ public class WorkItemRecord implements Cloneable {
 
     // hibernate mappings
 
-    private void set_dataList(String data) { _dataListString = data; }
-
-    private String get_dataList() { return _dataListString ; }
-
-    private void set_dataListUpdated(String data) { _dataListUpdatedString = data; }
-
-    private String get_dataListUpdated() { return _dataListUpdatedString ; }
-
     private void set_id(long id) { _id = id; }
 
     private long get_id() { return _id; }
+
+
+    private void set_dataList(String data) {
+        if (data != null) {
+            _dataList = JDOMUtil.stringToElement(data);
+        }
+    }
+
+    private String get_dataList() {
+        return _dataList != null ? JDOMUtil.elementToStringDump(_dataList) : null ;
+    }
+
+
+    private void set_dataListUpdated(String data) {
+        if (data != null) {
+            _dataListUpdated = JDOMUtil.stringToElement(data);
+        }
+    }
+
+    private String get_dataListUpdated() {
+        return _dataListUpdated != null ?
+                JDOMUtil.elementToStringDump(_dataListUpdated) : null ;
+    }
+
+
+    private void set_extendedAttributes(String attrStr) {
+        _attributeTable = new HashMap<String, String>();
+
+        // split into key, value, key, value, ...
+        String[] attributes = attrStr.split("\\s*=\\s*\"|\\s*\"\\s*");
+        for (int i=0; i < attributes.length - 1; i=i+2) {
+            _attributeTable.put(attributes[i].trim(),
+                    JDOMUtil.decodeAttributeEscapes(attributes[i+1].trim()));
+        }
+    }
+
+    private String get_extendedAttributes() { return attributeTableToString(); }
 
     /********************************************************************************/
 

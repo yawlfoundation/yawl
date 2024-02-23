@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -26,6 +26,9 @@ import org.yawlfoundation.yawl.scheduling.util.Utils;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -202,8 +205,19 @@ public class ConfigManager implements Constants {
                 return ResourceBundle.getBundle(FILENAME_RESOURCES, locale);
             }
             catch (Exception e) {
-                if (locale != null && LANGUAGE_DEFAULT.equals(locale.getLanguage())) {
-                    _log.fatal("Cannot load bundle for default language: " + locale.getLanguage(), e);
+
+                // this will load bundle in control panel version
+                try {
+                    File file = new File(System.getenv("CATALINA_HOME") +
+                            "/webapps/schedulingService/WEB-INF/classes");
+                    URL[] urls = { file.toURI().toURL() };
+                    ClassLoader loader = new URLClassLoader(urls);
+                    return ResourceBundle.getBundle(FILENAME_RESOURCES, locale, loader);
+                }
+                catch (Exception e1) {
+                    if (locale != null && LANGUAGE_DEFAULT.equals(locale.getLanguage())) {
+                        _log.fatal("Cannot load bundle for default language: " + locale.getLanguage(), e1);
+                    }
                 }
             }
         }

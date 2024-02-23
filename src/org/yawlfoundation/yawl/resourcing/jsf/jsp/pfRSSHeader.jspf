@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -38,7 +38,7 @@
                         </td>
 
                         <td align="center" height="69px" width="409px">
-                            <img id="form1:headImage1" height="69px" width="409px" alt="YAWL 3.0"
+                            <img id="form1:headImage1" height="69px" width="409px" alt="YAWL 4.1"
                                  border="0"
                                  src="./resources/newYAWL.jpg"/>
                         </td>

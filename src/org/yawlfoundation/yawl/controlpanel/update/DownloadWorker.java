@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.controlpanel.update;
 
 import javax.swing.*;
@@ -13,19 +31,14 @@ import java.net.URL;
  */
 public class DownloadWorker extends SwingWorker<Void, Void> {
 
-    protected String _urlBase;
-    protected String _urlSuffix;
-    protected String _fileName;
+    protected FileNode _fileNode;
     protected long _totalBytes;
     protected File _tmpDir;
     protected String _errorMsg;
 
 
-    public DownloadWorker(String urlBase, String urlSuffix, String fileName,
-                          long totalBytes, File tmpDir) {
-        _urlBase = urlBase;
-        _urlSuffix = urlSuffix;
-        _fileName = fileName;
+    public DownloadWorker(FileNode fileNode, long totalBytes, File tmpDir) {
+        _fileNode = fileNode;
         _totalBytes = totalBytes;
         _tmpDir = tmpDir;
     }
@@ -41,9 +54,9 @@ public class DownloadWorker extends SwingWorker<Void, Void> {
         byte[] buffer = new byte[bufferSize];
         int progress = 0;
         try {
-            URL webFile = new URL(_urlBase + _fileName.replace('\\', '/') + _urlSuffix);
-            makeDir(_fileName);
-            String fileTo = _tmpDir + File.separator + _fileName;
+            URL webFile = _fileNode.getAbsoluteURL();
+            makeDir(_fileNode.getDiskFilePath());
+            String fileTo = _tmpDir + File.separator + _fileNode.getDiskFilePath();
             BufferedInputStream inStream = new BufferedInputStream(webFile.openStream());
             FileOutputStream fos = new FileOutputStream(fileTo);
             BufferedOutputStream outStream = new BufferedOutputStream(fos);

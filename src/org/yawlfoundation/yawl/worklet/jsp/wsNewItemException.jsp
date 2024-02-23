@@ -2,7 +2,7 @@
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord"%>
 
 <%--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -24,7 +24,7 @@
 
 <%
     String itemID = request.getParameter("itemID");
-    WorkItemRecord wir = _exceptionService.getWorkItemRecord(itemID);
+    WorkItemRecord wir = _workletService.getExceptionService().getWorkItemRecord(itemID);
     String taskName = wir.getTaskName() ;
     String caseID = wir.getCaseID();
 
@@ -42,7 +42,7 @@
         if ((title != null) && (title.length() > 0) &&
             (scenario != null) && (scenario.length() > 0) &&
             (process != null) && (process.length() > 0)) {
-            _exceptionService.addAdministrationTask(caseID, itemID, title, scenario, process,
+            _adminTasksManager.addTask(caseID, itemID, title, scenario, process,
                                   AdministrationTask.TASKTYPE_ITEM_EXTERNAL_EXCEPTION);
 
            // go back to YAWL worklist

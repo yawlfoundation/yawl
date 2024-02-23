@@ -1,17 +1,34 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.elements;
 
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.engine.time.workdays.WorkDayAdjuster;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 import javax.xml.datatype.Duration;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,6 +50,7 @@ public class YTimerParameters {
     private Duration _duration;                           // duration param
     private long _ticks;                                  // interval params
     private YTimer.TimeUnit _timeUnit;                    // ditto
+    private boolean _workDaysOnly;                        // ignore non-work days
     private YWorkItemTimer.Trigger _trigger;
     private TimerType _timerType;
 
@@ -88,7 +106,7 @@ public class YTimerParameters {
     }
 
 
-    public boolean statusMatchesTrigger(YWorkItemStatus status) {
+    public boolean triggerMatchesStatus(YWorkItemStatus status) {
         if (_timerType == TimerType.Nil) return false;
         switch (_trigger) {
             case OnEnabled: return status.equals(statusEnabled);
@@ -109,10 +127,14 @@ public class YTimerParameters {
     public Date getDate() { return _expiryTime; }
 
     public void setDate(Date date) {
-        this._expiryTime = date;
+        _expiryTime = date;
         _timerType = TimerType.Expiry;
     }
 
+
+    public Duration getWorkDayDuration() {
+        return _workDaysOnly ? new WorkDayAdjuster().adjust(_duration) : _duration;
+    }
 
     public Duration getDuration() { return _duration; }
 
@@ -143,6 +165,11 @@ public class YTimerParameters {
     public void setTrigger(YWorkItemTimer.Trigger trigger) { this._trigger = trigger; }
 
 
+    public boolean isWorkDaysOnly() { return _workDaysOnly; }
+
+    public void setWorkDaysOnly(boolean workDaysOnly) { _workDaysOnly = workDaysOnly; }
+
+
     public TimerType getTimerType() { return _timerType; }
 
 
@@ -159,10 +186,12 @@ public class YTimerParameters {
         String expiry = node.getChildText("expiry");
         if (expiry == null) throw new IllegalArgumentException("Missing 'expiry' parameter");
 
+        setWorkDaysOnly(node.getChild("workdays") != null);
+
         if (expiry.startsWith("P")) {         // duration types start with P
             Duration duration = StringUtil.strToDuration(expiry);
             if (duration == null) throw new IllegalArgumentException("Malformed duration value");
-            set(trigger,  duration);
+            set(trigger, duration);
             return true;
         }
 
@@ -190,6 +219,9 @@ public class YTimerParameters {
             case Duration: {
                 node.addChild("trigger", _trigger.name());
                 node.addChild("duration", _duration.toString());
+                if (_workDaysOnly) {
+                    node.addChild("workdays", true);
+                }
                 break;
             }
             case Expiry: {

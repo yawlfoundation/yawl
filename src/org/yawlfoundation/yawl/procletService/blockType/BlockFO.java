@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -189,7 +189,7 @@ public class BlockFO {
 		graph2.addNode(node13);
 		graph2.addArc(arc11);
 		igraphs.addGraph(graph2);
-		WorkItemRecord wir = new WorkItemRecord("15","register","mdoMeeting","","");
+		WorkItemRecord wir = new WorkItemRecord("15","register","mdoMeeting", "");
 		ProcletModels pmodels = ProcletModels.getInstance();
 		// c1
 		ProcletModel pmodel1 = new ProcletModel("c1");

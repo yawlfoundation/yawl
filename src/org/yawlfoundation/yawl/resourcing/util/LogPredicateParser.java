@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -85,6 +85,7 @@ public class LogPredicateParser extends YPredicateParser {
         }
         else if (s.equals("${resource:offerset}")) {
             Set<Participant> set = _resMap.getOfferedParticipants(_wir.getID());
+            if (set == null) set = _resMap.getOfferedParticipants(_wir.getParentID());
             if (set != null) {
                 Set<String> names = new HashSet<String>();
                 for (Participant p : set) {
@@ -95,8 +96,8 @@ public class LogPredicateParser extends YPredicateParser {
             else s = "n/a";
         }
         else if (s.equals("${resource:piler}")) {
-            String piler = _resMap.getPiledResource().getFullName();
-            s = (piler != null) ? piler : "n/a";
+            Participant piler = _resMap.getPiledResource();
+            s = piler != null ? piler.getFullName() : "n/a";
         }
         else if (s.equals("${resource:deallocators}")) {
             List<String> list = _resMap.getIgnoredList(_wir.getID());

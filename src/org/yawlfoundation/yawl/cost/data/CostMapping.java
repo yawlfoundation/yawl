@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -53,7 +53,10 @@ public class CostMapping implements XNodeIO {
     public void fromXNode(XNode node) {
         cost = new MappingIdentifier(node.getChild("cost"));
         workflow = new MappingIdentifier(node.getChild("workflow"));
-        mappingType = FacetAspect.valueOf(node.getAttributeValue("aspect"));
+        String aspect = node.getAttributeValue("aspect");
+        if (aspect != null) {
+            mappingType = FacetAspect.valueOf(aspect);
+        }
     }
 
 
@@ -61,7 +64,9 @@ public class CostMapping implements XNodeIO {
         XNode node = new XNode("mapping");
         node.addChild(cost.toXNode());
         node.addChild(workflow.toXNode());
-        node.addAttribute("aspect", mappingType.name());
+        if (mappingType != null) {
+            node.addAttribute("aspect", mappingType.name());
+        }
         return node;
     }
 

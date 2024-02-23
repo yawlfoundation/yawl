@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -61,10 +61,11 @@ public class ShortestQueue extends AbstractAllocator {
         int qSize ;
         Participant result = null ;
         for (Participant p : resSet) {
-            if (p.getWorkQueues() != null)
-                qSize = p.getWorkQueues().getQueueSize(WorkQueue.ALLOCATED) ;
-            else
-                qSize = 0 ;
+            if (p.getWorkQueues() != null) {
+                qSize = p.getWorkQueues().getQueueSize(WorkQueue.ALLOCATED) +
+                        p.getWorkQueues().getQueueSize(WorkQueue.STARTED);
+            }
+            else qSize = 0 ;
             if (qSize < shortest) {
                 shortest = qSize;
                 result = p ;

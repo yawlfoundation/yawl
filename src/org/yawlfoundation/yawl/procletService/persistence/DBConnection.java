@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -40,7 +40,7 @@ public class DBConnection {
     private DBConnection () {	 }
 
 
-    public static void init(Properties props) {
+    public static HibernateEngine init(Properties props) {
 
          // minimise hibernate logging
          setLogLevel(LogManager.getLogger("org.hibernate"), Level.WARN);
@@ -59,6 +59,7 @@ public class DBConnection {
          persistedClasses.add(StoredProcletBlock.class);
          persistedClasses.add(StoredProcletPort.class);
          _db = new HibernateEngine(true, persistedClasses, props);
+        return _db;
     }
 
 

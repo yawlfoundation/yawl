@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -17,6 +17,8 @@
  */
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
+
+import com.sun.rave.web.ui.component.RadioButton;
 
 import javax.faces.component.UIComponent;
 import java.util.ArrayList;
@@ -41,5 +43,22 @@ public class DynFormComponentList extends ArrayList<UIComponent> {
     public int getHeight() { return _height; }
 
     public void setHeight(int height) { _height = height; }
+
+
+    public void ensureRadioButtonSelection() {
+        RadioButton first = null;
+        for (UIComponent component : this) {
+            if (component instanceof RadioButton) {
+                RadioButton rb = (RadioButton) component;
+                if ((Boolean) rb.getSelected()) {
+                    return;                              // one's selected
+                }
+                if (first == null) first = rb;
+            }
+        }
+
+        // if there's one or more radios, and none is selected, select first
+        if (first != null) first.setSelected(true);
+    }
 
 }

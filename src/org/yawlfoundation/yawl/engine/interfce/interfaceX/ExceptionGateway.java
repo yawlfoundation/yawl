@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -82,10 +82,14 @@ public interface ExceptionGateway
     void shutdown();
 
 
-
-    /************** FOR FUTURE IMPLEMENTATION *************/
+    /**
+     * Announced by the engine when a work item has been checked out and then
+     * declined (returned) by a service (before completion)
+     * @param item the aborted item
+     */
     void announceWorkitemAbort(YWorkItem item);
 
+    /************** FOR FUTURE IMPLEMENTATION *************/
     void announceConstraintViolation(YWorkItem item);
     /******************************************************/
 

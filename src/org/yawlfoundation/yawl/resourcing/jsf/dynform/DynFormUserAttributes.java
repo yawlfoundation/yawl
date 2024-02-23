@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 
 import java.awt.*;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,7 +38,9 @@ public class DynFormUserAttributes {
 
     private Map<String, String> _attributeMap ;
 
-    public DynFormUserAttributes() { }
+    public DynFormUserAttributes() {
+        _attributeMap = new HashMap<>();
+    }
 
     public DynFormUserAttributes(Map<String, String> attributeMap) {
         _attributeMap = attributeMap ;
@@ -48,8 +51,12 @@ public class DynFormUserAttributes {
     }
 
 
+    public void merge(Map<String, String> mergeMap) {
+        if (mergeMap != null) _attributeMap.putAll(mergeMap);
+    }
+
+
     public String getValue(String attribute) {
-        if (_attributeMap == null) return null;
         return _attributeMap.get(attribute);
     }
 

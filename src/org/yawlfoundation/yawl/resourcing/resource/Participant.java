@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -197,7 +197,7 @@ public class Participant extends AbstractResource implements Cloneable {
     }
 
     public boolean isValidPassword(String password) {
-        return getPassword().equals(password);
+        return _password != null && _password.equals(password);
     }
 
 
@@ -447,6 +447,8 @@ public class Participant extends AbstractResource implements Cloneable {
         xml.append(StringUtil.wrapEscaped(_firstname, "firstname"));
         xml.append(StringUtil.wrapEscaped(_lastname, "lastname"));
         xml.append(StringUtil.wrapEscaped(String.valueOf(_isAdministrator), "isAdministrator")) ;
+        xml.append(StringUtil.wrapEscaped(_description, "description"));
+        xml.append(StringUtil.wrapEscaped(_notes, "notes"));
 
         xml.append("<roles>");
         for (Role role : _roles) xml.append(role.toXML()) ;
@@ -475,6 +477,8 @@ public class Participant extends AbstractResource implements Cloneable {
         setFirstName(JDOMUtil.decodeEscapes(e.getChildText("firstname")));
         setLastName(JDOMUtil.decodeEscapes(e.getChildText("lastname")));
         setAdministrator(e.getChildText("isAdministrator").equals("true"));
+        setDescription(JDOMUtil.decodeEscapes(e.getChildText("description")));
+        setNotes(JDOMUtil.decodeEscapes(e.getChildText("notes")));
     }
 
 }

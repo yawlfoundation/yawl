@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -22,7 +22,12 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -35,7 +40,6 @@ import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
-import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.faces.FacesException;
 import javax.faces.component.UIColumn;
@@ -45,10 +49,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.Duration;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -850,7 +851,7 @@ public class caseMgt extends AbstractPageBean {
                 handleCaseLevelDocComponents(docCompIDs, result);
             }
             else {
-                msgPanel.error("Unsuccessful case start:" + msgPanel.format(result)) ;
+                msgPanel.error("Unsuccessful case start: " + msgPanel.format(result)) ;
                 handleCaseLevelDocComponents(docCompIDs, null);
             }
         }
@@ -949,12 +950,17 @@ public class caseMgt extends AbstractPageBean {
 
 
     private void downloadLog() {
+        Logger logger = LogManager.getLogger(this.getClass());
+        logger.info("XES #downloadLog: begins ->");
+        InputStream is = null;
+        OutputStream os = null;
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
             SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
 
             if (spec != null) {
                 String log = LogMiner.getInstance().getMergedXESLog(spec.getID(), true);
+                logger.info("XES #downloadLog: merged log returned, response prep begins");
                 if (log != null) {
                     String filename = String.format("%s%s.xes", spec.getSpecURI(),
                             spec.getSpecVersion());
@@ -965,13 +971,12 @@ public class caseMgt extends AbstractPageBean {
                     response.setCharacterEncoding("UTF-8");
                     response.setHeader("Content-Disposition",
                             "attachment;filename=\"" + filename + "\"");
-                    OutputStream os = response.getOutputStream();
-                    OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-                    osw.write(log);
-                    osw.flush();
-                    osw.close();
+                    logger.info("XES #downloadLog: response prep ends, output begins");
+                    is = new ByteArrayInputStream(log.getBytes("UTF-8"));
+                    os = response.getOutputStream();
+                    IOUtils.copy(is, os);
                     FacesContext.getCurrentInstance().responseComplete();
-               //     msgPanel.success("Data successfully exported to file '" + filename + "'.");
+                    logger.info("XES #downloadLog: output ends");
                 }
                 else msgPanel.error("Unable to create export file: malformed xml.");
             }
@@ -981,6 +986,11 @@ public class caseMgt extends AbstractPageBean {
         }
         catch (NumberFormatException nfe) {
             msgPanel.error("Please select a specification to download the log for.") ;
+        }
+        finally {
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(os);
+            logger.info("XES #downloadLog: -> ends");
         }
     }
 
@@ -1047,19 +1057,23 @@ public class caseMgt extends AbstractPageBean {
 
     private YSpecificationID getDescriptors(String specxml) {
         YSpecificationID descriptors = null;
-        XNode specNode = new XNodeParser().parse(specxml);
-        if (specNode != null) {
+
+        Document doc = JDOMUtil.stringToDocument(specxml);
+        if (doc != null) {
+            Element root = doc.getRootElement();
+            Namespace ns = root.getNamespace();
             YSchemaVersion schemaVersion = YSchemaVersion.fromString(
-                    specNode.getAttributeValue("version"));
-            XNode specification = specNode.getChild("specification");
+                    root.getAttributeValue("version"));
+            Element specification = root.getChild("specification", ns);
+
             if (specification != null) {
                 String uri = specification.getAttributeValue("uri");
                 String version = "0.1";
                 String uid = null;
                 if (! (schemaVersion == null || schemaVersion.isBetaVersion())) {
-                    XNode metadata = specification.getChild("metaData");
-                    version = metadata.getChildText("version");
-                    uid = metadata.getChildText("identifier");
+                    Element metadata = specification.getChild("metaData", ns);
+                    version = metadata.getChildText("version", ns);
+                    uid = metadata.getChildText("identifier", ns);
                 }
                 descriptors = new YSpecificationID(uid, version, uri);
             }

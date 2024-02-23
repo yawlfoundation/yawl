@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.engine.interfce;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.xml.datatype.Duration;
 import java.io.InputStream;
@@ -64,6 +65,18 @@ public interface EngineGateway extends Remote {
     
     void setActualFilePath(String path);
 
+    String promote(String sessionHandle) throws YPersistenceException;
+
+    String demote(String sessionHandle);
+
+    boolean isRedundantMode();
+
+    String exportCaseState(String caseID, String sessionHandle);
+
+    String exportAllCaseStates(String sessionHandle);
+
+    String importCases(String caseXML, String sessionHandle);
+
     /**
      *
      * @param sessionHandle
@@ -101,7 +114,7 @@ public interface EngineGateway extends Remote {
 
     String completeWorkItem(String workItemID, String data, String logPredicate, boolean force, String sessionHandle) throws RemoteException;
 
-    String startWorkItem(String workItemID, String sessionHandle) throws RemoteException;
+    String startWorkItem(String workItemID, String logPredicate, String sessionHandle) throws RemoteException;
 
     String skipWorkItem(String workItemID, String sessionHandle) throws RemoteException;
 
@@ -129,6 +142,8 @@ public interface EngineGateway extends Remote {
 
     String getSpecificationList(String sessionHandle) throws RemoteException;
 
+    String getSpecificationData(YSpecificationID specID, String sessionHandle) throws RemoteException ;
+
     String getSpecificationDataSchema(YSpecificationID specID, String sessionHandle)
                                                    throws RemoteException ;
 
@@ -146,6 +161,8 @@ public interface EngineGateway extends Remote {
     String getCasesForSpecification(YSpecificationID specID, String sessionHandle) throws RemoteException;
 
     String getSpecificationForCase(String caseID, String sessionHandle) throws RemoteException;
+
+    String getSpecificationIDForCase(String caseID, String sessionHandle) throws RemoteException;
 
     String getAllRunningCases(String sessionHandle) throws RemoteException;
 
@@ -224,4 +241,13 @@ public interface EngineGateway extends Remote {
     String isHibernateStatisticsEnabled(String sessionHandle);
 
     String getHibernateStatistics(String sessionHandle);
+
+    String reannounceEnabledWorkItems(String sessionHandle);
+
+    String reannounceExecutingWorkItems(String sessionHandle);
+
+    String reannounceFiredWorkItems(String sessionHandle);
+
+    String reannounceWorkItem(String itemID, String sessionHandle);
+
 }

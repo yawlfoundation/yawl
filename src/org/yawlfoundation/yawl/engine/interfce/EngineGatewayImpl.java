@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -27,8 +27,8 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
-import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGateway;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGatewayFactory;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.engine.time.YLaunchDelayer;
@@ -43,6 +43,7 @@ import org.yawlfoundation.yawl.util.*;
 
 import javax.xml.datatype.Duration;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.rmi.RemoteException;
 import java.util.*;
@@ -61,13 +62,13 @@ import java.util.*;
  */
 public class EngineGatewayImpl implements EngineGateway {
 
-    Logger logger = LogManager.getLogger(EngineGatewayImpl.class);
-
     private YEngine _engine;
     private YSessionCache _sessionCache;
+    private boolean _redundantMode;
+    private final Logger _logger;
+
     private boolean enginePersistenceFailure = false;
-    private static final String OPEN_FAILURE = "<failure><reason>";
-    private static final String CLOSE_FAILURE = "</reason></failure>";
+
     private static final String SUCCESS = "<success/>";
 
 
@@ -78,22 +79,54 @@ public class EngineGatewayImpl implements EngineGateway {
      *  unavailable
      */
     public EngineGatewayImpl(boolean persist) throws YPersistenceException {
-        _engine = YEngine.getInstance(persist);
-        _sessionCache = _engine.getSessionCache();
+        this(persist, false);
     }
 
     /**
       *  Constructor
       *  @param persist true if a reference to a persisting engine is required
-     *   @param gatherHbnStats true to turn on hibernate statistics gathering
+      *  @param gatherHbnStats true to turn on hibernate statistics gathering
       *  @throws YPersistenceException if persist is true and a persisting engine is
       *  unavailable
       */
     public EngineGatewayImpl(boolean persist, boolean gatherHbnStats) throws YPersistenceException {
-        _engine = YEngine.getInstance(persist, gatherHbnStats);
-        _sessionCache = _engine.getSessionCache();
+        this(null, persist, gatherHbnStats);
     }
 
+
+    public EngineGatewayImpl(Class<? extends YEngine> engine, boolean persist,
+                             boolean gatherHbnStats) throws YPersistenceException {
+        this(null, persist, gatherHbnStats, false);
+    }
+
+
+    public EngineGatewayImpl(Class<? extends YEngine> engine, boolean persist,
+                             boolean gatherHbnStats, boolean redundantMode)
+            throws YPersistenceException {
+        _logger = LogManager.getLogger(EngineGatewayImpl.class);
+        _redundantMode = redundantMode;
+
+        // attempt to instantiate the YEngine subclass passed in
+        if (engine != null) {
+            try {
+                Method method = engine.getDeclaredMethod("getInstance",
+                        boolean.class, boolean.class, boolean.class);
+                if (method == null) throw new Exception();
+                _engine = engine.cast(method.invoke(null, persist,
+                        gatherHbnStats, redundantMode));
+            }
+            catch (Exception e) {
+                _logger.warn("Failed to instantiate extended YEngine class", e);
+            }
+        }
+
+        if (_engine == null) {
+
+            // instantiation failed or no subclass passed
+            _engine = YEngine.getInstance(persist, gatherHbnStats, redundantMode);
+        }
+        _sessionCache = _engine.getSessionCache();
+    }
 
     /*******************************************************************************/
 
@@ -307,7 +340,7 @@ public class EngineGatewayImpl implements EngineGateway {
             return YMarshal.marshal(spec);
         }
         catch (Exception e) {
-            logger.error("Failed to marshal a specification into XML.", e);
+            _logger.error("Failed to marshal a specification into XML.", e);
             return failureMessage("Failed to marshal the specification into XML.");
         }
     }
@@ -403,7 +436,8 @@ public class EngineGatewayImpl implements EngineGateway {
      * @param workItemID work item id
      * @param data data
      * @param logPredicate a pre-parsed configurable logging string
-     * @param sessionHandle  sessionhandle
+     * @param force true if this is a forded completion
+     * @param sessionHandle sessionhandle
      * @return result XML message.
      * @throws RemoteException if used in RMI mode
      */
@@ -416,8 +450,8 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             YWorkItem workItem = _engine.getWorkItem(workItemID);
             if (workItem != null) {
-                YEngine.WorkItemCompletion flag = force ?
-                     YEngine.WorkItemCompletion.Force : YEngine.WorkItemCompletion.Normal;
+                WorkItemCompletion flag = force ?
+                     WorkItemCompletion.Force : WorkItemCompletion.Normal;
                 _engine.completeWorkItem(workItem, data, logPredicate, flag);
                 return SUCCESS;
             } else {
@@ -439,12 +473,13 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return the started child workitem
      * @throws RemoteException
      */
-    public String startWorkItem(String workItemID, String sessionHandle) throws RemoteException {
+    public String startWorkItem(String workItemID, String logPredicate, String sessionHandle)
+            throws RemoteException {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
         try {
-            YWorkItem child = _engine.startWorkItem(workItemID, getClient(sessionHandle));
+            YWorkItem child = _engine.startWorkItem(workItemID, getClient(sessionHandle), logPredicate);
             return successMessage(child.toXML());
         }
         catch (YAWLException e) {
@@ -671,6 +706,21 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    public String getSpecificationData(YSpecificationID specID, String sessionHandle)
+            throws RemoteException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        YSpecification specification = _engine.getSpecification(specID);
+        if (specification == null) {
+            return failureMessage("No specification found for id: " + specID);
+        }
+        Set<YSpecification> specs = new HashSet<YSpecification>();
+        specs.add(_engine.getSpecification(specID));
+        return getDataForSpecifications(specs);
+    }
+
+
    /**
     *
     * @param specID specID
@@ -794,6 +844,26 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    public String getSpecificationIDForCase(String caseIDStr, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        YIdentifier caseID = _engine.getCaseID(caseIDStr);
+        if (caseID != null) {
+            YSpecification spec = _engine.getSpecificationForCase(caseID);
+            if (spec != null) {
+                return spec.getSpecificationID().toXML();
+            }
+            else {
+                return failureMessage("Specification ID for case (" + caseIDStr + ") not found.");
+            }
+        }
+        else {
+            return failureMessage("Running case with id (" + caseIDStr + ") not found.");
+        }
+    }
+
+
     public String getSpecificationForCase(String caseIDStr, String sessionHandle) {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
@@ -806,7 +876,7 @@ public class EngineGatewayImpl implements EngineGateway {
                     return YMarshal.marshal(spec);
                 }
                 catch (Exception e) {
-                    logger.error("Failed to marshal a specification into XML.", e);
+                    _logger.error("Failed to marshal a specification into XML.", e);
                     return failureMessage("Failed to marshal the specification into XML.");
                 }
             }
@@ -996,12 +1066,22 @@ public class EngineGatewayImpl implements EngineGateway {
             return failureMessage(e.getMessage());
         }
 
-        String result = ! (uploadedList == null || uploadedList.isEmpty()) ? SUCCESS :
-                failureMessage("Upload failed: invalid specification");
-        if (verificationHandler.hasMessages()) {
-            result = failureMessage(verificationHandler.getMessagesXML());
+        if (verificationHandler.hasErrors()) {             // more detailed error msg
+            return failureMessage(verificationHandler.getMessagesXML());
         }
-        return result;
+
+        if (uploadedList == null || uploadedList.isEmpty()) {
+           return failureMessage("Upload failed: invalid specification.");
+        }
+
+        // all good
+        XNode uploadRoot = new XNode("upload");
+        XNode specNode = uploadRoot.addChild("specifications");
+        for (YSpecificationID id : uploadedList) {
+            specNode.addChild(id.toXNode());
+        }
+        uploadRoot.addContent(verificationHandler.getMessagesXML());
+        return uploadRoot.toString();
     }
 
 
@@ -1283,16 +1363,16 @@ public class EngineGatewayImpl implements EngineGateway {
         StringBuilder specs = new StringBuilder();
         for (YSpecification spec : specSet) {
             specs.append("<specificationData>");
-            specs.append(StringUtil.wrap(spec.getURI(), "uri"));
+            specs.append(StringUtil.wrapEscaped(spec.getURI(), "uri"));
 
             if (spec.getID() != null) {
                 specs.append(StringUtil.wrap(spec.getID(), "id"));
             }
             if (spec.getName() != null) {
-                specs.append(StringUtil.wrap(spec.getName(), "name"));
+                specs.append(StringUtil.wrapEscaped(spec.getName(), "name"));
             }
             if (spec.getDocumentation() != null) {
-                specs.append(StringUtil.wrap(spec.getDocumentation(), "documentation"));
+                specs.append(StringUtil.wrapEscaped(spec.getDocumentation(), "documentation"));
             }
             
             Iterator inputParams = spec.getRootNet().getInputParameters().values().iterator();
@@ -1311,12 +1391,12 @@ public class EngineGatewayImpl implements EngineGateway {
                          "status"));
             YMetaData metadata = spec.getMetaData();
             if (metadata != null) {
-                specs.append(StringUtil.wrap(metadata.getTitle(), "metaTitle"));
+                specs.append(StringUtil.wrapEscaped(metadata.getTitle(), "metaTitle"));
                 List<String> creators = metadata.getCreators();
                 if (creators != null) {
                     specs.append("<authors>");
                     for (String author : creators) {
-                        specs.append(StringUtil.wrap(author, "author"));
+                        specs.append(StringUtil.wrapEscaped(author, "author"));
                     }
                     specs.append("</authors>");
                 }
@@ -1375,7 +1455,7 @@ public class EngineGatewayImpl implements EngineGateway {
         YWorkItem item = _engine.getWorkItem(workItemID);
         if (item != null) {
             item.setStatus(YWorkItemStatus.statusEnabled);
-            result = startWorkItem(workItemID, sessionHandle);
+            result = startWorkItem(workItemID, null, sessionHandle);
         }
         return result ;
     }
@@ -1390,7 +1470,7 @@ public class EngineGatewayImpl implements EngineGateway {
         boolean forceFail = fail.equalsIgnoreCase("true");
         if (forceFail) {
             try {
-                _engine.completeWorkItem(item, data, null, YEngine.WorkItemCompletion.Fail);
+                _engine.completeWorkItem(item, data, null, WorkItemCompletion.Fail);
             }
             catch (Exception e) {
                 return failureMessage(e.getMessage());
@@ -1447,7 +1527,7 @@ public class EngineGatewayImpl implements EngineGateway {
                 return failureMessage(taskID + " is not a multi-instance task");
         }
         else
-            return failureMessage("The was no task found with ID " + taskID);
+            return failureMessage("There was no task found with ID " + taskID);
     }
 
     /***************************************************************************/
@@ -1543,13 +1623,16 @@ public class EngineGatewayImpl implements EngineGateway {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
-        Set<AbstractExternalDBGateway> gateways = ExternalDBGatewayFactory.getInstances();
+        Set<ExternalDataGateway> gateways = ExternalDataGatewayFactory.getInstances();
         if (gateways != null) {
-            StringBuilder s = new StringBuilder("<ExternalDBGateways>");
-            for (AbstractExternalDBGateway gateway : gateways) {
-                s.append(gateway.toXML());
+            StringBuilder s = new StringBuilder("<ExternalDataGateways>");
+            for (ExternalDataGateway gateway : gateways) {
+                s.append("<ExternalDataGateway>");
+                s.append("<name>").append(gateway.getClass().getName()).append("</name>");
+                s.append("<description>").append(gateway.getDescription()).append("</description>");
+                s.append("</ExternalDataGateway>");
             }
-            s.append("</ExternalDBGateways>");
+            s.append("</ExternalDataGateways>");
             return s.toString();
         }
         else {
@@ -1579,5 +1662,128 @@ public class EngineGatewayImpl implements EngineGateway {
 
         return _engine.getHibernateStatistics();
     }
+
+    @Override
+    public String promote(String sessionHandle) throws YPersistenceException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        if (! _redundantMode) {
+            return failureMessage("Engine is already in active mode");
+        }
+        
+        _engine.promote();
+        _redundantMode = false;
+        return successMessage("Engine successfully promoted to active mode");
+
+    }
+
+    @Override
+    public String demote(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        if (_redundantMode) {
+            return failureMessage("Engine is already in redundant mode");
+        }
+
+        _engine.demote();
+        _redundantMode = true;
+        return successMessage("Engine successfully demoted to redundant mode");
+    }
+
+    public boolean isRedundantMode() { return _redundantMode; }
+
+
+    public String exportCaseState(String caseID, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+        
+        return new CaseExporter(_engine).export(caseID);
+    }
+
+
+    public String exportAllCaseStates(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        return new CaseExporter(_engine).exportAll();
+    }
+
+
+    public String importCases(String caseXML, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            int caseCount = new CaseImporter(_engine).add(caseXML);
+            return successMessage(caseCount + " case(s) imported successfully");
+        }
+        catch (Exception e) {
+            return failureMessage("Failed to import case(s): " + e.getMessage());
+        }
+    }
+
+
+    @Override
+    public String reannounceEnabledWorkItems(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            int count = _engine.reannounceEnabledWorkItems();
+            return successMessage(count + " enabled work items reannounced");
+        }
+        catch (YStateException e) {
+            return failureMessage(e.getMessage());
+        }
+    }
+
+    @Override
+    public String reannounceExecutingWorkItems(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            int count = _engine.reannounceExecutingWorkItems();
+            return successMessage(count + " executing work items reannounced");
+        }
+        catch (YStateException e) {
+            return failureMessage(e.getMessage());
+        }
+    }
+
+    @Override
+    public String reannounceFiredWorkItems(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            int count = _engine.reannounceFiredWorkItems();
+            return successMessage(count + " fired work items reannounced");
+        }
+        catch (YStateException e) {
+            return failureMessage(e.getMessage());
+        }
+    }
+
+    @Override
+    public String reannounceWorkItem(String itemID, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            YWorkItem item = _engine.getWorkItem(itemID);
+            if (item == null) {
+                return failureMessage("Unknown work item: " + itemID);
+            }
+            _engine.reannounceWorkItem(item);
+            return successMessage("Work item' " + itemID + "' reannounced");
+        }
+        catch (YStateException e) {
+            return failureMessage(e.getMessage());
+        }
+    }
+
 
 }

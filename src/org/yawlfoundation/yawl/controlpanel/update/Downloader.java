@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.controlpanel.update;
 
 import javax.swing.*;
@@ -15,20 +33,15 @@ import java.util.Map;
  */
 public class Downloader extends SwingWorker<Void, Void> implements PropertyChangeListener {
 
-    protected String _urlBase;
-    protected String _urlSuffix;
-    protected List<String> _fileNames;
+    protected List<FileNode> _fileNodes;
     protected long _totalBytes;
     protected File _targetDir;
     protected Map<DownloadWorker, Integer> _workerMap;
     private final Object _lock = new Object();
 
 
-    public Downloader(String urlBase, String urlSuffix, List<String> fileNames,
-                            long totalBytes, File targetDir) {
-        _urlBase = urlBase;
-        _urlSuffix = urlSuffix;
-        _fileNames = fileNames;
+    public Downloader(List<FileNode> fileNodes, long totalBytes, File targetDir) {
+        _fileNodes = fileNodes;
         _totalBytes = totalBytes;
         _targetDir = targetDir;
     }
@@ -55,9 +68,8 @@ public class Downloader extends SwingWorker<Void, Void> implements PropertyChang
     protected Void doInBackground() {
         _workerMap = new HashMap<DownloadWorker, Integer>();
         setProgress(0);
-        for (String fileName : _fileNames) {
-            DownloadWorker worker = new DownloadWorker(_urlBase, _urlSuffix,
-                     fileName, _totalBytes, _targetDir);
+        for (FileNode fileNode : _fileNodes) {
+            DownloadWorker worker = new DownloadWorker(fileNode, _totalBytes, _targetDir);
             worker.addPropertyChangeListener(this);
             _workerMap.put(worker, 0);
             worker.execute();
@@ -102,7 +114,7 @@ public class Downloader extends SwingWorker<Void, Void> implements PropertyChang
     private int getTotalProgress() {
         int progress = 0;
         for (Integer i : _workerMap.values()) progress += i;
-        return progress;
+        return Math.min(progress, 100);
     }
 
     protected void pause(long milliseconds) {

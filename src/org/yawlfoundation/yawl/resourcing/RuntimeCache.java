@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -132,6 +132,13 @@ public class RuntimeCache {
         }
         groupIDList.add(groupID);
     }
+
+
+    protected boolean unsetDeferredGroupHandled(String caseID, String groupID) {
+        TaggedStringList groupIDList = _deferredItemGroups.get(caseID);
+        return groupIDList != null && groupIDList.remove(groupID);
+    }
+
 
     protected boolean isDeferredGroupHandled(String caseID, String groupID) {
         TaggedStringList groupIDList = _deferredItemGroups.get(caseID);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,13 +18,7 @@
 
 package org.yawlfoundation.yawl.elements.predicate;
 
-import org.apache.logging.log4j.Logger;
-import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
 import org.yawlfoundation.yawl.util.PluginLoaderUtil;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 

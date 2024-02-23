@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -30,11 +30,11 @@
     		<generator class="native"/>
     	</id>
 
-        <list name="_primitives" access="field" cascade="all" lazy="false">
+        <list name="_primitives" access="field" cascade="all-delete-orphan" lazy="false">
             <key column="rdrprimitiveid" not-null="true"/>
             <list-index column="listindex"/>
             <composite-element class="org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive">
-                <property name="index"/>
+                <property name="index" column="primIndex"/>
                 <property name="action"/>
                 <property name="target"/>
             </composite-element>

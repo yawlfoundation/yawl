@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -123,6 +123,12 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
             _yawlServices.put(yawlService.getURI(), yawlService);
         }
     }
+
+
+    /**
+     * Clears any service associated with this gateway. Used at design time
+     */
+    public void clearYawlService() { _yawlServices.clear(); }
 
 
     /**

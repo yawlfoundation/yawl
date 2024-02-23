@@ -1,0 +1,74 @@
+# AUTO-GENERATED FILE - DO NOT EDIT!! Use ldapmodify.
+# CRC32 4b2606bd
+dn: cn=yawl,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: yawl
+olcObjectIdentifier: {0}YAWLroot 1.3.6.1.4.1.51086
+olcObjectIdentifier: {1}YAWL YAWLroot:1
+olcObjectIdentifier: {2}YAWLattributeType YAWL:3
+olcObjectIdentifier: {3}YAWLobjectClass YAWL:4
+olcAttributeTypes: {0}( YAWLattributeType:1 NAME 'yawlNotes' DESC 'YAWL note
+ s' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1
+ .4.1.1466.115.121.1.15{4096} SINGLE-VALUE )
+olcAttributeTypes: {1}( YAWLattributeType:2 NAME 'yawlPositionReportsTo' DES
+ C 'YAWL position relationship - position reports to position' SUP distingui
+ shedName SINGLE-VALUE )
+olcAttributeTypes: {2}( YAWLattributeType:3 NAME 'yawlPositionOrgGroup' DESC
+  'Defines the Org Group of a position in YAWL' SUP distinguishedName SINGLE
+ -VALUE )
+olcAttributeTypes: {3}( YAWLattributeType:4 NAME 'yawlOrgGroupType' DESC 'Th
+ e group type of an Org Group in YAWL. One of the values \27Group\27, \27Tea
+ m\27, \27Unit\27, \27Branch\27, \27Divison\27, \27Cluster\27, \27Department
+ \27' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6
+ .1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcAttributeTypes: {4}( YAWLattributeType:5 NAME 'yawlPrivilegeAdministrator
+ ' DESC 'YAWL privilege "Administrator"' SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: {5}( YAWLattributeType:6 NAME 'yawlPrivilegeCanChooseItem
+ ToStart' DESC 'YAWL privilege "Choose Which Work Item To Start"' SYNTAX 1.3
+ .6.1.4.1.1466.115.121.1.7 SINGLE-VALUE )
+olcAttributeTypes: {6}( YAWLattributeType:7 NAME 'yawlPrivilegeCanStartConcu
+ rrent' DESC 'YAWL privilege "Start Work Items Concurrently"' SYNTAX 1.3.6.1
+ .4.1.1466.115.121.1.7 SINGLE-VALUE )
+olcAttributeTypes: {7}( YAWLattributeType:8 NAME 'yawlPrivilegeCanReorder' D
+ ESC 'YAWL privilege "Reorder Work Items"' SYNTAX 1.3.6.1.4.1.1466.115.121.1
+ .7 SINGLE-VALUE )
+olcAttributeTypes: {8}( YAWLattributeType:9 NAME 'yawlPrivilegeCanViewTeamIt
+ ems' DESC 'YAWL privilege "View All Work Items of Team"' SYNTAX 1.3.6.1.4.1
+ .1466.115.121.1.7 SINGLE-VALUE )
+olcAttributeTypes: {9}( YAWLattributeType:10 NAME 'yawlPrivilegeCanViewOrgGr
+ oupItems' DESC 'YAWL privilege "View All Work Items of Org Group"' SYNTAX 1
+ .3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE )
+olcAttributeTypes: {10}( YAWLattributeType:11 NAME 'yawlPrivilegeCanChainExe
+ cution' DESC 'YAWL privilege "Chain Work Item Execution"' SYNTAX 1.3.6.1.4.
+ 1.1466.115.121.1.7 SINGLE-VALUE )
+olcAttributeTypes: {11}( YAWLattributeType:12 NAME 'yawlPrivilegeCanManageCa
+ ses' DESC 'YAWL privilege "Manage Cases"' SYNTAX 1.3.6.1.4.1.1466.115.121.1
+ .7 SINGLE-VALUE )
+olcAttributeTypes: {12}( YAWLattributeType:13 NAME 'yawlInternalId' DESC 'YA
+ WL internal ID for migrating purposes' EQUALITY caseExactMatch SUBSTR caseE
+ xactSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcObjectClasses: {0}( YAWLobjectClass:1 NAME 'yawlRoleUniqueNames' DESC 'YA
+ WL role based on groupOfUniqueNames' SUP groupOfUniqueNames STRUCTURAL MUST
+  cn MAY ( description $ owner $ seeAlso $ displayName $ yawlNotes $ uniqueM
+ ember $ yawlInternalId ) )
+olcObjectClasses: {1}( YAWLobjectClass:2 NAME 'yawlCapabilityUniqueNames' DE
+ SC 'YAWL capabilities based on groupOfUniqueNames' SUP groupOfUniqueNames S
+ TRUCTURAL MUST cn MAY ( description $ owner $ seeAlso $ displayName $ yawlN
+ otes $ uniqueMember $ yawlInternalId ) )
+olcObjectClasses: {2}( YAWLobjectClass:3 NAME 'yawlPositionUniqueNames' DESC
+  'YAWL position based on groupOfUniqueNames' SUP groupOfUniqueNames STRUCTU
+ RAL MUST cn MAY ( description $ owner $ seeAlso $ displayName $ yawlNotes $
+  yawlPositionOrgGroup $ yawlPositionReportsTo $ uniqueMember $ yawlInternal
+ Id ) )
+olcObjectClasses: {3}( YAWLobjectClass:4 NAME 'yawlParticipant' DESC 'Attrib
+ utes for YAWL participants like notes, description, privileges (administrat
+ or, Manage Cases, etc.)' AUXILIARY MUST ( givenName $ uid $ sn $ userPasswo
+ rd ) MAY ( yawlNotes $ description $ yawlInternalId $ yawlPrivilegeAdminist
+ rator $ yawlPrivilegeCanChainExecution $ yawlPrivilegeCanChooseItemToStart 
+ $ yawlPrivilegeCanManageCases $ yawlPrivilegeCanReorder $ yawlPrivilegeCanS
+ tartConcurrent $ yawlPrivilegeCanViewOrgGroupItems $ yawlPrivilegeCanViewTe
+ amItems ) )
+olcObjectClasses: {4}( YAWLobjectClass:5 NAME 'yawlOrgGroup' DESC 'An Org Gr
+ oup in YAWL' STRUCTURAL MUST ( cn $ yawlOrgGroupType ) MAY ( description $ 
+ displayName $ yawlNotes $ yawlInternalId ) )

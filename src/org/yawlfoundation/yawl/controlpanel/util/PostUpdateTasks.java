@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -20,12 +20,9 @@ package org.yawlfoundation.yawl.controlpanel.util;
 
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.update.ChecksumsReader;
-import org.yawlfoundation.yawl.util.StartMenuUpdater;
 import org.yawlfoundation.yawl.util.XNode;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Michael Adams

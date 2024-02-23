@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -65,7 +65,7 @@ public abstract class WorkletEventListener extends HttpServlet {
         }
         else {
             String ruleTypeStr = req.getParameter("ruletype");
-            RuleType ruleType = (ruleTypeStr != null) ? RuleType.valueOf(ruleTypeStr) : null;
+            RuleType ruleType = (ruleTypeStr != null) ? RuleType.fromString(ruleTypeStr) : null;
             Element caseData = JDOMUtil.stringToElement(req.getParameter("casedata"));
             String wirStr = req.getParameter("wir");
             WorkItemRecord wir = wirStr != null ? Marshaller.unmarshalWorkItem(wirStr) : null;

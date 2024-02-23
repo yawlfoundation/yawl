@@ -2,7 +2,7 @@
 <%@ page import="org.yawlfoundation.yawl.worklet.admin.AdministrationTask" %>
 
 <%--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -39,7 +39,7 @@
         if ((title != null) && (title.length() > 0) &&
             (scenario != null) && (scenario.length() > 0) &&
             (process != null) && (process.length() > 0)) {
-            _exceptionService.addAdministrationTask(caseID, title, scenario, process,
+            _adminTasksManager.addTask(caseID, title, scenario, process,
                                   AdministrationTask.TASKTYPE_CASE_EXTERNAL_EXCEPTION);
 
             // go back to YAWL case mgt page
@@ -47,7 +47,7 @@
             return;
         }
     }
-    YSpecificationID specID = _exceptionService.getSpecIDForCaseID(caseID);
+    YSpecificationID specID = _workletService.getExceptionService().getSpecIDForCaseID(caseID);
 
 %>
 

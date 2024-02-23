@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -373,10 +373,6 @@ public class YDecompositionParser {
 
     private void parseNameAndDocumentation(YExternalNetElement element, Element netElementElem) {
         String name = netElementElem.getChildText("name", _yawlNS);
-        if (name == null && (element instanceof YTask)) {
-            String id = netElementElem.getAttributeValue("id");
-            name = stripEngineID(id);
-        }
         element.setName(name);
         String documentation = netElementElem.getChildText("documentation", _yawlNS);
         element.setDocumentation(documentation);
@@ -445,6 +441,9 @@ public class YDecompositionParser {
                     }
                 }
             }
+            Element workDaysElem = timerElem.getChild("workdays", _yawlNS);
+            timerParameters.setWorkDaysOnly(workDaysElem != null);
+            
             task.setTimerParameters(timerParameters);
         }
     }
@@ -634,18 +633,7 @@ public class YDecompositionParser {
     protected Map<YTask, String> getDecomposesToIDs() {
         return _decomposesToIDs;
     }
-
-    private String stripEngineID(String id) {
-        if (id != null) {
-            int pos = id.indexOf('_');
-            if (pos > -1) {
-                String lhs = id.substring(0, pos);
-                id = StringUtil.isIntegerString(lhs) ? id.substring(pos + 1) : lhs;
-            }
-        }
-        return id;
-    }
-
+    
 
     private void linkElements() {
         if (_decomposition instanceof YNet) {

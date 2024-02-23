@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -215,6 +215,9 @@ public class XNode implements Comparable<XNode> {
     }
 
     public void addContent(String content, String nsPrefix, String nsURI) {
+        if (content == null) {
+            return;
+        }
         if (content.trim().startsWith(_header)) {
             content = content.substring(_header.length() + 1);
         }
@@ -270,6 +273,17 @@ public class XNode implements Comparable<XNode> {
             list.add((E) instance.newInstance(child));
         }
     }
+
+
+    public void removeDuplicateChildren() {
+        Map<String, XNode> childMap = new HashMap<String, XNode>();
+        for (XNode child : getChildren()) {
+            childMap.put(child.toString(), child);
+        }
+        removeChildren();
+        addChildren(childMap.values());
+    }
+
 
 
     /**************************************************************************/

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -134,7 +134,7 @@ public class DigitalSignature extends InterfaceBWebsideController
 	                        Outputelement.addContent(Child3);
 	                        
 	                        //Check In the work item and finish the task. 
-	                        this.checkInWorkItem(itemRecord.getID(), itemRecord.getDataList(), Outputelement,_sessionHandle);
+	                        this.checkInWorkItem(itemRecord.getID(), itemRecord.getDataList(), Outputelement,null, _sessionHandle);
 	                     
 	                        }
 	                 }
@@ -400,7 +400,7 @@ public class DigitalSignature extends InterfaceBWebsideController
                  System.out.println("Beginning of XmlSignature:");
                  //Call the function to sign the document
                  byte[] signeddata = SignedData(Document).getEncoded();
-                 if(signeddata.toString().compareTo(null)==0) return null;
+			     if (signeddata == null || signeddata.length == 0) return null;
                  else
                  {
                  System.out.println("End of Xml Signature");

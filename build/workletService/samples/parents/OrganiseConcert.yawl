@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema4.0.xsd">
+  <specification uri="OrganiseConcert">
+    <name>Organise Concert</name>
+    <documentation>Example used to test Worklet Service Exception Handling</documentation>
+    <metaData>
+      <title>Organise Concert</title>
+      <creator>Adams</creator>
+      <description>Example used to test Worklet Service Exception Handling</description>
+      <coverage>4.5.1.796</coverage>
+      <version>0.2</version>
+      <persistent>false</persistent>
+      <identifier>UID_d025e788-53b0-4c56-8817-209c652b9b00</identifier>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="OrganiseConcert" isRootNet="true" xsi:type="NetFactsType">
+      <localVariable>
+        <index>0</index>
+        <name>Seating</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>25000</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>ANZ Stadium</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>0</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>VenueCost</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>100000.00</initialValue>
+      </localVariable>
+      <localVariable>
+        <index>0</index>
+        <name>TicketCost</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>90</initialValue>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition">
+          <flowsInto>
+            <nextElementRef id="BookStadium" />
+          </flowsInto>
+        </inputCondition>
+        <task id="BookStadium">
+          <name>BookStadium</name>
+          <flowsInto>
+            <nextElementRef id="SellTickets" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;VenueCost&gt;{/OrganiseConcert/VenueCost/text()}&lt;/VenueCost&gt;" />
+              <mapsTo>VenueCost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Seating&gt;{/OrganiseConcert/Seating/text()}&lt;/Seating&gt;" />
+              <mapsTo>Seating</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/OrganiseConcert/VenueName/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Seating&gt;{/BookStadium/Seating/text()}&lt;/Seating&gt;" />
+              <mapsTo>Seating</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/BookStadium/VenueName/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;VenueCost&gt;{/BookStadium/VenueCost/text()}&lt;/VenueCost&gt;" />
+              <mapsTo>VenueCost</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="BookStadium" />
+        </task>
+        <task id="SellTickets">
+          <name>SellTickets</name>
+          <flowsInto>
+            <nextElementRef id="DoShow" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;TicketCost&gt;{/SellTickets/TicketCost/text()}&lt;/TicketCost&gt;" />
+              <mapsTo>TicketCost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;TicketsSold&gt;{/SellTickets/TicketsSold/text()}&lt;/TicketsSold&gt;" />
+              <mapsTo>TicketsSold</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="SellTickets" />
+        </task>
+        <task id="DoShow">
+          <name>DoShow</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;TicketsSold&gt;{/OrganiseConcert/TicketsSold/text()}&lt;/TicketsSold&gt;" />
+              <mapsTo>TicketsSold</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Venue&gt;{/OrganiseConcert/VenueName/text()}&lt;/Venue&gt;" />
+              <mapsTo>Venue</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Seating&gt;{/OrganiseConcert/Seating/text()}&lt;/Seating&gt;" />
+              <mapsTo>Seating</mapsTo>
+            </mapping>
+          </startingMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
+          <decomposesTo id="DoShow" />
+        </task>
+        <outputCondition id="OutputCondition" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="BookStadium" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>VenueCost</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Seating</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>VenueCost</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Seating</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="DoShow" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>Venue</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Seating</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="SellTickets" xsi:type="WebServiceGatewayFactsType">
+      <outputParam>
+        <index>0</index>
+        <name>TicketCost</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+  </specification>
+  <layout>
+    <locale language="en" country="AU"/>
+    <specification id="OrganiseConcert" defaultBgColor="-526351">
+      <size w="69" h="26"/>
+      <net id="OrganiseConcert" bgColor="-526351">
+        <bounds x="0" y="0" w="944" h="427"/>
+        <frame x="0" y="0" w="947" h="430"/>
+        <viewport x="0" y="0" w="947" h="430"/>
+        <vertex id="OutputCondition">
+          <attributes>
+            <bounds x="480" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <container id="BookStadium">
+          <vertex>
+            <attributes>
+              <bounds x="128" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="96" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="DoShow">
+          <vertex>
+            <attributes>
+              <bounds x="384" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="352" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="SellTickets">
+          <vertex>
+            <attributes>
+              <bounds x="256" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="224" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <flow source="InputCondition" target="BookStadium">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="BookStadium" target="SellTickets">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="SellTickets" target="DoShow">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="DoShow" target="OutputCondition">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+      </net>
+      <labelFontSize>13</labelFontSize>
+    </specification>
+  </layout>
+</specificationSet>

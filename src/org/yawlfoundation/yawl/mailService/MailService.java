@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,10 +18,10 @@
 
 package org.yawlfoundation.yawl.mailService;
 
-import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
-import org.codemonkey.simplejavamail.Mailer;
 import org.jdom2.Element;
+import org.simplejavamail.email.Email;
+import org.simplejavamail.mailer.Mailer;
+import org.simplejavamail.mailer.config.TransportStrategy;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
@@ -31,7 +31,7 @@ import javax.mail.Message;
 import java.io.IOException;
 
 /**
- * A simple service that provides for status updates to the YAWL Twitter account
+ * A service that provides for emails to be sent by tasks
  *
  * @author Michael Adams
  * @date 25/07/2009
@@ -78,28 +78,34 @@ public class MailService extends InterfaceBWebsideController {
     // these parameters are automatically inserted (in the Editor) into a task
     // decomposition when this service is selected from the list
     public YParameter[] describeRequiredParams() {
-        YParameter[] params = new YParameter[11];
+        YParameter[] params = new YParameter[14];
         params[0] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
                 "senderName", "The name of the person or system who is sending the email", false);
         params[1] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
                 "senderAddress", "The email address of the person or system who is sending the email", false);
         params[2] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
-                "recipientName", "The name of the person to send the email to", false);
+                "recipientName", "The name of the person to send the email to", true);
         params[3] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
                 "recipientAddress", "The email address to send the email to", false);
-        params[4] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "subject",
+        params[4] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
+                "CC", "The email address to CC the email to", true);
+        params[5] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
+                "BCC", "The email address to BCC the email to", true);
+        params[6] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "subject",
                 "The subject of the email", false);
-        params[5] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "content",
+        params[7] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "content",
                 "The content of the email", false);
-        params[6] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "host",
+        params[8] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "host",
                 "The host mail server url (e.g. smtp.example.com)", true);
-        params[7] = createParameter(YParameter._INPUT_PARAM_TYPE, "int", "port",
+        params[9] = createParameter(YParameter._INPUT_PARAM_TYPE, "int", "port",
                 "The host email server's smtp port number", true);
-        params[8] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "user",
+        params[10] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "user",
                 "The user name of an account on the host email server", true);
-        params[9] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "password",
+        params[11] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "password",
                 "The password of the account on the host email server", true);
-        params[10] = createParameter(YParameter._OUTPUT_PARAM_TYPE, "string", "result",
+        params[12] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "transportStrategy",
+                "The encryption required to use the host. Choose between PLAIN, SSL and TLS", true);
+        params[13] = createParameter(YParameter._OUTPUT_PARAM_TYPE, "string", "result",
                 "The success or error message returned", false);
         return params;
     }
@@ -107,6 +113,10 @@ public class MailService extends InterfaceBWebsideController {
     protected void setHost(String host) { _defaults.host = host; }
 
     protected void setPort(int port) { if (port > -1) _defaults.port = port; }
+
+    protected void setTransportStrategy(String strategy) {
+        _defaults.strategy = getTransportStrategy(strategy);
+    }
 
     protected void setUser(String user) { _defaults.user = user; }
 
@@ -135,12 +145,14 @@ public class MailService extends InterfaceBWebsideController {
 
     private String sendMail(Email email, MailSettings settings) {
         try {
-            new Mailer(settings.host, settings.port, settings.user, settings.password)
+            new Mailer(settings.host, settings.port, settings.user,
+                    settings.password, settings.strategy)
                     .sendMail(email);
             return "Mail successfully sent.";
         }
-        catch (MailException me) {
-            return me.getMessage();
+        catch (Exception e) {
+            _logger.error("Error sending mail.", e.getCause());
+            return e.getMessage();
         }
     }
 
@@ -152,12 +164,15 @@ public class MailService extends InterfaceBWebsideController {
         MailSettings settings = new MailSettings();
         settings.host = getSetting(data, "host");
         settings.port = getPort(data);
+        settings.strategy = getTransportStrategy(data);
         settings.user = getSetting(data, "user");
         settings.password = getSetting(data, "password");
         settings.fromName = getSetting(data, "senderName");
         settings.fromAddress = getSetting(data, "senderAddress");
-        settings.toName = getSetting(data, "recipientName");
+        settings.toName = getSetting(data, "recipientName", true);
         settings.toAddress = getSetting(data, "recipientAddress");
+        settings.ccAddress = getSetting(data, "CC", true);
+        settings.bccAddress = getSetting(data, "BCC", true);
         settings.subject = getSetting(data, "subject");
         settings.content = getSetting(data, "content");
         return settings;
@@ -166,19 +181,47 @@ public class MailService extends InterfaceBWebsideController {
 
     private Email buildEmail(MailSettings settings) {
         Email email = new Email();
+        addRecipients(email, settings);
         email.setFromAddress(settings.fromName, settings.fromAddress);
-        email.addRecipient(settings.toName, settings.toAddress, Message.RecipientType.TO);
         email.setSubject(settings.subject);
-        email.setText(settings.content);
+        if (settings.content.contains("<")) {
+            email.setTextHTML(settings.content);
+        }
+        else {
+            email.setText(settings.content);            // plain text
+        }
         return email;
     }
 
 
+    private void addRecipients(Email email, MailSettings settings) {
+        addRecipients(email, settings.toName, settings.toAddress, Message.RecipientType.TO);
+        addRecipients(email, null, settings.ccAddress, Message.RecipientType.CC);
+        addRecipients(email, null, settings.bccAddress, Message.RecipientType.BCC);
+    }
+
+
+    private void addRecipients(Email email, String name, String address,
+                              Message.RecipientType mailType) {
+        if (! StringUtil.isNullOrEmpty(address)) {
+            if (name == null) name = "";
+            email.addRecipients(name, mailType, address);
+        }
+    }
+
+
+    // settings not optional by default
     private String getSetting(Element data, String name) throws MailSettingsException {
+        return getSetting(data, name, false);
+    }
+
+
+    private String getSetting(Element data, String name, boolean optional)
+            throws MailSettingsException {
         String setting = getDataValue(data, name);
         if (StringUtil.isNullOrEmpty(setting)) setting = _defaults.getSetting(name);
-        if (StringUtil.isNullOrEmpty(setting)) throw new MailSettingsException(
-                "No value for '" + name + "' supplied.");
+        if (StringUtil.isNullOrEmpty(setting) && ! optional) throw new MailSettingsException(
+                "Required value for '" + name + "' not supplied.");
         return setting;
     }
 
@@ -190,6 +233,20 @@ public class MailService extends InterfaceBWebsideController {
         return port;
     }
 
+    private TransportStrategy getTransportStrategy(String strategyString) {
+        if (StringUtil.isNullOrEmpty(strategyString)) return _defaults.strategy;
+        if ("PLAIN".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_PLAIN;
+        if ("SSL".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_SSL;
+        if ("TLS".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_TLS;
+        
+        _logger.error("Unknown transport strategy ('" + strategyString + "'). " +
+                "Fall back to default (SSL).");
+        return _defaults.strategy;
+    }
+
+    private TransportStrategy getTransportStrategy(Element data) {
+        return getTransportStrategy(getDataValue(data, "transportStrategy"));
+    }
 
     private String getDataValue(Element data, String name) {
         return (data != null) ? data.getChildText(name) : null;
@@ -223,12 +280,15 @@ public class MailService extends InterfaceBWebsideController {
     private class MailSettings {
         String host = null;
         int port = 25;
+        TransportStrategy strategy = TransportStrategy.SMTP_SSL;
         String user = null;
         String password = null;
         String fromName = null;
         String fromAddress = null;
         String toName = null;
         String toAddress = null;
+        String ccAddress = null;
+        String bccAddress = null;
         String subject = null;
         String content = null;
 
@@ -240,7 +300,9 @@ public class MailService extends InterfaceBWebsideController {
             if (name.equals("senderAddress")) return fromAddress;
             if (name.equals("recipientName")) return toName;
             if (name.equals("recipientAddress")) return toAddress;
-            if (name.equals("subject")) return subject;
+            if (name.equals("CC")) return ccAddress;
+            if (name.equals("BCC")) return bccAddress;
+            if (name.equals("subject")) return subject;    
             if (name.equals("content")) return content;
             return null;
         }

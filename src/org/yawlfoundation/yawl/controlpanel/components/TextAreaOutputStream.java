@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.controlpanel.components;
 
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
@@ -59,14 +77,17 @@ public class TextAreaOutputStream extends OutputStream {
 
 
     private void append(String text) {
+        if (mayIgnore(text)) {                  // ignore this warning
+            return;
+        }
         Color color = DEFAULT_COLOR;
-        if (text.contains("ERROR")) {
+        if (text.contains("ERROR") || text.contains("SEVERE")) {
             color = ERROR_COLOR;
         }
         if (text.contains("WARN")) {
             color = WARN_COLOR;
         }
-        else if (text.startsWith("INFO: Server startup ")) {
+        else if (text.contains("Server startup ")) {
             color = SUCCESS_COLOR;
         }
         else if (text.startsWith("INFO: Shutdown successfully")) {
@@ -86,6 +107,16 @@ public class TextAreaOutputStream extends OutputStream {
         _textPane.setEditable(true);
         _textPane.replaceSelection(text);
         _textPane.setEditable(false);
+    }
+
+
+    // eh cache waring are for info only and can be ignored
+    // on shutdown, memory leak warning can be ignored
+    private boolean mayIgnore(String text) {
+        return text.contains("ehcache") || text.contains("CacheManager") ||
+                text.contains("memory leak") || text.contains("java.base@16/") ||
+                text.contains("com.mchange.v2.async.ThreadPoolAsynchronousRunner$") ||
+                text.contains("org.h2");
     }
 
 }

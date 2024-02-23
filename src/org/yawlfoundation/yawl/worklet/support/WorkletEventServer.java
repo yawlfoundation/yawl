@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -230,7 +230,7 @@ public class WorkletEventServer extends Interface_Client {
                           RdrNode node, RuleType rType) {
         params.put("casedata", JDOMUtil.elementToString(caseData));
         if (node != null) params.put("node", node.toXML());
-        params.put("ruletype", rType.name());
+        params.put("ruletype", rType.toString());
         announce(params);
     }
 

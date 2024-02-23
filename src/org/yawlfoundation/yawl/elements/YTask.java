@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -25,8 +25,8 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
-import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGateway;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGatewayFactory;
 import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
 import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorCache;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
@@ -211,7 +211,7 @@ public abstract class YTask extends YExternalNetElement {
 
     protected void checkXQuery(String xQuery, String param, YVerificationHandler handler) {
         if (!StringUtil.isNullOrEmpty(xQuery)) {
-            if (ExternalDBGatewayFactory.isExternalDBMappingExpression(xQuery)) {
+            if (ExternalDataGatewayFactory.isExternalDataMappingExpression(xQuery)) {
                 checkExternalMapping(xQuery, handler);
             } else {
                 try {
@@ -229,7 +229,7 @@ public abstract class YTask extends YExternalNetElement {
 
 
     protected void checkExternalMapping(String query, YVerificationHandler handler) {
-        AbstractExternalDBGateway dbClass = ExternalDBGatewayFactory.getInstance(query);
+        ExternalDataGateway dbClass = ExternalDataGatewayFactory.getInstance(query);
         if (dbClass == null) {
             handler.error(this, this +
                     "(id= " + this.getID() + ") the mapping could not be successfully" +
@@ -459,9 +459,9 @@ public abstract class YTask extends YExternalNetElement {
             validateOutputs(validator, decompositionOutputData);
 
             for (String query : getQueriesForTaskCompletion()) {
-                if (ExternalDBGatewayFactory.isExternalDBMappingExpression(query)) {
-                    AbstractExternalDBGateway gateway =
-                            ExternalDBGatewayFactory.getInstance(query);
+                if (ExternalDataGatewayFactory.isExternalDataMappingExpression(query)) {
+                    ExternalDataGateway gateway =
+                            ExternalDataGatewayFactory.getInstance(query);
                     updateExternalFromTaskCompletion(gateway, query, decompositionOutputData);
                     continue;
                 }
@@ -541,25 +541,27 @@ public abstract class YTask extends YExternalNetElement {
     private void addDefaultValuesAsRequired(Document dataDoc) {
         if (dataDoc == null) return;
         Element dataElem = dataDoc.getRootElement();
-        for (YParameter param : _decompositionPrototype.getOutputParameters().values()) {
+        List<YParameter> outputParams = new ArrayList<YParameter>(
+                _decompositionPrototype.getOutputParameters().values());
+        Collections.sort(outputParams);
+        for (int index = 0; index < outputParams.size(); index++) {
+            YParameter param = outputParams.get(index);
             String defaultValue = param.getDefaultValue();
             if (! StringUtil.isNullOrEmpty(defaultValue)) {
-                Element paramData = dataElem.getChild(param.getPreferredName());
+                Element paramElem = dataElem.getChild(param.getPreferredName());
 
-                // if there's an element, but no value, add the default
-                if (paramData != null) {
-                    if (StringUtil.isNullOrEmpty(paramData.getText())) {
-                        paramData.setText(defaultValue);
-                    }
-                }
-
-                // else if there's no element at all, add it with the default value
-                else {
+                // if there's no element, or it has with no content, add the default
+                if (paramElem == null || paramElem.getContent().isEmpty()) {
                     Element defElem = JDOMUtil.stringToElement(
-                            StringUtil.wrap(defaultValue, param.getPreferredName()));
+                            StringUtil.wrap(defaultValue,
+                                    param.getPreferredName())).detach();
                     defElem.setNamespace(dataElem.getNamespace());
-                    dataElem.addContent(Math.min(dataElem.getContentSize(), param.getOrdering()),
-                            defElem.detach());
+                    if (paramElem != null) {                     // insert content
+                        paramElem.addContent(defElem.removeContent());
+                    }
+                    else {                                       // insert whole element
+                        dataElem.addContent(index, defElem);
+                    }
                 }
             }
         }
@@ -605,13 +607,18 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    private void updateExternalFromTaskCompletion(AbstractExternalDBGateway gateway,
+    private void updateExternalFromTaskCompletion(ExternalDataGateway gateway,
                                                   String query,
-                                                  Document outputData) {
-        String paramName = query.split(":")[2];
-        Element data = outputData.getRootElement().getChild(paramName);
-        Element netData = _net.getInternalDataDocument().getRootElement();
-        gateway.updateFromTaskCompletion(paramName, data, netData);
+                                                  Document outputData) throws YStateException {
+        try {
+            String paramName = query.split(":")[2];
+            Element data = outputData.getRootElement().getChild(paramName);
+            Element netData = _net.getInternalDataDocument().getRootElement();
+            gateway.updateFromTaskCompletion(this, paramName, data, netData);
+        }
+        catch (Throwable t) {
+            throw new YStateException("Failed to update external data: " + t.getMessage());
+        }
     }
 
 
@@ -794,7 +801,7 @@ public abstract class YTask extends YExternalNetElement {
     private Set<String> getLocalVariablesForTaskCompletion() {
         Set<String> localVars = new HashSet<String>();
         for (String query : _dataMappingsForTaskCompletion.keySet()) {
-            if (!ExternalDBGatewayFactory.isExternalDBMappingExpression(query)) {
+            if (!ExternalDataGatewayFactory.isExternalDataMappingExpression(query)) {
                 localVars.add(_dataMappingsForTaskCompletion.get(query));
             }
         }
@@ -1031,7 +1038,7 @@ public abstract class YTask extends YExternalNetElement {
                     dataForChildCase.addContent(specificMIData.detach());
                 }
             } else {
-                Element result = ExternalDBGatewayFactory.isExternalDBMappingExpression(expression) ?
+                Element result = ExternalDataGatewayFactory.isExternalDataMappingExpression(expression) ?
                         performExternalDataExtraction(expression, parameter) :
                         performDataExtraction(expression, parameter);
 
@@ -1101,25 +1108,28 @@ public abstract class YTask extends YExternalNetElement {
     protected Element performExternalDataExtraction(String expression, YParameter inputParam)
             throws YStateException, YDataStateException {
         Element result = null;
-        if (ExternalDBGatewayFactory.isExternalDBMappingExpression(expression)) {
-            AbstractExternalDBGateway extractor =
-                    ExternalDBGatewayFactory.getInstance(expression);
+        try {
+            ExternalDataGateway extractor =
+                    ExternalDataGatewayFactory.getInstance(expression);
             if (extractor != null) {
                 Element netData = _net.getInternalDataDocument().getRootElement();
                 result = extractor.populateTaskParameter(this, inputParam, netData);
             }
         }
-        if (result != null) {
-            if (_net.getSpecification().getSchemaVersion().isSchemaValidating()) {
-                if (!skipOutboundSchemaChecks()) {
+        catch (Throwable t) {
+            throw new YStateException("External data pull failure: " + t.getMessage());
+        }
 
-                    // remove any dynamic attributes for schema checking
-                    Element resultSansAttributes = JDOMUtil.stripAttributes((Element) result.clone());
-                    performSchemaValidationOverExtractionResult(expression, inputParam, resultSansAttributes);
-                }
-            }
-        } else {
-            throw new YStateException("External data pull failure.");
+        if (result == null) {
+            throw new YStateException("External data pull failure: No data");
+        }
+
+        if (_net.getSpecification().getSchemaVersion().isSchemaValidating() &&
+                !skipOutboundSchemaChecks()) {
+
+            // remove any dynamic attributes for schema checking
+            Element resultSansAttributes = JDOMUtil.stripAttributes((Element) result.clone());
+            performSchemaValidationOverExtractionResult(expression, inputParam, resultSansAttributes);
         }
         return result;
     }
@@ -1501,40 +1511,38 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     public String getInformation() {
-        try {
-            YAWLServiceGateway gateway = (YAWLServiceGateway) getDecompositionPrototype();
-            StringBuilder result = new StringBuilder();
-            result.append("<taskInfo>");
+        StringBuilder result = new StringBuilder();
+        result.append("<taskInfo>");
 
-            YSpecification ySpec = _net.getSpecification();
-            result.append("<specification>");
-            result.append(StringUtil.wrap(ySpec.getID(), "id"));
-            result.append(StringUtil.wrap(ySpec.getSpecVersion(), "version"));
-            result.append(StringUtil.wrap(ySpec.getURI(), "uri"));
-            result.append("</specification>");
+        YSpecification ySpec = _net.getSpecification();
+        result.append("<specification>");
+        result.append(StringUtil.wrap(ySpec.getID(), "id"));
+        result.append(StringUtil.wrap(ySpec.getSpecVersion(), "version"));
+        result.append(StringUtil.wrap(ySpec.getURI(), "uri"));
+        result.append("</specification>");
 
-            result.append("<taskID>");
-            result.append(getID());
-            result.append("</taskID>");
+        result.append("<taskID>");
+        result.append(getID());
+        result.append("</taskID>");
 
-            result.append("<taskName>");
-            result.append(_name != null ? _name : _decompositionPrototype.getID());
-            result.append("</taskName>");
+        String taskName = _name != null ? _name :
+                        _decompositionPrototype != null ?
+                                _decompositionPrototype.getID() : "null";
+        result.append(StringUtil.wrapEscaped(taskName, "taskName"));
 
-            if (_documentation != null) {
-                result.append("<taskDocumentation>");
-                result.append(_documentation);
-                result.append("</taskDocumentation>");
-            }
-            if (_decompositionPrototype != null) {
-                result.append("<decompositionID>");
-                result.append(_decompositionPrototype.getID());
-                result.append("</decompositionID>");
+        if (_documentation != null) {
+            result.append(StringUtil.wrapEscaped(_documentation, "taskDocumentation"));
+        }
+        if (_decompositionPrototype != null) {
+            result.append("<decompositionID>");
+            result.append(_decompositionPrototype.getID());
+            result.append("</decompositionID>");
 
-                result.append("<attributes>");
-                result.append(_decompositionPrototype.getAttributes().toXMLElements());
-                result.append("</attributes>");
+            result.append("<attributes>");
+            result.append(_decompositionPrototype.getAttributes().toXMLElements());
+            result.append("</attributes>");
 
+            if (_decompositionPrototype instanceof YAWLServiceGateway) {
                 YAWLServiceGateway wsgw = (YAWLServiceGateway) _decompositionPrototype;
                 YAWLServiceReference ys = wsgw.getYawlService();
                 if (ys != null) {
@@ -1546,33 +1554,32 @@ public abstract class YTask extends YExternalNetElement {
                     result.append("</yawlService>");
                 }
             }
-
-            result.append("<params>");
-            if (isMultiInstance()) {
-                result.append("<formalInputParam>").
-                        append(getMultiInstanceAttributes().getMIFormalInputParam()).
-                        append("</formalInputParam>");
-            }
-            for (YParameter parameter : gateway.getInputParameters().values()) {
-                result.append(parameter.toSummaryXML());
-            }
-            for (YParameter parameter : gateway.getOutputParameters().values()) {
-                result.append(parameter.toSummaryXML());
-            }
-            result.append("</params>");
-
-            if (_customFormURL != null) {
-                result.append(StringUtil.wrap(_customFormURL.toExternalForm(), "customform"));
-            } else {
-                result.append("<customform/>");
-            }
-
-            result.append("</taskInfo>");
-            return result.toString();
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-            return null;
         }
+
+        result.append("<params>");
+        if (isMultiInstance()) {
+            result.append("<formalInputParam>").
+                    append(getMultiInstanceAttributes().getMIFormalInputParam()).
+                    append("</formalInputParam>");
+        }
+        if (_decompositionPrototype != null) {
+            for (YParameter parameter : _decompositionPrototype.getInputParameters().values()) {
+                result.append(parameter.toSummaryXML());
+            }
+            for (YParameter parameter : _decompositionPrototype.getOutputParameters().values()) {
+                result.append(parameter.toSummaryXML());
+            }
+        }
+        result.append("</params>");
+
+        if (_customFormURL != null) {
+            result.append(StringUtil.wrap(_customFormURL.toExternalForm(), "customform"));
+        } else {
+            result.append("<customform/>");
+        }
+
+        result.append("</taskInfo>");
+        return result.toString();
     }
 
 

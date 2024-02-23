@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.simulation;
 
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -66,10 +84,10 @@ public class YSimulator {
 
     private void init() {
         _props = new SimulatorProperties(this);
-        _summaryMap = new Hashtable<String, ParticipantSummary>();
-        _userToPidMap = new Hashtable<String, String>();
-        _roleToPidsMap = new Hashtable<String, Set<String>>();
-        _caseStartTimeMap = new Hashtable<String, Long>();
+        _summaryMap = new HashMap<String, ParticipantSummary>();
+        _userToPidMap = new HashMap<String, String>();
+        _roleToPidsMap = new HashMap<String, Set<String>>();
+        _caseStartTimeMap = new HashMap<String, Long>();
         _slowestCaseTime = 0;
         _fastestCaseTime = Long.MAX_VALUE;
         _totalTime = 0;
@@ -145,7 +163,7 @@ public class YSimulator {
 
     private void startPoller() {
         TimedQueuePoller poller = new TimedQueuePoller();
-        _timer.scheduleAtFixedRate(poller, _props.getInterval() * 2, _props.getInterval());
+        _timer.scheduleAtFixedRate(poller, _props.getInterval() * 8, _props.getInterval() * 2);
     }
 
 
@@ -171,8 +189,38 @@ public class YSimulator {
     }
 
 
-    protected Set<WorkItemRecord> getAllocated(String pid)
+    protected void allocateOffers() throws IOException, ResourceGatewayException {
+        Map<String, List<String>> taskToOfferMap = new HashMap<String, List<String>>();
+        for (String pid : _props.getResources()) {
+             Set<WorkItemRecord> offered = getOffered(pid);
+             for (WorkItemRecord wir : offered) {
+                 List<String> offerees = taskToOfferMap.get(wir.getID());
+                 if (offerees == null) {
+                     offerees = new ArrayList<String>();
+                     taskToOfferMap.put(wir.getID(), offerees);
+                 }
+                 offerees.add(pid);
+             }
+        }
+        if (!taskToOfferMap.isEmpty()) {
+            Random r = new Random();
+            for (String itemID : taskToOfferMap.keySet()) {
+                List<String> offerees = taskToOfferMap.get(itemID);
+                String pid = offerees.get(r.nextInt(offerees.size()));
+                _wqAdapter.acceptOffer(pid, itemID, _handle);
+            }
+        }
+    }
+
+
+    protected Set<WorkItemRecord> getOffered(String pid)
             throws IOException, ResourceGatewayException {
+        return _wqAdapter.getQueuedWorkItems(pid, WorkQueue.OFFERED, _handle);
+    }
+
+
+    protected Set<WorkItemRecord> getAllocated(String pid)
+            throws IOException, ResourceGatewayException {    
         return _wqAdapter.getQueuedWorkItems(pid, WorkQueue.ALLOCATED, _handle);
     }
 
@@ -195,24 +243,24 @@ public class YSimulator {
     protected boolean process(String pid, WorkItemRecord wir)
             throws IOException, ResourceGatewayException {
 
-        ResourceLimit limit = _props.getLimit(pid);
-        if (limit.hasBeenExceeded()) {
-            _summaryMap.get(pid).reportLimitReached();
-            _wqAdapter.deallocateItem(pid, wir.getID(), _handle);
-            return false;
-        }
-
-        // ignore busy resources if required
-        if (_props.getConcurrent(wir.getTaskID(), pid) <= getExecutingCount(pid)) {
-            return false;
-        }
+//        ResourceLimit limit = _props.getLimit(pid);
+//        if (limit.hasBeenExceeded()) {
+//            _summaryMap.get(pid).reportLimitReached();
+//            _wqAdapter.deallocateItem(pid, wir.getID(), _handle);
+//            return false;
+//        }
+//
+//        // ignore busy resources if required
+//        if (_props.getConcurrent(wir.getTaskID(), pid) <= getExecutingCount(pid)) {
+//            return false;
+//        }
 
         wir = _wqAdapter.startItem(pid, wir.getID(), _handle);
         int processingTime = _props.getProcessingTime(wir.getTaskID(), pid);
         _summaryMap.get(pid).addWork(wir.getTaskID(), processingTime);
         print(MessageFormat.format("{0} - Started workitem {1} and processing for {2} ms",
                 now(), wir.getID(), processingTime));
-        limit.increment(processingTime);
+//        limit.increment(processingTime);
         TimedItemCompleter completer = new TimedItemCompleter(wir, pid);
         _timer.schedule(completer, processingTime);
         return true;
@@ -251,13 +299,13 @@ public class YSimulator {
                 .append(" ms")
                 .append("\n\tNumber of cases completed: ")
                 .append(_props.getCaseCount())
-                .append("\n\tFastest case completion: ")
+                .append("\n\tFastest case cycle time: ")
                 .append(_fastestCaseTime)
                 .append(" ms")
-                .append("\n\tSlowest case completion: ")
+                .append("\n\tSlowest case cycle time: ")
                 .append(_slowestCaseTime)
                 .append(" ms")
-                .append("\n\tAverage case completion: ")
+                .append("\n\tAverage case cycle time: ")
                 .append(_totalTime / _props.getCaseCount())
                 .append(" ms");
         return s.toString();
@@ -272,18 +320,17 @@ public class YSimulator {
 
         public void run() {
             try {
-                if (hasRunningCases()) {
-                    boolean startedOne = false;
-                    for (String pid : _props.getResources()) {
-                        for (WorkItemRecord wir : getAllocated(pid)) {
-                            startedOne = process(pid, wir) || startedOne;
-                        }
+ //               allocateOffers();
+                boolean startedOne = false;
+                for (String pid : _props.getResources()) {
+                    for (WorkItemRecord wir : getAllocated(pid)) {
+                        startedOne = process(pid, wir) || startedOne;
                     }
-                    if (!startedOne && deadlocked()) {
-                        summariseAndExit(false);
+                }
+                if (!startedOne) {                       // no more wirs to start
+                    if (deadlocked()) {                  // all queues empty
+                        summariseAndExit(!hasRunningCases());
                     }
-                } else {
-                    summariseAndExit(true);
                 }
             } catch (Exception e) {
                 // break
@@ -388,7 +435,7 @@ public class YSimulator {
 
         ParticipantSummary(Participant p) {
             this.p = p;
-            taskMap = new Hashtable<String, List<Integer>>();
+            taskMap = new HashMap<String, List<Integer>>();
         }
 
 
@@ -423,18 +470,22 @@ public class YSimulator {
             for (String task : taskMap.keySet()) {
                 List<Integer> times = taskMap.get(task);
                 long sumTime = sumTimes(times);
+                int min = Collections.min(times);
+                int max = Collections.max(times);
                 totalTasks += times.size();
                 totalTime += sumTime;
                 s.append("\tTask '").append(task).append("': ")
                         .append(times.size()).append(" instances, ")
-                        .append(sumTime).append(" msec total time.\n");
+                        .append(min).append(" ms min, ")
+                        .append(max).append(" ms max, ")
+                        .append(sumTime).append(" ms total time.\n");
             }
             s.append("\tTotal: ").append(totalTasks).append(" instances, ")
                     .append(totalTime);
             if (totalTasks > 0) {
-                s.append(" msec total time, ")
+                s.append(" ms total time, ")
                         .append((int) totalTime / totalTasks).append(" average per instance.\n");
-            } else s.append(" msec total time.\n");
+            } else s.append(" ms total time.\n");
 
             return s.toString();
         }

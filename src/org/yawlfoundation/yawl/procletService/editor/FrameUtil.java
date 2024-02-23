@@ -1,11 +1,29 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.procletService.editor;
 
-import java.util.*;
-import java.util.List;
-
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 public class FrameUtil {
 
@@ -100,7 +118,7 @@ public class FrameUtil {
    * @return Object
    */
   public static Object[] getSelecetdAllList(JList anJList) {
-    return anJList.getSelectedValues();
+    return anJList.getSelectedValuesList().toArray();
   }
 
   public static int indexList(JList list, Object object) {
@@ -161,7 +179,7 @@ public class FrameUtil {
    */
   protected static Object[] getSelectedMultipleList(JList anJList) {
     Object[] el = null;
-    el = anJList.getSelectedValues();
+    el = anJList.getSelectedValuesList().toArray();
     return el;
   }
 

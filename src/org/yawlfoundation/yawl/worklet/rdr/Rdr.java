@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -21,9 +21,12 @@ package org.yawlfoundation.yawl.worklet.rdr;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.worklet.support.RdrException;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrException;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrResult;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A top-level interface into the Rdr Classes
@@ -76,43 +79,86 @@ public class Rdr {
 
     public RdrNode addNode(YSpecificationID specID, String taskID, RuleType rType,
                            RdrNode node) throws RdrException {
-        return addNode(getRdrSet(specID), taskID, rType, node);
+        RdrSet ruleSet = getRdrSet(specID);
+        if (ruleSet == null) {
+            ruleSet = new RdrSet(specID);
+            Persister.insert(ruleSet);
+        }
+        return addNode(ruleSet, taskID, rType, node);
     }
     
     public RdrNode addNode(String processName, String taskID, RuleType rType,
                            RdrNode node)  throws RdrException {
-        return addNode(getRdrSet(processName), taskID, rType, node);
+        RdrSet ruleSet = getRdrSet(processName);
+        if (ruleSet == null) {
+            ruleSet = new RdrSet(processName);
+            Persister.insert(ruleSet);
+        }
+        return addNode(ruleSet, taskID, rType, node);
     }
 
+    public RdrNode getNode(long nodeID) {
+        return nodeID > 0 ? _loader.loadNode(nodeID) : null;
+    }
 
-    public RdrNode getNode(YSpecificationID specID, RuleType rType, int nodeID) {
+    public RdrNode getNode(YSpecificationID specID, RuleType rType, long nodeID) {
         return getNode(specID, null, rType, nodeID);
     }
 
-    public RdrNode getNode(String processName, RuleType rType, int nodeID) {
+    public RdrNode getNode(String processName, RuleType rType, long nodeID) {
         return getNode(processName, null, rType, nodeID);
     }
 
-    public RdrNode getNode(WorkItemRecord wir, RuleType rType, int nodeID) {
+    public RdrNode getNode(WorkItemRecord wir, RuleType rType, long nodeID) {
         return getNode(new YSpecificationID(wir), wir.getTaskID(), rType, nodeID);
     }
 
-    public RdrNode getNode(YSpecificationID specID, String taskID, RuleType rType, int nodeID) {
+    public RdrNode getNode(YSpecificationID specID, String taskID, RuleType rType, long nodeID) {
         return getNode(getRdrSet(specID), taskID, rType, nodeID);
     }
 
-    public RdrNode getNode(String processName, String taskID, RuleType rType, int nodeID) {
+    public RdrNode getNode(String processName, String taskID, RuleType rType, long nodeID) {
         return getNode(getRdrSet(processName), taskID, rType, nodeID);
     }
-
 
 
     public RdrSet getRdrSet(YSpecificationID specID) {
         return _loader.load(specID);
     }
 
+
     public RdrSet getRdrSet(String processName) {
         return _loader.load(processName);
+    }
+
+
+    public Set<String> getRdrSetIDs() { return _loader.getSetIDs(); }
+
+
+    public RdrSet removeRdrSet(YSpecificationID specID) {
+        return _loader.removeSet(specID);
+    }
+
+
+    public RdrSet removeRdrSet(String processName) {
+        return _loader.removeSet(processName);
+    }
+
+
+    public RdrResult removeNode(YSpecificationID specID, String taskID,
+                              RuleType rType, long nodeID) {
+        return removeNode(getRdrSet(specID), taskID, rType, nodeID);
+    }
+
+
+    public RdrResult removeNode(String processName, String taskID,
+                               RuleType rType, long nodeID) {
+        return removeNode(getRdrSet(processName), taskID, rType, nodeID);
+    }
+
+
+    public void updateTaskIDs(YSpecificationID specID, Map<String, String> updates) {
+        updateTaskIDs(getRdrSet(specID), updates);
     }
 
 
@@ -137,12 +183,27 @@ public class Rdr {
     }
 
 
+    public void updateTaskIDs(RdrSet rdrSet, Map<String, String> updates) {
+        if (rdrSet == null) return;
+        for (RdrTreeSet treeSet : rdrSet.getRuleSet()) {
+            if (treeSet.getRuleType().isCaseLevelType()) continue;  // ignore case trees
+            for (RdrTree tree : treeSet.getAll()) {
+                String taskID = tree.getTaskId();
+                if (taskID != null && updates.containsKey(taskID)) {
+                    tree.setTaskId(updates.get(taskID));
+                    Persister.update(tree);
+                }
+            }
+        }
+    }
+
+
     /*****************************************************************************/
 
     
     private RdrNode addNode(RdrSet set, String taskID, RuleType rType, RdrNode node)
             throws RdrException {
-        RdrNode addedNode = null;
+        RdrNode addedNode;
         RdrTree tree = getTree(set, taskID, rType);
         if (tree != null) {
             addedNode = addNode(tree, node);
@@ -154,7 +215,7 @@ public class Rdr {
             addedNode = tree.addNode(node, root, true);
         }
         if (addedNode != null) {
-            set.save();
+            Persister.update(set);
         }
         return addedNode;
     }
@@ -180,7 +241,7 @@ public class Rdr {
     }
     
     
-    private RdrNode getNode(RdrSet set, String taskID, RuleType rType, int nodeID) {
+    private RdrNode getNode(RdrSet set, String taskID, RuleType rType, long nodeID) {
         RdrTree tree = getTree(set, taskID, rType);
         if (tree != null) {
             RdrNode node = tree.getNode(nodeID);
@@ -189,7 +250,8 @@ public class Rdr {
         }
         return null;
     }
-    
+
+
     /**
      * Discovers whether this case or item has rules for this exception type, and if so,
      * returns the result of the rule evaluation. Note that if the conclusion
@@ -233,8 +295,77 @@ public class Rdr {
     private RdrTree getTree(RdrSet ruleSet, String taskID, RuleType rType) {
         if (ruleSet == null || ! ruleSet.hasRules()) return null;
         RdrTree tree = ruleSet.getTree(rType, taskID) ;
-        if (tree != null) tree.setAttributes(ruleSet.getName(), rType);
+        if (tree != null) {
+            if (ruleSet.getProcessName() != null) {
+                tree.setAttributes(ruleSet.getName(), rType);
+            }
+            else {
+                tree.setAttributes(ruleSet.getSpecificationID(), rType);
+            }
+        }
         return tree;
+    }
+
+
+    private RdrResult removeNode(RdrSet ruleSet, String taskID, RuleType rType, long nodeID) {
+        RdrTree tree = getTree(ruleSet, taskID, rType);
+        if (tree != null) {
+            RdrNode node = tree.removeNode(nodeID);
+            if (node != null) {
+                updatePersistedTree(tree.getRootNode());
+                Persister.delete(node);
+                if (tree.getRootNode().isLeaf()) {       // tree is now empty
+                    return removeTree(ruleSet, taskID, rType);
+                }
+                else {
+                    return RdrResult.RdrNodeRemoved;
+                }
+            }
+        }
+        return RdrResult.Unknown;
+    }
+
+
+    private RdrResult removeTree(RdrSet ruleSet, String taskID, RuleType rType) {
+        RdrTreeSet treeSet = ruleSet.getTreeSet(rType);
+        if (treeSet != null) {
+            RdrTree tree = treeSet.remove(taskID);
+            if (tree != null) {
+                Persister.update(treeSet);
+                if (treeSet.isEmpty()) {
+                    return removeTreeSet(ruleSet, rType);
+                }
+                else {
+                    return RdrResult.RdrTreeRemoved;
+                }
+            }
+        }
+        return RdrResult.Unknown;
+    }
+
+
+    private RdrResult removeTreeSet(RdrSet ruleSet, RuleType rType) {
+        RdrTreeSet treeSet = ruleSet.removeTreeSet(rType);
+        if (treeSet != null) {
+            Persister.update(ruleSet);
+            if (! ruleSet.hasRules()) {
+                _loader.removeSet(ruleSet);
+                return RdrResult.RdrSetRemoved;
+            }
+            else {
+                return RdrResult.RdrTreeSetRemoved;
+            }
+        }
+        return RdrResult.Unknown;
+    }
+
+
+    private void updatePersistedTree(RdrNode node) {
+        if (node != null) {
+            Persister.update(node);
+            updatePersistedTree(node.getTrueChild());
+            updatePersistedTree(node.getFalseChild());
+        }
     }
 
 }

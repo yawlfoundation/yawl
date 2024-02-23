@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -36,6 +37,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -51,7 +56,8 @@ import java.util.Enumeration;
 
 public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
     private InterfaceBWebsideController _controller;
-    private Logger _logger = LogManager.getLogger(InterfaceB_EnvironmentBasedServer.class);
+    private final Logger _logger = LogManager.getLogger(InterfaceB_EnvironmentBasedServer.class);
+    private final ExecutorService _executor =  Executors.newSingleThreadExecutor();
 
 
     public void init(ServletConfig servletConfig) throws ServletException {
@@ -103,116 +109,113 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
     }
 
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
-        debug(request);
-        _controller.doGet(request, response);
-    }
-
-
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
-        StringBuilder output = new StringBuilder();
-        output.append("<response>");
-        output.append(processPostQuery(request));
-        output.append("</response>");
-        outputWriter.write(output.toString());
-        outputWriter.flush();
-        outputWriter.close();
-
-    }
-
-
-    private String processPostQuery(HttpServletRequest request) {
-        debug(request);
-
-        String action = request.getParameter("action");
-        String caseID = request.getParameter("caseID");
-        String workItemXML = request.getParameter("workItem");
-        WorkItemRecord workItem = (workItemXML != null) ?
-                Marshaller.unmarshalWorkItem(workItemXML) : null;
-
-        // where there are two choices for 'action' below, those on the left are
-        // passed from 2.2 or later engine versions, while those on the right come
-        // from pre-2.2 engine versions
-        if ("announceItemEnabled".equals(action) || "handleEnabledItem".equals(action)) {
-            _controller.handleEnabledWorkItemEvent(workItem);
-        }
-        else if ("announceItemStatus".equals(action)) {
-            String oldStatus = request.getParameter("oldStatus");
-            String newStatus = request.getParameter("newStatus");
-            _controller.handleWorkItemStatusChangeEvent(workItem, oldStatus, newStatus);
-        }
-        else if ("announceCaseStarted".equals(action)) {
-            String launchingService = request.getParameter("launchingService");
-            String delayedStr = request.getParameter("delayed");
-            boolean delayed = delayedStr != null && delayedStr.equalsIgnoreCase("true");
-            YSpecificationID specID = new YSpecificationID(
-                    request.getParameter("specidentifier"),
-                    request.getParameter("specversion"),
-                    request.getParameter("specuri"));
-            _controller.handleStartCaseEvent(specID, caseID, launchingService, delayed);
-        }
-        else if ("announceCaseCompleted".equals(action) || "announceCompletion".equals(action)) {
-            String casedata = request.getParameter("casedata");
-            _controller.handleCompleteCaseEvent(caseID, casedata);
-        }
-        else if ("announceItemCancelled".equals(action) || "cancelWorkItem".equals(action)) {
-            _controller.handleCancelledWorkItemEvent(workItem);
-        }
-        else if ("announceCaseCancelled".equals(action)) {
-            _controller.handleCancelledCaseEvent(caseID);
-        }
-        else if ("announceCaseDeadlocked".equals(action)) {
-            String tasks = request.getParameter("tasks");
-            _controller.handleDeadlockedCaseEvent(caseID, tasks);
-        }
-        else if ("announceTimerExpiry".equals(action) || "timerExpiry".equals(action)) {
-            _controller.handleTimerExpiryEvent(workItem);
-        }
-        else if ("announceEngineInitialised".equals(action)) {
-            _controller.handleEngineInitialisationCompletedEvent();
-        }
-        else if ("announceCaseSuspending".equals(action)) {
-            _controller.handleCaseSuspendingEvent(caseID);
-        }
-        else if ("announceCaseSuspended".equals(action)) {
-            _controller.handleCaseSuspendedEvent(caseID);
-        }
-        else if ("announceCaseResumed".equals(action)) {
-            _controller.handleCaseResumedEvent(caseID);
-        }
-        else if ("ParameterInfoRequest".equals(action)) {
-            YParameter[] params = _controller.describeRequiredParams();
-            StringBuilder output = new StringBuilder();
-            for (YParameter param : params) {
-                if (param != null) output.append(param.toXML());
-            }
-            return output.toString();
-        }
-        return "<success/>";
-    }
-
-
     public void destroy() {
         _controller.destroy();
     }
 
 
-    private void debug(HttpServletRequest request) {
-        if (_logger.isDebugEnabled()) {
-            String verb = request.getMethod();
-            _logger.debug("\nInterfaceB_EnvironmentBasedServer::do{}() " +
-                    "request.getRequestURL = {}", verb, request.getRequestURL());
-            _logger.debug("InterfaceB_EnvironmentBasedServer::do{}() request.parameters:",
-                    verb);
-            Enumeration paramNms = request.getParameterNames();
-            while (paramNms.hasMoreElements()) {
-                String name = (String) paramNms.nextElement();
-                _logger.debug("\trequest.getParameter({}) = {}", name,
-                        request.getParameter(name));
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+         _controller.doGet(request, response);
+    }
+
+
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        // store a copy of the request params for later
+        Map<String, String> paramsMap = new HashMap<>();
+        Enumeration paramNms = request.getParameterNames();
+        while (paramNms.hasMoreElements()) {
+            String name = (String) paramNms.nextElement();
+            paramsMap.put(name, request.getParameter(name));
+        }
+
+        // only a request for parameter info needs a non-default response
+        String action = request.getParameter("action");
+        String result = "OK";
+        if ("ParameterInfoRequest".equals(action)) {
+            YParameter[] params = _controller.describeRequiredParams();
+            StringBuilder output = new StringBuilder();
+            for (YParameter param : params) {
+                if (param != null) output.append(param.toXML());
+            }
+            result = StringUtil.wrap(output.toString(), "response");
+        }
+
+        // complete the request/response thread early by sending the default response
+        OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
+        outputWriter.write(result);
+        outputWriter.flush();
+        outputWriter.close();
+
+        // for all event actions, send the notification to services
+       _executor.execute(new EventHandler(paramsMap));
+    }
+
+    
+    class EventHandler implements Runnable {
+
+        Map<String,String> paramsMap;
+
+        EventHandler(Map<String, String> map) { paramsMap = map; }
+
+        public void run() {
+            String action = paramsMap.get("action");
+            String caseID = paramsMap.get("caseID");
+            String workItemXML = paramsMap.get("workItem");
+            WorkItemRecord workItem = (workItemXML != null) ?
+                    Marshaller.unmarshalWorkItem(workItemXML) : null;
+
+            // where there are two choices for 'action' below, those on the left are
+            // passed from 2.2 or later engine versions, while those on the right come
+            // from pre-2.2 engine versions
+            if ("announceItemEnabled".equals(action) || "handleEnabledItem".equals(action)) {
+                _controller.handleEnabledWorkItemEvent(workItem);
+            }
+            else if ("announceItemStatus".equals(action)) {
+                String oldStatus = paramsMap.get("oldStatus");
+                String newStatus = paramsMap.get("newStatus");
+                _controller.handleWorkItemStatusChangeEvent(workItem, oldStatus, newStatus);
+            }
+            else if ("announceCaseStarted".equals(action)) {
+                String launchingService = paramsMap.get("launchingService");
+                String delayedStr = paramsMap.get("delayed");
+                boolean delayed = delayedStr != null && delayedStr.equalsIgnoreCase("true");
+                YSpecificationID specID = new YSpecificationID(
+                        paramsMap.get("specidentifier"),
+                        paramsMap.get("specversion"),
+                        paramsMap.get("specuri"));
+                _controller.handleStartCaseEvent(specID, caseID, launchingService, delayed);
+            }
+            else if ("announceCaseCompleted".equals(action) || "announceCompletion".equals(action)) {
+                String casedata = paramsMap.get("casedata");
+                _controller.handleCompleteCaseEvent(caseID, casedata);
+            }
+            else if ("announceItemCancelled".equals(action) || "cancelWorkItem".equals(action)) {
+                _controller.handleCancelledWorkItemEvent(workItem);
+            }
+            else if ("announceCaseCancelled".equals(action)) {
+                _controller.handleCancelledCaseEvent(caseID);
+            }
+            else if ("announceCaseDeadlocked".equals(action)) {
+                String tasks = paramsMap.get("tasks");
+                _controller.handleDeadlockedCaseEvent(caseID, tasks);
+            }
+            else if ("announceTimerExpiry".equals(action) || "timerExpiry".equals(action)) {
+                _controller.handleTimerExpiryEvent(workItem);
+            }
+            else if ("announceEngineInitialised".equals(action)) {
+                _controller.handleEngineInitialisationCompletedEvent();
+            }
+            else if ("announceCaseSuspending".equals(action)) {
+                _controller.handleCaseSuspendingEvent(caseID);
+            }
+            else if ("announceCaseSuspended".equals(action)) {
+                _controller.handleCaseSuspendedEvent(caseID);
+            }
+            else if ("announceCaseResumed".equals(action)) {
+                _controller.handleCaseResumedEvent(caseID);
             }
         }
     }
-
 }

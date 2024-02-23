@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -19,9 +19,12 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataBackupEngine;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
@@ -36,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 
@@ -51,7 +55,7 @@ import java.util.Map;
 
 public class ResourceGateway extends YHttpServlet {
 
-    private ResourceManager _rm = ResourceManager.getInstance();
+    private ResourceManager _rm;
     private static final String SUCCESS = "<success/>";
 
 
@@ -59,6 +63,9 @@ public class ResourceGateway extends YHttpServlet {
     public void init() {
         if (! ResourceManager.serviceInitialised) {
             try {
+                _rm = ResourceManager.getInstance();
+                _rm.initServices();
+
                 ServletContext context = getServletContext();
 
                 // set the engine uri and the exception service uri (if enabled)
@@ -72,18 +79,19 @@ public class ResourceGateway extends YHttpServlet {
                 String pluginPath = context.getInitParameter("ExternalPluginsPath");
                 PluginFactory.setExternalPaths(pluginPath);
 
+                // load any plugin event listeners
+                EventLogger.addListeners(PluginFactory.getEventListeners());
+
                 // enable/or disable persistence
-                String persist = context.getInitParameter("EnablePersistence");
-                _rm.setPersisting(getInitBooleanValue(persist, true));
+                _rm.setPersisting(getBooleanFromContext("EnablePersistence", true));
                 if (_rm.isPersisting()) {
 
                     // enable/disable process logging
-                    String enableLogging = context.getInitParameter("EnableLogging");
-                    EventLogger.setLogging(getInitBooleanValue(enableLogging, true));
+                    EventLogger.setLogging(getBooleanFromContext("EnableLogging", true));
 
                     // enable/disable logging of all offers
                     String logOffers = context.getInitParameter("LogOffers");
-                    EventLogger.setOfferLogging(getInitBooleanValue(logOffers, true));
+                    EventLogger.setOfferLogging(getBooleanFromContext("LogOffers", true));
                 }
 
                 // set the org data source and refresh rate
@@ -103,25 +111,29 @@ public class ResourceGateway extends YHttpServlet {
                 // for non-default org data sources, check the allow mods &
                 // user authentication values
                 if (! orgDataSource.equals("HibernateImpl")) {
-                    String allowMods = context.getInitParameter("AllowExternalOrgDataMods");
-                    _rm.setAllowExternalOrgDataMods(getInitBooleanValue(allowMods, false));
-                    String externalAuth = context.getInitParameter("ExternalUserAuthentication");
-                    _rm.setExternalUserAuthentication(getInitBooleanValue(externalAuth, false));
+                    _rm.setAllowExternalOrgDataMods(
+                            getBooleanFromContext("AllowExternalOrgDataMods"));
+                    _rm.setExternalUserAuthentication(
+                            getBooleanFromContext("ExternalUserAuthentication"));
                 }
 
                 // enable/disable blocking process when 2ndary resources unavailable
-                String blockOnMissingResources =
-                        context.getInitParameter("BlockOnUnavailableSecondaryResources");
                 _rm.setBlockOnUnavailableSecondaryResources(
-                        getInitBooleanValue(blockOnMissingResources, false)) ;
+                        getBooleanFromContext("BlockOnUnavailableSecondaryResources"));
 
                 // enable/disable the dropping of task piling on logout
-                String dropPiling = context.getInitParameter("DropTaskPilingOnLogoff");
-                _rm.setPersistPiling(! getInitBooleanValue(dropPiling, false)) ;
+                _rm.setPersistPiling(! getBooleanFromContext("DropTaskPilingOnLogoff"));
+
+                // enable/disable replacing resource ids with user ids in XES logs
+                LogMiner.getInstance().setReplaceResourceIdsWithUserIds(
+                        getBooleanFromContext("UserIdsInXesLogs"));
+
+                // enable/disable removing events with 'unknown' labels from XES logs
+                LogMiner.getInstance().setIgnoreUnknownEventsInXesLogs(
+                        getBooleanFromContext("IgnoreUnknownEventsInXesLogs"));
 
                 // enable the visualiser applet, if necessary
-                String enableVisualiser = context.getInitParameter("EnableVisualizer");
-                if (getInitBooleanValue(enableVisualiser, false)) {
+                if (getBooleanFromContext("EnableVisualizer")) {
                     _rm.setVisualiserEnabled(true);
                     String visualiserSize = context.getInitParameter("VisualizerViewSize");
                     if (visualiserSize != null) {
@@ -161,7 +173,7 @@ public class ResourceGateway extends YHttpServlet {
 
 
     public void destroy() {
-        _rm.shutdown();
+        if (_rm != null) _rm.shutdown();
         super.destroy();
     }
 
@@ -212,6 +224,9 @@ public class ResourceGateway extends YHttpServlet {
             else if (action.startsWith("remove")) {
                 result = doRemoveResourceAction(req, action);
             }
+            else if (action.startsWith("check")) {
+                 result = doCheckResourceAction(req, action);
+             }
             else if (action.equalsIgnoreCase("disconnect")) {
                 _rm.serviceDisconnect(handle);
             }
@@ -228,6 +243,17 @@ public class ResourceGateway extends YHttpServlet {
             else if (action.equalsIgnoreCase("resetOrgDataRefreshRate")) {
                 String rate = req.getParameter("rate");
                 _rm.startOrgDataRefreshTimer(Long.parseLong(rate));
+            }
+            else if (action.equalsIgnoreCase("isOrgDataSetModifiable")) {
+                result = String.valueOf(getOrgDataSet().isExternalOrgDataModsAllowed());
+            }
+            else if (action.equalsIgnoreCase("importOrgData")) {
+                String xml = req.getParameter("xml");
+                List<String> outcome = new DataBackupEngine().importOrgData(xml);
+                result = stringListToXML(outcome);
+            }
+            else if (action.equalsIgnoreCase("exportOrgData")) {
+                result = new DataBackupEngine().exportOrgData();
             }
             else {
                 result = fail("Unrecognised action: " + action);
@@ -275,13 +301,16 @@ public class ResourceGateway extends YHttpServlet {
             if ((name != null) && (! getOrgDataSet().isKnownNonHumanResourceName(name))) {
                 String categoryName = req.getParameter("category");
                 String subcategory = req.getParameter("subcategory");
-                NonHumanCategory category =
-                        getOrgDataSet().getNonHumanCategoryByName(categoryName);
-                if (category == null) {
-                    category = new NonHumanCategory(categoryName);
-                    getOrgDataSet().addNonHumanCategory(category);
+                NonHumanCategory category = null;
+                if (! (categoryName == null || "None".equals(categoryName))) {
+                    category = getOrgDataSet().getNonHumanCategoryByName(categoryName);
+                    if (category == null) {
+                        category = new NonHumanCategory(categoryName);
+                        getOrgDataSet().addNonHumanCategory(category);
+                    }
                 }
-                NonHumanResource resource = new NonHumanResource(name, category, subcategory);
+                NonHumanResource resource = new NonHumanResource(
+                            name, category, subcategory);
                 resource.setDescription(req.getParameter("description"));
                 resource.setNotes(req.getParameter("notes"));
                 result = getOrgDataSet().addNonHumanResource(resource);
@@ -428,6 +457,12 @@ public class ResourceGateway extends YHttpServlet {
                             resource.setCategory(category);
                             resource.setSubCategory(req.getParameter("subcategory"));
                         }
+                        else {
+                           resource.clearCategory();
+                       }
+                    }
+                    else {
+                        resource.clearCategory();
                     }
                     getOrgDataSet().updateNonHumanResource(resource);
                 }
@@ -441,8 +476,8 @@ public class ResourceGateway extends YHttpServlet {
                 Capability cap = getOrgDataSet().getCapability(cid);
                 if (cap != null) {
                     updateCommonFields(cap, req);
-                    String name = req.getParameter("capability");
-                    if (name != null) cap.setCapability(name);
+                    String name = req.getParameter("name");
+                    if (name != null) cap.setLabel(name);
                     cap.save();
                 }
                 else result = fail("capability", cid);
@@ -471,7 +506,7 @@ public class ResourceGateway extends YHttpServlet {
                 Position position = getOrgDataSet().getPosition(pid);
                 if (position != null) {
                     updateCommonFields(position, req);
-                    String name = req.getParameter("title");
+                    String name = req.getParameter("name");
                     if (name != null) position.setTitle(name);
                     String positionID = req.getParameter("positionid") ;
                     if (positionID != null) position.setPositionID(positionID);
@@ -785,6 +820,15 @@ public class ResourceGateway extends YHttpServlet {
         else if (action.equalsIgnoreCase("getNonHumanCategorySet")) {
             result = getOrgDataSet().getNonHumanCategorySet();
         }
+        else if (action.equalsIgnoreCase("getNonHumanCategoryMembers")) {
+            String subCategory = req.getParameter("subcategory");
+            StringBuilder xml = new StringBuilder("<members>");
+            for (NonHumanResource resource : getOrgDataSet().getNonHumanResources(id, subCategory)) {
+                 xml.append(resource.toXML());
+            }
+            xml.append("</members>");
+            result = xml.toString();
+        }
         else if (action.equalsIgnoreCase("getReferencedParticipantIDsAsXML")) {
             result = getOrgDataSet().resolveParticipantIdsAsXML(id);
         }
@@ -815,6 +859,20 @@ public class ResourceGateway extends YHttpServlet {
                         fail("No privileges available for participant id: " + id);
             }
             else result = fail("Unknown participant id: " + id);
+        }
+        else if (action.equals("getSecondaryResources")) {
+            WorkItemRecord wir = _rm.getWorkItemRecord(id);
+            if (wir != null) {
+                SecondaryResources secondary = _rm.getSecondaryResources(wir);
+                if (secondary != null) {
+                    result = secondary.toXML();
+                }
+                else result = fail("No secondary resources set for item: " + id);
+            }
+            else result = fail("Unknown work item: " + id);
+        }
+        else if (action.equals("getBuildProperties")) {
+            result = _rm.getBuildProperties().toXML();
         }
         return result;
     }
@@ -892,6 +950,35 @@ public class ResourceGateway extends YHttpServlet {
             }
             else result = fail("Null participant id");
         }
+        else if (action.equalsIgnoreCase("setSecondaryResources")) {
+            String xml = req.getParameter("xml");
+            String id = req.getParameter("id");
+            if (xml == null) {
+                result = fail("Missing parameter: xml");
+            }
+            else if (id == null) {
+                result = fail("Invalid item id: null");
+            }
+            else {
+                WorkItemRecord wir = _rm.getWorkItemRecord(id);
+                if (wir != null) {
+                    SecondaryResources resources = _rm.getSecondaryResources(wir);
+                    if (resources != null) {
+                        SecondaryResources.SecResDataSet oldDataSet = resources.getDataSet(wir);
+                        resources.fromXML(xml);
+                        List<String> problems = resources.checkAvailability(wir);
+                        if (problems.isEmpty()) {
+                            result = SUCCESS;
+                        }
+                        else {
+                            resources.addDataSet(wir, oldDataSet);
+                            result = stringListToXML(problems);
+                        }
+                    }
+                    else result = fail("Unable to set secondary resources for item: " + id);
+                }
+            }
+        }
         return result;
     }
 
@@ -921,6 +1008,31 @@ public class ResourceGateway extends YHttpServlet {
             else if (action.equalsIgnoreCase("isKnownNonHumanCategory")) {
                 result = String.valueOf(getOrgDataSet().isKnownNonHumanCategory(id)) ;
             }
+        }
+        else result = fail("Invalid ID: null");
+        return result;
+    }
+
+
+    public String doCheckResourceAction(HttpServletRequest req, String action) {
+        String result = "";
+        String id = req.getParameter("id");
+        if (id != null) {
+            if (action.equalsIgnoreCase("checkSecondaryResourcesAvailability")) {
+                WorkItemRecord wir = _rm.getWorkItemRecord(id);
+                if (wir != null) {
+                    SecondaryResources resources = _rm.getSecondaryResources(wir);
+                    if (resources != null) {
+                        List<String> problems = resources.checkAvailability(wir);
+                        if (problems.isEmpty()) {
+                            result = SUCCESS;
+                        }
+                        else result = stringListToXML(problems);
+                    }
+                    else result = fail("No secondary resources set for item: " + id);
+                }
+            }
+            else result = fail("Invalid action: " + action);
         }
         else result = fail("Invalid ID: null");
         return result;
@@ -1029,6 +1141,18 @@ public class ResourceGateway extends YHttpServlet {
             return stringMapToXML(map);
         }
     }
+
+    private String stringListToXML(List<String> list) {
+        if (list != null) {
+            XNode node = new XNode("list");
+            for (String item : list) {
+                node.addChild("item", item);
+            }
+            return node.toString();
+        }
+        return fail("No values returned.");
+    }
+
 
     private String stringMapToXML(Map<String, String> map) {
         if (map != null) {

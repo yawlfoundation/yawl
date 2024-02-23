@@ -2,7 +2,7 @@
                  java.util.Iterator" %>
 
 <%--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -38,7 +38,7 @@
                 response.sendRedirect(response.encodeURL(url));
             }
             else if (buttonText.equals("Completed")){
-                _exceptionService.completeAdminTask(wsTaskID);
+                _adminTasksManager.removeTask(Integer.parseInt(wsTaskID));
             }
         }
     }    
@@ -86,11 +86,11 @@
             String taskTypeStr = null;
             int taskType  ;
             AdministrationTask wsTask = null;
-            Iterator list = _exceptionService.getAllAdminTasksAsList().iterator();
+            Iterator list = _adminTasksManager.getAllTasksAsList().iterator();
 
             while (list.hasNext()) {
                 wsTask = (AdministrationTask) list.next();
-                wsTaskID = wsTask.getID();
+                wsTaskID = String.valueOf(wsTask.getID());
                 taskType = wsTask.getTaskType();
                 if (taskType == AdministrationTask.TASKTYPE_CASE_EXTERNAL_EXCEPTION)
                    taskTypeStr = "New Case-Level External Exception";

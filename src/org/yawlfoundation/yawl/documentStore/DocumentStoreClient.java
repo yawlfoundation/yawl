@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -277,15 +277,15 @@ public class DocumentStoreClient extends Interface_Client {
         connection.setRequestProperty("Connection", "close");
         connection.getOutputStream().write(bytes);
         connection.getOutputStream().close();
-        ByteArrayOutputStream outStream = getReply(connection.getInputStream());
+        ByteArrayOutputStream outStream = getOutStream(connection.getInputStream());
         connection.disconnect();
         return outStream;
     }
 
 
-    private ByteArrayOutputStream getReply(InputStream is) throws IOException {
+    private ByteArrayOutputStream getOutStream(InputStream is) throws IOException {
         final int BUF_SIZE = 32768;
-        
+
         // read reply into a buffered byte stream - to preserve UTF-8
         BufferedInputStream inStream = new BufferedInputStream(is);
         ByteArrayOutputStream outStream = new ByteArrayOutputStream(BUF_SIZE);

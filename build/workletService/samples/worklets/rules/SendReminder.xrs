@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<spec uri="SendReminder" version="0.4" identifier="UID_7f12c563-d237-4c41-9586-258eea4ace4d">
+    <timeout>
+        <task name="Receive_Reply">
+            <ruleNode>
+                <id>0</id>
+                <parent>-1</parent>
+                <trueChild>1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>True</condition>
+                <conclusion>null</conclusion>
+                <cornerstone></cornerstone>
+                <description>root level default</description>
+            </ruleNode>
+            <ruleNode>
+                <id>1</id>
+                <parent>0</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>hasTimerExpired(this)</condition>
+                <conclusion>
+                    <_1>
+                        <action>suspend</action>
+                        <target>case</target>
+                    </_1>
+                    <_2>
+                        <action>compensate</action>
+                        <target>UID_43037a6b-9539-41ee-afff-f53db6dfbae1</target>
+                    </_2>
+                    <_3>
+                        <action>remove</action>
+                        <target>ancestorCases</target>
+                    </_3>
+                </conclusion>
+                <cornerstone>
+                    <Cost>200</Cost>
+                    <Paid>False</Paid>
+                </cornerstone>
+                <description>No payment received after timeout</description>
+            </ruleNode>
+        </task>
+    </timeout>
+</spec>

@@ -1,0 +1,55 @@
+                          YAWL Release 4.3  03/02/2020
+                         ==============================
+
+ This is the version 4.3 release of the YAWL Environment.
+
+ This is a minor update version that consolidates all updates and bugfixes since the 4.2
+ release.
+
+ It is highly recommended that all users migrate to this new version.
+
+ QUICK START: After installation, start Tomcat and point a browser to
+              http://localhost:8080/resourceService
+
+
+ 1. MINIMUM REQUIREMENTS
+ -----------------------
+   * Tomcat 7 or higher
+   * Java 8 (1.8) or higher
+
+
+ 2. CHANGES IN THIS VERSION
+ --------------------------
+  * bugfix (issue #621): case mgt authorisation issues for participants with 'manage cases' privileges
+  * bugfix: AbstractAllocator failed to retrieve durations from event log for workitems with multi-word task names
+  * bugfix: build.xml missing dependency lib for mail service
+  * bugfix: catch throwables from data gateways
+  * bugfix: deallocating deferred choice workitem locks case
+  * bugfix: default values for output-only task variables not inserting correctly into task data document
+  * bugfix: double insertion of workitem timers to persistence
+  * bugfix: duplicate stringify in logging query
+  * bugfix: escaped wrapping of text in WorkItemRecord#toXML
+  * bugfix: hide-if incompletely hiding subpanels on dynamic forms
+  * bugfix: incorrect tag in XES log event nodes
+  * bugfix: incorrect YTimerType data doc
+  * bugfix: issue #625 - plugins not loading if grandchild classes
+  * bugfix: missing taskName fix for https://github.com/yawlfoundation/yawl/issues/614
+  * bugfix: NPE in digital signature service
+  * bugfix: NPE restoring timer states for non-named tasks
+  * bugfix: NPE viewing org data in some circumstances
+  * bugfix: XES logs for complete specifications omitting subprocess task events
+  * enhancement: added case import and export functionality
+  * enhancement: added LDAPSourceExtended files (thanks to Florian Quadt)
+  * enhancement: added support for engine running in redundant mode
+  * enhancement: added XQuery evaluations for YTimerType
+  * enhancement: LDAP updates
+  * enhancement: update mailService for transport strategy support (thanks to Florian Quadt)
+  * enhancement: WorkQueueGatewayClient made threadsafe
+  * refactor: better persistence of running codelets
+  * refactor: issue #626 - added YDataValidator#getSchemaHandler
+  * refactor: performance improvements in persistence and logging
+
+
+ 
+
+

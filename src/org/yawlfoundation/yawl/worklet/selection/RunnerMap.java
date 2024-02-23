@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.worklet.selection;
 
 import org.hibernate.Query;
@@ -13,9 +31,6 @@ import java.util.*;
  */
 public class RunnerMap {
 
-    public static final boolean SELECTION_RUNNERS = true;
-    public static final boolean EXCEPTION_RUNNERS = false;
-
     private Map<String, WorkletRunner> _runners = new HashMap<String, WorkletRunner>();
 
 
@@ -23,6 +38,14 @@ public class RunnerMap {
         WorkletRunner added = _runners.put(runner.getCaseID(), runner);
         Persister.insert(runner);
         return added;
+    }
+
+
+    public boolean addAll(Set<WorkletRunner> runners) {
+        for (WorkletRunner runner : runners) {
+            add(runner);
+        }
+        return true;
     }
 
     public WorkletRunner remove(WorkletRunner runner) {
@@ -153,11 +176,12 @@ public class RunnerMap {
     }
 
 
-    public void restore(boolean selectionOnly) {
+    public void restore(String caseID) {
         int selectionType = RuleType.ItemSelection.ordinal();
-        String op = selectionOnly ? "=" : "!=";
+        String clause = "wr._ruleType" + (caseID == null ? "=" + selectionType :
+                "!=" + selectionType + " and wr._parentCaseID='" + caseID + "'");
         Query query = Persister.getInstance().createQuery(
-                "from WorkletRunner as wr where wr._ruleType" + op + selectionType);
+                "from WorkletRunner as wr where " + clause);
         Iterator it = query.iterate();
         if (it.hasNext()) {
             while (it.hasNext()) {
@@ -165,6 +189,7 @@ public class RunnerMap {
                 _runners.put(runner.getCaseID(), runner);
             }
         }
+        Persister.getInstance().commit();
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -74,8 +74,9 @@ public class HttpURLValidator {
 
         // escape early if urlStr is obviously bad
         if (urlStr == null) throw new MalformedURLException("URL is null");
-        if (!urlStr.startsWith("http://"))
-            throw new MalformedURLException("URL does not begin with 'http://'");
+        if (! (urlStr.startsWith("http://") || urlStr.startsWith("https://"))) {
+            throw new MalformedURLException("Invalid protocol for http");
+        }
 
         // this will throw an exception if the URL is invalid
         return new URL(urlStr);
