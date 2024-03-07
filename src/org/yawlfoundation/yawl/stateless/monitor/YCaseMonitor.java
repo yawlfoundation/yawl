@@ -108,6 +108,33 @@ public class YCaseMonitor implements YCaseEventListener, YWorkItemEventListener 
     }
 
 
+    // called from YStatelessEngine immediately before a workitem processing begins.
+    // timer (if any) will restart when the processing for the workitem completes.
+    public void pauseIdleTimer(YIdentifier caseID) {
+        YCase yCase = _caseMap.get(caseID);
+        if (yCase != null) {
+            yCase.cancelIdleTimer();
+        }
+    }
+
+
+    public void resumeIdleTimer(YIdentifier caseID) {
+        YCase yCase = _caseMap.get(caseID);
+        if (yCase != null) {
+            yCase.restartIdleTimer();
+        }
+    }
+
+
+    public boolean isIdleCase(YIdentifier caseID) throws YStateException {
+        YCase yCase = _caseMap.get(caseID);
+        if (yCase == null) {
+            throw new YStateException("Unknown case: " + caseID);
+        }
+        return yCase.isIdle();
+    }
+
+
     private boolean isTimerEnabled() { return _idleTimeout > 0; }
 
 }
