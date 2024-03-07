@@ -30,7 +30,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
     YNetRunner _caseRunner;
 
     public YSExample() {
-        _engine = new YStatelessEngine();
+        _engine = new YStatelessEngine(500);
 
         // add this object as a listener to the 4 different event types implemented above
         // (the fifth one, for exception events, is not being tested here)
@@ -65,6 +65,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         }
         catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -90,6 +91,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         }
         catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 

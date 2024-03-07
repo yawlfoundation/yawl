@@ -435,7 +435,7 @@ public class YEngine {
      * 'force' (forced completion) or 'fail' (forced fail) completion
      * @throws YStateException
      */
-    public void completeWorkItem(YWorkItem workItem, String data, String logPredicate,
+    public YWorkItem completeWorkItem(YWorkItem workItem, String data, String logPredicate,
                                  WorkItemCompletion completionType)
             throws YStateException, YDataStateException, YQueryException, YEngineStateException{
         if (_logger.isDebugEnabled()) {
@@ -469,6 +469,8 @@ public class YEngine {
 //        }
 
         _logger.debug("<-- completeWorkItem");
+
+        return workItem;
     }
 
 
@@ -687,7 +689,7 @@ public class YEngine {
 
     
     // rolls back a workitem from executing to fired
-    public void rollbackWorkItem(YWorkItem workItem) throws YStateException {
+    public YWorkItem rollbackWorkItem(YWorkItem workItem) throws YStateException {
         if ((workItem != null) && workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
             workItem.rollBackStatus();
             YNetRunner netRunner = workItem.getTask().getNetRunner().getRunnerWithID(
@@ -699,10 +701,12 @@ public class YEngine {
             }
         }
         else throw new YStateException("Work Item[" + workItem.getIDString() + "] not found.");
+
+        return workItem;
     }
 
 
-    public void cancelWorkItem(YNetRunner caseRunner, YWorkItem workItem) throws YStateException {
+    public YWorkItem cancelWorkItem(YNetRunner caseRunner, YWorkItem workItem) throws YStateException {
         try {
             if ((workItem != null) && workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
                 YNetRunner runner = caseRunner.getRunnerWithID(workItem.getCaseID().getParent());
@@ -721,6 +725,8 @@ public class YEngine {
         catch (Exception e) {
             throw new YStateException("Failure whilst cancelling workitem: " + e.getMessage());
         }
+
+        return workItem;
     }
 
 

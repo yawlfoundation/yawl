@@ -28,6 +28,7 @@ import java.util.UUID;
  */
 public class YStatelessEngine {
 
+
     private final YEngine _engine;
     private YCaseMonitor _caseMonitor;                        // watches for idle cases
 
@@ -334,9 +335,16 @@ public class YStatelessEngine {
      */
     public YWorkItem suspendWorkItem(YWorkItem workItem) throws YStateException {
         checkIsLoadedCase(workItem, "suspend work item");
-        return _engine.suspendWorkItem(workItem);
+        try {
+            return _engine.suspendWorkItem(workItem);
+        }
+        catch (Exception e) {
+            resumeCaseIdleTimer(workItem);
+            throw e;
+        }
     }
 
+    
     /**
      * Resume a suspended work item
      * @param workItem the work item to suspend
@@ -345,19 +353,33 @@ public class YStatelessEngine {
      */
     public YWorkItem unsuspendWorkItem(YWorkItem workItem) throws YStateException {
         checkIsLoadedCase(workItem, "unsuspend work item");
-        return _engine.unsuspendWorkItem(workItem) ;
+        try {
+            return _engine.unsuspendWorkItem(workItem) ;
+        }
+        catch (Exception e) {
+            resumeCaseIdleTimer(workItem);
+            throw e;
+        }
     }
+
 
     /**
      * Roll back a work item from executing to enabled
      * @param workItem the work item to roll back
-     * @throws YStateException
+     * @throws YStateException if the item cannot be rolled back
      */
-    public void rollbackWorkItem(YWorkItem workItem) throws YStateException {
+    public YWorkItem rollbackWorkItem(YWorkItem workItem) throws YStateException {
         checkIsLoadedCase(workItem, "rollback work item");
-        _engine.rollbackWorkItem(workItem);
+        try {
+            return _engine.rollbackWorkItem(workItem);
+        }
+        catch (Exception e) {
+            resumeCaseIdleTimer(workItem);
+            throw e;
+        }
     }
 
+    
     /**
      * Complete a currently executing work item
 
@@ -370,12 +392,19 @@ public class YStatelessEngine {
      * @throws YQueryException if the data extraction query is malformed
      * @throws YDataStateException if the data state cannot be initialised
      */
-    public void completeWorkItem(YWorkItem workItem, String data,
+    public YWorkItem completeWorkItem(YWorkItem workItem, String data,
                                  String logPredicate, WorkItemCompletion completionType )
             throws YEngineStateException, YStateException, YQueryException, YDataStateException {
         checkIsLoadedCase(workItem, "complete work item");
-        _engine.completeWorkItem(workItem, data, logPredicate, completionType);
+        try {
+            return _engine.completeWorkItem(workItem, data, logPredicate, completionType);
+        }
+        catch (Exception e) {
+            resumeCaseIdleTimer(workItem);
+            throw e;
+        }
     }
+
 
     /**
      * Complete a currently executing work item
@@ -387,11 +416,17 @@ public class YStatelessEngine {
      * @throws YQueryException if the data extraction query is malformed
      * @throws YDataStateException if the data state cannot be initialised
      */
-    public void completeWorkItem(YWorkItem workItem, String data,
+    public YWorkItem completeWorkItem(YWorkItem workItem, String data,
                                  String logPredicate)
             throws YEngineStateException, YStateException, YQueryException, YDataStateException {
         checkIsLoadedCase(workItem, "complete work item");
-        _engine.completeWorkItem(workItem, data, logPredicate, WorkItemCompletion.Normal);
+        try {
+            return _engine.completeWorkItem(workItem, data, logPredicate, WorkItemCompletion.Normal);
+        }
+        catch (Exception e) {
+            resumeCaseIdleTimer(workItem);
+            throw e;
+        }
     }
 
 
@@ -406,8 +441,15 @@ public class YStatelessEngine {
     public YWorkItem startWorkItem(YWorkItem workItem)
             throws YEngineStateException, YStateException, YQueryException, YDataStateException {
         checkIsLoadedCase(workItem, "start work item");
-        return _engine.startWorkItem(workItem);
+        try {
+            return _engine.startWorkItem(workItem);
+        }
+        catch (Exception e) {
+            resumeCaseIdleTimer(workItem);
+            throw e;
+        }
     }
+
 
     /**
      * Skip an enabled work item (immediately completes)
@@ -420,7 +462,13 @@ public class YStatelessEngine {
     public YWorkItem skipWorkItem(YWorkItem workItem)
             throws YEngineStateException, YStateException, YQueryException, YDataStateException {
         checkIsLoadedCase(workItem, "skip work item");
-        return _engine.skipWorkItem(workItem);
+        try {
+            return _engine.skipWorkItem(workItem);
+        }
+        catch (Exception e) {
+            resumeCaseIdleTimer(workItem);
+            throw e;
+        }
     }
 
 
@@ -436,7 +484,13 @@ public class YStatelessEngine {
     public YWorkItem createNewInstance(YWorkItem workItem, String paramValueForMICreation)
             throws YStateException {
         checkIsLoadedCase(workItem, "create new work item instance");
-        return _engine.createNewInstance(workItem, paramValueForMICreation);
+        try {
+            return _engine.createNewInstance(workItem, paramValueForMICreation);
+        }
+        catch (Exception e) {
+            resumeCaseIdleTimer(workItem);
+            throw e;
+        }
     }
 
 
@@ -449,7 +503,7 @@ public class YStatelessEngine {
      *                         or if current number of instances is not less than the maxInstances
      *                         for the task.
      */
-    public void checkElegibilityToAddInstances(YWorkItem workItem) throws YStateException {
+    public void checkEligibilityToAddInstances(YWorkItem workItem) throws YStateException {
         _engine.checkEligibilityToAddInstances(workItem);
     }
 
@@ -523,26 +577,95 @@ public class YStatelessEngine {
 
 
     /**
+     * Check if the engine is currently executing code for a monitored case of which this
+     * workitem is a member.
+     * @param workItem the workitem to check
+     * @return true if case monitoring is enabled and the case is currently in idle
+     * state (i.e. it has no current executing code associated with it), or false if
+     * case monitoring is enabled and there is code executing for the case.
+     * @throws YStateException when the case is unknown to the engine, or when case
+     * monitoring is disabled for the engine
+     */
+    public boolean isIdleCase(YWorkItem workItem) throws YStateException {
+        return isIdleCase(workItem.getNetRunner().getTopRunner().getCaseID());
+    }
+
+
+    /**
+     * Check if the engine is currently executing code for a monitored case of which
+     * this net runner is a member.
+     * @param runner the net runner to check
+     * @return true if case monitoring is enabled and the case is currently in idle
+     * state (i.e. it has no current executing code associated with it), or false if
+     * case monitoring is enabled and there is code executing for the case.
+     * @throws YStateException when the case is unknown to the engine, or when case
+     * monitoring is disabled for the engine
+     */
+    public boolean isIdleCase(YNetRunner runner) throws YStateException {
+        return isIdleCase(runner.getTopRunner().getCaseID());
+    }
+
+
+    /**
+     * Check if the engine is currently executing code for a monitored case.
+     * @param caseID the id of the case to check
+     * @return true if case monitoring is enabled and the case is currently in idle
+     * state (i.e. it has no current executing code associated with it), or false if
+     * case monitoring is enabled and there is code executing for the case.
+     * @throws YStateException when the case is unknown to the engine, or when case
+     * monitoring is disabled for the engine
+     */
+    public boolean isIdleCase(YIdentifier caseID) throws YStateException {
+        if (isCaseMonitoringEnabled()) {
+           if (_caseMonitor.hasCase(caseID)) {
+               return _caseMonitor.isIdleCase(caseID);
+           }
+           else {
+               throw new YStateException(String.format("Case '%s' is unknown" +
+                       " to this engine - perhaps it has been unloaded?", caseID));
+           }
+        }
+        else throw new YStateException("Case monitoring is disabled for this engine");
+    }
+
+    /**
      * Throws a YStateException if cases are being monitored AND the case is unknown to
      * this engine
      * @param caseID the id of the case to check
      * @param errMsg to be inserted if an exception is thrown
      * @throws YStateException if the condition described above evaluates to true
      */
-    private void isLoadedCase(YIdentifier caseID, String errMsg) throws YStateException {
+    private boolean isLoadedCase(YIdentifier caseID, String errMsg) throws YStateException {
         if (isCaseMonitoringEnabled() && ! _caseMonitor.hasCase(caseID)) {
             throw new YStateException(String.format("Unable to %s; case '%s' is unknown" +
                             " to this engine - perhaps it has been unloaded?", errMsg, caseID));
         }
+        return true;
     }
 
 
     private void checkIsLoadedCase(YWorkItem item, String msg) throws YStateException {
-        isLoadedCase(item.getNetRunner().getTopRunner().getCaseID(), msg);
+        YIdentifier caseID = item.getNetRunner().getTopRunner().getCaseID();
+        if (isCaseMonitoringEnabled() && isLoadedCase(caseID, msg)) {
+
+            // pause any idle timer while the workitem action is processed
+            _caseMonitor.pauseIdleTimer(caseID);
+        }
     }
 
+    
     private void checkIsLoadedCase(YNetRunner runner, String msg) throws YStateException {
         isLoadedCase(runner.getTopRunner().getCaseID(), msg);
+    }
+
+
+    // for all successful workitem method completions above, timer will resume.
+    // this is called from catch blocks above for cases when an exception is thrown.
+    private void resumeCaseIdleTimer(YWorkItem workItem) {
+        if (isCaseMonitoringEnabled()) {
+            YIdentifier caseID = workItem.getNetRunner().getTopRunner().getCaseID();
+            _caseMonitor.resumeIdleTimer(caseID);
+        }
     }
 
 }
