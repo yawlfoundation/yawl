@@ -2867,6 +2867,8 @@
                            value="${app.version} ${TODAY}"/>
             </manifest>
         </jar>
+        <copy todir="${build.dir}/jar"
+              file="${output.dir}/yawlstateless-${app.version}.jar"/>
     </target>
 
 

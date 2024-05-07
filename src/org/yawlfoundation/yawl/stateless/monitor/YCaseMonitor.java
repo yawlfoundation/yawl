@@ -36,8 +36,7 @@ public class YCaseMonitor implements YCaseEventListener, YWorkItemEventListener 
     public void handleCaseEvent(YCaseEvent event) {
         switch (event.getEventType()) {
             case CASE_STARTING: initCase(event); break;
-            case CASE_STARTED:                                    // update init'ed case
-            case CASE_RESTORED: addCase(event); break;
+            case CASE_STARTED: addCase(event); break;             // update init'ed case
             case CASE_START_FAILED:
             case CASE_COMPLETED:
             case CASE_CANCELLED:
@@ -69,7 +68,7 @@ public class YCaseMonitor implements YCaseEventListener, YWorkItemEventListener 
     }
 
 
-    private void addCase(YCaseEvent event) {
+    public void addCase(YCaseEvent event) {
         YCase yCase = new YCase(event.getRunner(), _idleTimeout);
         _caseMap.put(event.getCaseID(), yCase);
     }

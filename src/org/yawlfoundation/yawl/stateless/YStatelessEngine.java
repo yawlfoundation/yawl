@@ -561,6 +561,8 @@ public class YStatelessEngine {
      */
     public YNetRunner restoreCase(String caseXML) throws YSyntaxException, YStateException {
         List<YNetRunner> runners = new YCaseImporter().unmarshal(caseXML, _engine.getAnnouncer());
+
+        // collect events and identify 'top' net runner in the runner hierarchy
         List<YEvent> events = new ArrayList<>();
         YNetRunner topRunner = null;
         for (YNetRunner runner : runners) {
@@ -570,7 +572,16 @@ public class YStatelessEngine {
             }
         }
         if (topRunner == null) throw new YStateException("Failed to restore case runner");
-        events.add(0, new YCaseEvent(YEventType.CASE_RESTORED, topRunner));
+
+        // add the 'restored' event to the list of generated events
+        YCaseEvent restoredEvent = new YCaseEvent(YEventType.CASE_RESTORED, topRunner);
+        events.add(0, restoredEvent);
+
+        // ensure case is added to the case monitor
+        if (isCaseMonitoringEnabled()) {
+             _caseMonitor.addCase(restoredEvent);
+        }
+
         _engine.getAnnouncer().announceEvents(events);
         return topRunner;
     }
