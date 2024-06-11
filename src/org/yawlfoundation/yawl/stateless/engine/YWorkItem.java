@@ -99,6 +99,8 @@ public class YWorkItem {
     private String _externalLogPredicate;                 // set by services on checkin
     private Element _data;
 
+    private boolean _suppressTimerEvents = false;
+
     private final Logger _log = LogManager.getLogger(YWorkItem.class);
 
 
@@ -463,6 +465,9 @@ public class YWorkItem {
                     }
                 }
             }
+
+            // if suppressing timer cancel events, do it in the parent too
+            parent.setSuppressTimerEventNotifications(_suppressTimerEvents);
             YTimer.getInstance().cancelTimerTask(parent.getIDString());
         }
     }
@@ -830,6 +835,12 @@ public class YWorkItem {
     public String getDocumentation() {
         return (_parent != null) ? _parent.getDocumentation() : _documentation;
     }
+
+    public void setSuppressTimerEventNotifications(boolean suppress) {
+        _suppressTimerEvents = suppress;
+    }
+
+    public boolean isSuppressingTimerEvents() { return _suppressTimerEvents; }
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<workItem");

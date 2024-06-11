@@ -61,9 +61,10 @@ public class YCase {
     public YNetRunner getRunner() { return _runner; }
 
 
-    public void cancelWorkItemTimers() {
+    public void removeWorkItemTimers() {
         for (YNetRunner runner : _runner.getAllRunnersForCase()) {
             for (YWorkItem item : runner.getWorkItemRepository().getWorkItems()) {
+                item.setSuppressTimerEventNotifications(true); // suppress timer cancelled event
                 item.cancelTimer();
             }
         }
