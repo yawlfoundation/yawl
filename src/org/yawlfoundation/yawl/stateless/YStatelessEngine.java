@@ -529,7 +529,7 @@ public class YStatelessEngine {
             throw new YStateException("This engine is not monitoring idle cases");
         }
         YCase yCase = _caseMonitor.unloadCase(caseID);           // notnull guaranteed
-        yCase.cancelWorkItemTimers();
+        yCase.removeWorkItemTimers();
         String caseXML = yCase.marshal();                        // ditto
         _engine.getAnnouncer().announceCaseEvent(
                 new YCaseEvent(YEventType.CASE_UNLOADED, yCase.getRunner()));

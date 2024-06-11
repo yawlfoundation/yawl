@@ -173,7 +173,9 @@ public class YWorkItemTimer implements YTimedObject {
     public void cancel() {
         if (_state == State.active) {
             _state = State.closed;
-            getAnnouncer().announceTimerCancelledEvent(_owner);
+            if (! _owner.isSuppressingTimerEvents()) {
+                getAnnouncer().announceTimerCancelledEvent(_owner);
+            }
         }
     }
 
