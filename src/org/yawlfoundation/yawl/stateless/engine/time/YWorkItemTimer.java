@@ -50,6 +50,7 @@ public class YWorkItemTimer implements YTimedObject {
     private YWorkItem _owner;     // the owner work item - each can have at most one timer
     private final long _endTime ;
     private State _state;
+    private boolean _announceEvents = true; // used to suppress timer event announcements
 
 
     public YWorkItemTimer(YWorkItem item, long msec) {
@@ -155,7 +156,22 @@ public class YWorkItemTimer implements YTimedObject {
         }
     }
 
-    
+
+    public void enableAnnouncements(boolean announce) { _announceEvents = announce; }
+
+    public boolean announcementsEnabled() { return _announceEvents; }
+
+
+    public void cancel() {
+        if (_state == State.active) {
+            _state = State.closed;
+            if (announcementsEnabled()) {
+                getAnnouncer().announceTimerCancelledEvent(_owner);
+            }
+        }
+    }
+
+
     private void setExpiredState() {
         _state = State.expired;
         YTask task = _owner.getTask();
@@ -170,13 +186,5 @@ public class YWorkItemTimer implements YTimedObject {
 
 
 
-    public void cancel() {
-        if (_state == State.active) {
-            _state = State.closed;
-            if (! _owner.isSuppressingTimerEvents()) {
-                getAnnouncer().announceTimerCancelledEvent(_owner);
-            }
-        }
-    }
 
 }

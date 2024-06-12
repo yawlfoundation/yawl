@@ -99,7 +99,7 @@ public class YWorkItem {
     private String _externalLogPredicate;                 // set by services on checkin
     private Element _data;
 
-    private boolean _suppressTimerEvents = false;
+    private YWorkItemTimer _timer = null ;
 
     private final Logger _log = LogManager.getLogger(YWorkItem.class);
 
@@ -424,31 +424,34 @@ public class YWorkItem {
 
             // if current workitem status equals trigger status, start the timer
             if (_timerParameters.triggerMatchesStatus(_status)) {
-                YWorkItemTimer timer = null ;
                 switch (_timerParameters.getTimerType()) {
                     case Expiry: {
-                        timer = new YWorkItemTimer(this,
+                        _timer = new YWorkItemTimer(this,
                                 _timerParameters.getDate()) ;
                         break;
                     }
                     case Duration: {
-                        timer = new YWorkItemTimer(this,
+                        _timer = new YWorkItemTimer(this,
                                 _timerParameters.getWorkDayDuration());
                         break;
                     }
                     case Interval: {
-                        timer = new YWorkItemTimer(this,
+                        _timer = new YWorkItemTimer(this,
                                 _timerParameters.getTicks(), _timerParameters.getTimeUnit()) ;
                     }
                 }
-                if (timer != null) {
-                    _timerExpiry = timer.getEndTime();
+                if (_timer != null) {
+                    _timerExpiry = _timer.getEndTime();
                     setTimerActive();
                     _timerStarted = true ;
                 }
             }
         }
     }
+
+    public YWorkItemTimer getTimer() { return _timer; }
+
+    public void setTimer(YWorkItemTimer timer) { _timer = timer; }
 
 
     public void cancelTimer() {
@@ -467,7 +470,10 @@ public class YWorkItem {
             }
 
             // if suppressing timer cancel events, do it in the parent too
-            parent.setSuppressTimerEventNotifications(_suppressTimerEvents);
+            YWorkItemTimer parentTimer = parent.getTimer();
+            if (! (parentTimer == null || _timer == null) ) {
+                parentTimer.enableAnnouncements(_timer.announcementsEnabled());
+            }
             YTimer.getInstance().cancelTimerTask(parent.getIDString());
         }
     }
@@ -836,11 +842,6 @@ public class YWorkItem {
         return (_parent != null) ? _parent.getDocumentation() : _documentation;
     }
 
-    public void setSuppressTimerEventNotifications(boolean suppress) {
-        _suppressTimerEvents = suppress;
-    }
-
-    public boolean isSuppressingTimerEvents() { return _suppressTimerEvents; }
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<workItem");

@@ -522,7 +522,7 @@ public class YCaseImporter {
         for (YWorkItem item : _timedItems) {
             item.setTimerStarted(true);
             if ("Active".equals(item.getTimerStatus())) {
-                new YWorkItemTimer(item, new Date(item.getTimerExpiry()));
+                item.setTimer(new YWorkItemTimer(item, new Date(item.getTimerExpiry())));
             }
         }
     }

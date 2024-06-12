@@ -3,6 +3,7 @@ package org.yawlfoundation.yawl.stateless.monitor;
 import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.stateless.engine.YNetRunner;
 import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
+import org.yawlfoundation.yawl.stateless.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.stateless.listener.event.YCaseEvent;
 import org.yawlfoundation.yawl.stateless.listener.event.YEventType;
 
@@ -64,8 +65,11 @@ public class YCase {
     public void removeWorkItemTimers() {
         for (YNetRunner runner : _runner.getAllRunnersForCase()) {
             for (YWorkItem item : runner.getWorkItemRepository().getWorkItems()) {
-                item.setSuppressTimerEventNotifications(true); // suppress timer cancelled event
-                item.cancelTimer();
+                YWorkItemTimer timer = item.getTimer();
+                if (timer != null) {
+                    timer.enableAnnouncements(false); // suppress timer cancelled event
+                    item.cancelTimer();
+                }
             }
         }
     }
