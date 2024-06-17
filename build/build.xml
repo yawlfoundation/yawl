@@ -2832,6 +2832,8 @@
                        org/yawlfoundation/yawl/elements/YAttributeMap.class
                        org/yawlfoundation/yawl/elements/YVerifiable.class
                        org/yawlfoundation/yawl/elements/YNetElement.class
+                       org/yawlfoundation/yawl/elements/data/YParameter.class
+                       org/yawlfoundation/yawl/elements/data/YVariable.class
                        org/yawlfoundation/yawl/elements/e2wfoj/*
                        org/yawlfoundation/yawl/engine/YSpecificationID.class
                        org/yawlfoundation/yawl/engine/YNetData.class
@@ -2850,10 +2852,12 @@
                        org/yawlfoundation/yawl/exceptions/*
                        org/yawlfoundation/yawl/logging/YLogDataItem.class
                        org/yawlfoundation/yawl/logging/YLogDataItemList.class
+                       org/yawlfoundation/yawl/resourcing/codelets/*
                        org/yawlfoundation/yawl/util/DynamicValue.class
                        org/yawlfoundation/yawl/util/JDOMUtil.class
                        org/yawlfoundation/yawl/util/YNetElementDocoParser.class
                        org/yawlfoundation/yawl/util/SaxonErrorListener.class
+                       org/yawlfoundation/yawl/util/SaxonUtil.class
                        org/yawlfoundation/yawl/util/PluginLoaderUtil.class
                        org/yawlfoundation/yawl/util/YVerificationHandler.class
                        org/yawlfoundation/yawl/util/YPluginLoader.class
