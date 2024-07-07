@@ -32,7 +32,7 @@
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
 
-    <property name="app.version" value="5.0"/>
+    <property name="app.version" value="5.1"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -1151,6 +1151,9 @@
         <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/classes"
               file="${classes.dir}${packageRoot}/engine/defaultClients.properties"/>
 
+        <copy file="${build.dir}/properties/hibernate.cfg.xml"
+              todir="${temp.dir}/${engine.app.name}/WEB-INF/classes"/>
+
         <antcall target="updateBuildProperties">
             <param name="target" value="${engine.app.name}"/>
         </antcall>
@@ -1469,6 +1472,9 @@
         </propertyfile>
         <copy file="${build.dir}/${worklet.app.name}/version.properties"
               tofile="${temp.dir}/${worklet.app.name}/WEB-INF/classes/version.properties"/>
+        <copy file="${build.dir}/properties/hibernate.cfg.xml"
+               todir="${temp.dir}/${worklet.app.name}/WEB-INF/classes"/>
+
         <copy todir="${temp.dir}/${worklet.app.name}/WEB-INF"
               file="${build.dir}/${worklet.app.name}/web.xml"/>
         <jar destfile="${output.dir}/${worklet.app.name}.war">
@@ -1623,6 +1629,9 @@
         <antcall target="updateBuildProperties">
             <param name="target" value="${resource.app.name}"/>
         </antcall>
+
+        <copy file="${build.dir}/properties/hibernate.cfg.xml"
+              todir="${temp.dir}/${resource.app.name}/WEB-INF/classes"/>
 
         <copy file="${build.dir}/${resource.app.name}/version.properties"
               tofile="${temp.dir}/${resource.app.name}/WEB-INF/classes/version.properties"/>
@@ -2539,6 +2548,8 @@
                      includes="StringUtil.class CharsetFilter.class Sessions*.class
                           JDOMUtil.class PasswordEncryptor.class HibernateEngine.class"/>
         </copy>
+        <copy file="${build.dir}/properties/hibernate.cfg.xml"
+              todir="${temp.dir}/${docStore.app.name}/WEB-INF/classes"/>
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF">
             <fileset file="${build.dir}/${docStore.app.name}/web.xml"/>
         </copy>

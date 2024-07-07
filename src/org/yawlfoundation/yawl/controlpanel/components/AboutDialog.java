@@ -42,7 +42,7 @@ import java.util.Calendar;
  */
 public class AboutDialog extends JDialog {
 
-    private static final Color BACK_COLOUR = new Color(70,100,100);
+    private static final Color BACK_COLOUR = Color.LIGHT_GRAY;
     private static final String DEFAULT_YEAR =
            String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 
@@ -66,7 +66,7 @@ public class AboutDialog extends JDialog {
 
     private JPanel createContent() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new CompoundBorder(new LineBorder(Color.GRAY),
+        panel.setBorder(new CompoundBorder(new LineBorder(Color.GRAY.darker().darker()),
                 new EmptyBorder(12,12,12,12)));
         panel.setBackground(BACK_COLOUR);
         panel.add(new JLabel(IconLoader.get("aboutLogo")), BorderLayout.WEST);

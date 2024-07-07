@@ -2040,6 +2040,11 @@ public final class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public WorkItemRecord getEngineStoredWorkItem(String wirID) throws IOException {
+        return getEngineStoredWorkItem(wirID, getEngineSessionHandle());
+    }
+
+
     private WorkItemRecord getExecutingChild(List<WorkItemRecord> children) {
         for (WorkItemRecord itemRec : children) {
 

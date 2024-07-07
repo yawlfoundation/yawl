@@ -31,10 +31,7 @@ import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 import org.yawlfoundation.yawl.resourcing.util.GadgetFeeder;
-import org.yawlfoundation.yawl.util.PasswordEncryptor;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.XNode;
-import org.yawlfoundation.yawl.util.XNodeParser;
+import org.yawlfoundation.yawl.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -310,6 +307,16 @@ public class WorkQueueGateway extends HttpServlet {
             result = doResourceMoveAction(req, action);
         } else if (action.equals("reallocateStatelessWorkItem")) {
             result = doResourceMoveAction(req, action);
+        } else if (action.equals("newInstance")) {
+            String newValue = req.getParameter("newValue");
+            WorkItemRecord wir = _rm.createNewWorkItemInstance(itemid, newValue);
+            if (wir != null) {
+                wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
+                result = response(wir.toXML());
+            }
+            else {
+                result = fail("Failed to create new instance");
+            }
         } else if (action.equals("updateWorkItemCache")) {
             String wirAsXML = req.getParameter("wir");
             WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirAsXML);
@@ -317,7 +324,39 @@ public class WorkQueueGateway extends HttpServlet {
                 _rm.getWorkItemCache().update(wir);
                 result = success;
             } else result = response(fail("Malformed or empty work item XML record"));
-        } else if (action.equals("synchroniseCaches")) {
+        } else if (action.equals("updateWorkQueuedItem")) {
+            String wirAsXML = req.getParameter("wir");
+            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirAsXML);
+            if (wir != null) {
+                Participant p = _rm.getOrgDataSet().getParticipant(pid);
+                if (p != null) {
+                    int queue = StringUtil.strToInt(req.getParameter("queue"), -1);       
+                    if (queue >= WorkQueue.OFFERED && queue <= WorkQueue.SUSPENDED) {
+                        _rm.getWorkItemCache().update(wir);
+                        p.getWorkQueues().getQueue(queue).refresh(wir);
+                        result = success;
+                    } else result = fail("Invalid user queue type: " + queue);
+                } else result = fail("Unknown participant: " + pid);
+            } else result = fail("Malformed or empty work item XML record");
+        }
+        else if (action.equals("setWorkItemDocumentation")) {
+           String docoText = req.getParameter("doco");
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid);
+            if (! (wir == null || docoText == null || docoText.equals(wir.getDocumentation()))) {
+                wir.setDocumentation(new YPredicateParser().parse(docoText));
+                wir.setDocumentationChanged(true);
+                _rm.getWorkItemCache().update(wir);
+                for (Participant p : _rm.getParticipantsAssignedWorkItem(wir)) {
+                    for (WorkQueue queue : p.getWorkQueues().getActiveQueues()) {
+                         if (queue.get(itemid) != null) {
+                             queue.refresh(wir);
+                         }
+                    }
+                }
+                result = success;
+            } else result = fail("Unknown work item with id: " + itemid);
+        }
+        else if (action.equals("synchroniseCaches")) {
             _rm.sanitiseCaches();
             result = success;
         } else if (action.equals("redirectWorkItemToYawlService")) {
@@ -525,7 +564,14 @@ public class WorkQueueGateway extends HttpServlet {
                     WorkItemRecord child;
                     switch (wir.getStatus()) {
                         case WorkItemRecord.statusFired :  // MI instance - refresh
-                            child = _rm.getCachedWorkItem(wir.getID()); break;
+                        //    try {
+                            //    child = _rm.getEngineStoredWorkItem(wir.getID());
+                                child = _rm.getCachedWorkItem(wir.getID());
+//                            }
+//                            catch (IOException ioe) {
+//                                return ioe.getMessage();
+//                            }
+                            break;
                         case WorkItemRecord.statusExecuting :  // already is the child
                             child = wir; break;
                         default :

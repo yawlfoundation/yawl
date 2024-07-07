@@ -475,6 +475,21 @@ public class WorkQueueGatewayClientAdapter {
         return successCheck(_wqclient.restartItem(pid, itemID, handle));
     }
 
+    public String createWorkItemInstance(String itemID, String value, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.createWorkItemInstance(itemID, value, handle));
+    }
+
+    public String updateWorkQueuedItem(String wirXML, String pid, int queue, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.updateWorkQueuedItem(wirXML, pid, queue, handle));
+    }
+
+    public String setWorkItemDocumentation(String itemID, String doco, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.setWorkItemDocumentation(itemID, doco, handle));
+    }
+
 
     public Set<String> getChainedCases(String pid, String handle)
                 throws IOException, ResourceGatewayException {

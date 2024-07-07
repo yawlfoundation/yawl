@@ -54,6 +54,7 @@
         <path id="AT">exampleSpecs/orderfulfillment/img/</path>
         <path id="AU">exampleSpecs/orderfulfillment/ordering/</path>
         <path id="AV">exampleSpecs/orderfulfillment/payment/</path>
+        <path id="AW">build/properties/</path>
     </paths>
     <files>
         <lib>
@@ -180,6 +181,7 @@
         <yawl>
             <file name="WEB-INF/classes/defaultClients.properties" path="C"/>
             <file name="WEB-INF/classes/version.properties" path="B"/>
+            <file name="WEB-INF/classes/hibernate.cfg.xml" path="AW"/>
             <file name="WEB-INF/web.xml" path="B"/>
         </yawl>
         <yawlSMSInvoker>
@@ -259,6 +261,7 @@
             <file name="samples/worklets/TreatRash.yawl" path="J"/>
             <file name="samples/worklets/TreatWound.yawl" path="J"/>
             <file name="WEB-INF/classes/version.properties" path="K"/>
+            <file name="WEB-INF/classes/hibernate.cfg.xml" path="AW"/>
             <file name="WEB-INF/web.xml" path="K"/>
             <file name="welcome.htm" path="L"/>
         </workletService>
@@ -328,6 +331,7 @@
             <file name="visualiser.jsp" path="M"/>
             <file name="WEB-INF/classes/LDAPSource.properties" path="S"/>
             <file name="WEB-INF/classes/version.properties" path="P"/>
+            <file name="WEB-INF/classes/hibernate.cfg.xml" path="AW"/>
             <file name="WEB-INF/faces-config.xml" path="R"/>
             <file name="WEB-INF/managed-beans.xml" path="R"/>
             <file name="WEB-INF/navigation.xml" path="R"/>
@@ -356,6 +360,7 @@
             <file name="resources/warn.png" path="U"/>
             <file name="sessiontimeout.html" path="T"/>
             <file name="WEB-INF/classes/version.properties" path="V"/>
+            <file name="WEB-INF/classes/hibernate.cfg.xml" path="AW"/>
             <file name="WEB-INF/faces-config.xml" path="W"/>
             <file name="WEB-INF/managed-beans.xml" path="W"/>
             <file name="WEB-INF/navigation.xml" path="W"/>
@@ -418,6 +423,7 @@
             <file name="WEB-INF/web.xml" path="AL"/>
         </procletService>
         <documentStore>
+            <file name="WEB-INF/classes/hibernate.cfg.xml" path="AW"/>
             <file name="WEB-INF/web.xml" path="AN"/>
         </documentStore>
         <orderfulfillment>
@@ -477,10 +483,10 @@
             <file name="style.css" path="AO"/>
         </orderfulfillment>
         <yawllib>
-            <file name="yawl-lib-5.0.jar" path="AM"/>
+            <file name="yawl-lib-5.1.jar" path="AM"/>
         </yawllib>
         <controlpanel>
-            <file name="YawlControlPanel-5.0.jar" path="AM"/>
+            <file name="YawlControlPanel-5.1.jar" path="AM"/>
         </controlpanel>
     </files>
 </locations>

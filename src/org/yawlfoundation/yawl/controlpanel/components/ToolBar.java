@@ -44,8 +44,8 @@ import java.io.IOException;
  */
 public class ToolBar extends JToolBar implements ActionListener, EngineStatusListener {
 
-    private static final String EXAMPLES_URL = "http://www.yawlfoundation.org/pages/resources/examples.html";
-    private static final String MANUAL_URL = "https://yawlfoundation.github.io/assets/files/YAWLUserManual5.0.pdf";
+    private static final String WEBPAGE_URL = "https://yawlfoundation.github.io";
+    private static final String MANUAL_URL = "https://yawlfoundation.github.io/assets/files/YAWLUserManual5.1.pdf";
 
     private static final Dimension spacer = new Dimension(11,16);
 
@@ -99,8 +99,8 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
         else if (cmd.equals("manual")) {
             browseTo(MANUAL_URL);
         }
-        else if (cmd.equals("examples")) {
-            browseTo(EXAMPLES_URL);
+        else if (cmd.equals("webpage")) {
+            browseTo(WEBPAGE_URL);
         }
         else if (cmd.equals("about")) {
             showAboutDialog();
@@ -150,7 +150,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
         add(_btnPreferences);
         addSeparator();
         add(createToolButton("manual", " View the YAWL User Manual "));
-        add(createToolButton("examples", " View/Download examples "));
+        add(createToolButton("webpage", " Visit the YAWL home page "));
         addSeparator();
         add(createToolButton("about", " About... "));
     }

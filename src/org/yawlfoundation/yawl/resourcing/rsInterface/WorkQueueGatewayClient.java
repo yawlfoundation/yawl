@@ -278,6 +278,25 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
+    public String updateWorkQueuedItem(String wirXML, String pid, int queue, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("updateWorkQueuedItem", handle);
+        params.put("wir", wirXML);
+        params.put("participantid", pid);
+        params.put("queue", String.valueOf(queue));
+        return executeGet(_serviceURI, params);
+    }
+
+
+    public String setWorkItemDocumentation(String itemID, String doco, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("setWorkItemDocumentation", handle);
+        params.put("workitemid", itemID);
+        params.put("doco", doco);
+        return executeGet(_serviceURI, params);
+    }
+
+
     public String getWorkItemParameters(String itemID, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("getWorkItemParameters", handle);
@@ -456,6 +475,14 @@ public class WorkQueueGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("restartWorkItem", handle);
         params.put("participantids", idStringToXML(pid));
         params.put("workitemid", itemID);
+        return executePost(_serviceURI, params);
+    }
+
+
+    public String createWorkItemInstance(String itemID, String value, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("newInstance", handle);
+        params.put("workitemid", itemID);
+        params.put("newValue", value);
         return executePost(_serviceURI, params);
     }
 
