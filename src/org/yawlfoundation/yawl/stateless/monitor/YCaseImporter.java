@@ -135,7 +135,7 @@ public class YCaseImporter {
         item.set_thisID(nItem.getChildText("id"));
         item.setSpecID(_spec.getSpecificationID());
         unmarshalTimestamps(item, nItem);
-//        unmarshalWorkItemData(item, nItem);
+        unmarshalWorkItemData(item, nItem);
         item.set_status(getChildText(nItem, "status"));
         item.set_prevStatus(getChildText(nItem, "prevstatus"));
         item.set_allowsDynamicCreation(toBoolean(nItem.getChildText("allowsdynamic")));
@@ -219,12 +219,12 @@ public class YCaseImporter {
     }
 
 
-//    private void unmarshalWorkItemData(YWorkItem item, XNode nItem) {
-//        XNode nData = nItem.getChild("data");
-//        if (nData != null && nData.hasChildren()) {
-//            item.set_dataString(nData.getChild(0).toString());
-//        }
-//    }
+    private void unmarshalWorkItemData(YWorkItem item, Element nItem) {
+        Element nData = nItem.getChild("data");
+        if (! (nData == null || nData.getChildren().isEmpty())) {
+            item.setDataElement(nData.getChildren().get(0));
+        }
+    }
 
 
     private Map<String, String> unmarshalTimerStates(Element nStates) {
@@ -474,10 +474,6 @@ public class YCaseImporter {
         toBeRestored.removeAll(orphans);
 
         for (YWorkItem witem : toBeRestored) {
-
-            // persisted data stored as string - restore to Element
-//            String data = witem.get_dataString();
-//            if (data != null) witem.setInitData(JDOMUtil.stringToElement(data));
 
             // reconstruct the caseID-YIdentifier for this item
             String id = witem.get_thisID();

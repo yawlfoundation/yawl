@@ -97,7 +97,7 @@ public class YWorkItem {
     private String _codelet ;
     private String _documentation;
     private String _externalLogPredicate;                 // set by services on checkin
-
+    private Element _data;
 
     private final Logger _log = LogManager.getLogger(YWorkItem.class);
 
@@ -805,12 +805,19 @@ public class YWorkItem {
 
 
     public Element getDataElement() {
+        if (_data != null) {
+            return _data;
+        }
         return _task != null ? _task.getData() : null;
     }
 
 
     public String getDataString() {
         return JDOMUtil.elementToString(getDataElement()) ;
+    }
+
+    public void setDataElement(Element data) {
+        _data = data;
     }
 
     public YTask getTask() {
