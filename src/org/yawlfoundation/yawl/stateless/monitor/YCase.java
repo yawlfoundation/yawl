@@ -3,6 +3,7 @@ package org.yawlfoundation.yawl.stateless.monitor;
 import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.stateless.engine.YNetRunner;
 import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
+import org.yawlfoundation.yawl.stateless.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.stateless.listener.event.YCaseEvent;
 import org.yawlfoundation.yawl.stateless.listener.event.YEventType;
 
@@ -61,10 +62,14 @@ public class YCase {
     public YNetRunner getRunner() { return _runner; }
 
 
-    public void cancelWorkItemTimers() {
+    public void removeWorkItemTimers() {
         for (YNetRunner runner : _runner.getAllRunnersForCase()) {
             for (YWorkItem item : runner.getWorkItemRepository().getWorkItems()) {
-                item.cancelTimer();
+                YWorkItemTimer timer = item.getTimer();
+                if (timer != null) {
+                    timer.enableAnnouncements(false); // suppress timer cancelled event
+                    item.cancelTimer();
+                }
             }
         }
     }
@@ -94,8 +99,28 @@ public class YCase {
     }
 
 
+    // restart only if the timer task is currently not running
+    protected void restartIdleTimer() {
+        if (isIdleTimerEnabled() && _idleTimerTask == null) {
+            _idleTimerTask = startIdleTimer();
+        }
+    }
+
+
     protected void cancelIdleTimer() {
-        if (_idleTimerTask != null) _idleTimerTask.cancel();
+        if (_idleTimerTask != null) {
+            _idleTimerTask.cancel();
+            _idleTimerTask = null;
+        }
+    }
+
+
+    // a case is considered to be idle if it currently has a running idle timer
+    protected boolean isIdle() throws YStateException {
+        if (! isIdleTimerEnabled()) {
+            throw new YStateException("Idle monitoring is disabled for case.");
+        }
+        return _idleTimerTask != null;
     }
 
 }
