@@ -344,7 +344,6 @@ public class YStatelessEngine {
         }
     }
 
-
     /**
      * Resume a suspended work item
      * @param workItem the work item to suspend
@@ -378,7 +377,6 @@ public class YStatelessEngine {
             throw e;
         }
     }
-
 
     /**
      * Complete a currently executing work item
@@ -663,7 +661,6 @@ public class YStatelessEngine {
             _caseMonitor.pauseIdleTimer(caseID);
         }
     }
-
 
     private void checkIsLoadedCase(YNetRunner runner, String msg) throws YStateException {
         isLoadedCase(runner.getTopRunner().getCaseID(), msg);

@@ -31,7 +31,9 @@ import org.yawlfoundation.yawl.engine.time.YLaunchDelayer;
 import org.yawlfoundation.yawl.engine.time.YTimedObject;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.exceptions.YDataStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YQueryException;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -52,6 +54,8 @@ public class YEngineRestorer {
     private Map<String, YIdentifier> _idLookupTable;
     private List<YNetRunner> _runners;
     private Map<String, YTask> _taskLookupTable;
+    private Map<String, GroupedMIOutputData> _miOutputDataLookupTable;
+    private List<YTask> _miTasks;
     private boolean _hasServices;
     private boolean _importingCases = false;
     private Set<YClient> _addedDefaultClients;
@@ -67,6 +71,8 @@ public class YEngineRestorer {
         _pmgr = pmgr;
         _idLookupTable = new HashMap<String, YIdentifier>();
         _taskLookupTable = new HashMap<String, YTask>();
+        _miOutputDataLookupTable = new HashMap<>();
+        _miTasks = new ArrayList<>();
         _log = LogManager.getLogger(this.getClass());
     }
 
@@ -78,10 +84,12 @@ public class YEngineRestorer {
 
 
     protected void restoreInstances() throws YPersistenceException {
+        restoreGroupedMIOutputData();
         restoreProcessInstances();
         restoreWorkItems();
+        resortMultiInstanceStartingData();
     }
-
+    
 
     /**
      * Restores YAWL Services from persistence
@@ -245,6 +253,14 @@ public class YEngineRestorer {
         removeWorkItems(toBeRemoved);
 
         _log.debug("Restoring work items - Ends");
+    }
+
+
+    protected void restoreGroupedMIOutputData() throws YPersistenceException {
+        for (GroupedMIOutputData miOutputData : restoreObjects(GroupedMIOutputData.class)) {
+            Hibernate.initialize(miOutputData);
+            _miOutputDataLookupTable.put(miOutputData.getUniqueIdentifier(), miOutputData);
+        }
     }
 
 
@@ -525,7 +541,26 @@ public class YEngineRestorer {
                 if (element instanceof YTask) {
                     task = (YTask) element;
                     task.setI(id);
-                    task.prepareDataDocsForTaskOutput();
+                    if (task.isMultiInstance()) {
+                        _miTasks.add(task);
+                        try {
+                            task.determineHowManyInstancesToCreate();
+                        }
+                        catch (YDataStateException | YQueryException e) {
+                            _log.warn("Failed to restore data for unstarted MI work items");
+                        }
+                    }
+
+                    task.prepareDataDocsForTaskOutput(null);
+                    
+                    if (task.isMultiInstance()) {
+                        String uniqueID = id.get_idString() + ":" + task.getID();
+                        GroupedMIOutputData miOutputData = _miOutputDataLookupTable.get(uniqueID);
+                        if (miOutputData != null) {
+                            task.setGroupedMultiInstanceOutputData(miOutputData);
+                        }
+                    }
+
                     id.addLocation(null, task);
                 } else if (element instanceof YCondition) {
                     ((YConditionInterface) element).add(_pmgr, id);
@@ -536,6 +571,12 @@ public class YEngineRestorer {
         _idLookupTable.put(id.toString(), id);
         return id;
     }
+
+
+    private void resortMultiInstanceStartingData() {
+        _miTasks.forEach(YTask::sortMultiInstanceStartingData);
+    }
+
 
 
     /**

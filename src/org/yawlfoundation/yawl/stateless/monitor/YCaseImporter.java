@@ -221,8 +221,8 @@ public class YCaseImporter {
 
     private void unmarshalWorkItemData(YWorkItem item, Element nItem) {
         Element nData = nItem.getChild("data");
-        if (! (nData == null || nData.getChildren().isEmpty())) {
-            item.setDataElement(nData.getChildren().get(0));
+        if (! (nData == null || nData.getText().isEmpty())) {
+            item.setDataElement(JDOMUtil.stringToElement(JDOMUtil.decodeEscapes(nData.getText())));
         }
     }
 
