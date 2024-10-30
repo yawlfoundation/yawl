@@ -2197,6 +2197,12 @@ public class YEngine implements InterfaceADesign,
         _logger.debug("--> clearCaseFromPersistence: CaseID = ", id.get_idString());
         if (_persisting) {
             try {
+                if (! id.get_idString().contains(".")) {  // only if the root case id
+                    String query = "delete from GroupedMIOutputData as m where m.uniqueIdentifier like '" +
+                            id.get_idString() + ":%'";
+                    _pmgr.getSession().createQuery(query).executeUpdate();
+                }
+                
                 List<YIdentifier> list = id.get_children();
                 for (YIdentifier child : list) {
                     if (child != null) clearCaseFromPersistence(child);

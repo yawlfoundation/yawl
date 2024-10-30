@@ -29,6 +29,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.schema.TargetType;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
+import org.yawlfoundation.yawl.elements.GroupedMIOutputData;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
@@ -58,10 +59,11 @@ public class YPersistenceManager {
     public static final int DB_DELETE = 1;
     public static final int DB_INSERT = 2;
 
-    private static Class[] persistedClasses = {
+    private static final Class[] persistedClasses = {
             YSpecification.class, YNetRunner.class, YWorkItem.class, YIdentifier.class,
             YNetData.class, YAWLServiceReference.class, YExternalClient.class,
-            YWorkItemTimer.class, YLaunchDelayer.class, YCaseNbrStore.class, Problem.class
+            YWorkItemTimer.class, YLaunchDelayer.class, YCaseNbrStore.class, Problem.class,
+            GroupedMIOutputData.class
     };
 
     private static final boolean INSERT = false;

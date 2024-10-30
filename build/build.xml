@@ -31,6 +31,7 @@
     <filter token="RESOURCE_LOGGING_LEVEL" value="${resource.logging.level}"/>
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
+    <filter token="MAIL_LOGGING_LEVEL" value="${mail.logging.level}"/>
 
     <property name="app.version" value="5.1"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
@@ -453,7 +454,7 @@
               value="${saxon} ${saxondom} ${saxonapi} ${saxonjdom}"/>
 
     <property name="simplemail.libs"
-              value="${mailapi} ${simplemail} ${smtp} ${slf4j}"/>
+              value="${mailapi} ${simplemail} ${smtp} ${slf4j} ${activation}"/>
 
     <property name="scheduling.libs"
               value="${json} ${commonsDbcp} ${commonsPool} ${jaxen} ${ucp}

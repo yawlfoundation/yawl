@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.mailService;
 import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,12 +29,12 @@ import java.io.IOException;
 
 
 /**
-  *  Initialises the Simple Mail Service with values from 'web.xml'.
-  *
-  *  @author Michael Adams
-  *  @date 24/06/2011
-  *
-  */
+ *  Initialises the Simple Mail Service with values from 'web.xml'.
+ *
+ *  @author Michael Adams
+ *  @date 24/06/2011
+ *
+ */
 
 public class MailServiceGateway extends HttpServlet {
 
@@ -44,14 +43,13 @@ public class MailServiceGateway extends HttpServlet {
     public void init() {
         try {
             MailService service = MailService.getInstance();
-            ServletContext context = getServletContext();
-            service.setHost(context.getInitParameter("host"));
-            service.setUser(context.getInitParameter("mailUserName"));
-            service.setPassword(context.getInitParameter("mailPassword"));
-            service.setFromName(context.getInitParameter("senderName"));
-            service.setFromAddress(context.getInitParameter("senderAddress"));
-            service.setPort(StringUtil.strToInt(context.getInitParameter("port"), 25));
-            service.setTransportStrategy(context.getInitParameter("transportStrategy"));
+            service.setHost(getSetting("host"));
+            service.setUser(getSetting("mailUserName"));
+            service.setPassword(getSetting("mailPassword"));
+            service.setFromName(getSetting("senderName"));
+            service.setFromAddress(getSetting("senderAddress"));
+            service.setPort(StringUtil.strToInt(getSetting("port"), 25));
+            service.setTransportStrategy(getSetting("transportStrategy"));
         }
         catch (Exception e) {
             LogManager.getLogger(MailServiceGateway.class).error(
@@ -63,13 +61,22 @@ public class MailServiceGateway extends HttpServlet {
     public void destroy() { }
 
 
-   public void doPost(HttpServletRequest req, HttpServletResponse res)
-                               throws IOException { }
+    public void doPost(HttpServletRequest req, HttpServletResponse res)
+            throws IOException { }
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)
-                                throws IOException, ServletException {
+            throws IOException, ServletException {
         doPost(req, res);                                // redirect all GETs to POSTs
     }
 
+
+    private String getSetting(String name) {
+        String value = System.getProperty("yawl.mail." + name);
+        if (value == null) {
+            value = getServletContext().getInitParameter(name);
+        }
+        return value;
+    }
+    
 }

@@ -27,11 +27,11 @@ import org.jdom2.Namespace;
  */
 interface YDataType {
 
-    public static final Namespace YAWL_NAMESPACE = Namespace.getNamespace("yawl",
+    Namespace YAWL_NAMESPACE = Namespace.getNamespace("yawl",
             "http://www.yawlfoundation.org/yawlschema");
 
-    public String getSchemaString();
+    String getSchemaString();
 
-    public Element getSchema(String name);
+    Element getSchema(String name);
 
 }
