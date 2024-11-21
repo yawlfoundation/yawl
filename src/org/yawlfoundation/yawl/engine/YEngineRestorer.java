@@ -170,6 +170,8 @@ public class YEngineRestorer {
         return caseNbrStore;
     }
 
+    
+
 
     protected void restoreProcessInstances() throws YPersistenceException {
         _log.debug("Restoring process instances - Starts");
@@ -261,6 +263,12 @@ public class YEngineRestorer {
             Hibernate.initialize(miOutputData);
             _miOutputDataLookupTable.put(miOutputData.getUniqueIdentifier(), miOutputData);
         }
+    }
+
+
+    protected void setGroupedMIOutputData(Set<GroupedMIOutputData> miOutputDataSet) {
+        miOutputDataSet.forEach(miData ->
+                _miOutputDataLookupTable.put(miData.getUniqueIdentifier(), miData));
     }
 
 
@@ -573,7 +581,7 @@ public class YEngineRestorer {
     }
 
 
-    private void resortMultiInstanceStartingData() {
+    protected void resortMultiInstanceStartingData() {
         _miTasks.forEach(YTask::sortMultiInstanceStartingData);
     }
 
