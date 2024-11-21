@@ -18,7 +18,9 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -83,8 +85,8 @@ public class CaseExporter {
             nRunner.addChild("starttime", runner.getStartTime());
             nRunner.addChild("observer", runner.get_caseObserverStr());
             nRunner.addChild("executionstatus", runner.getExecutionStatus());
-            nRunner.addChild(getMarkedTasks("enabled", runner.getEnabledTaskNames()));
-            nRunner.addChild(getMarkedTasks("busy", runner.getBusyTaskNames()));
+            nRunner.addChild(getEnabledTasks(runner));
+            nRunner.addChild(getBusyTasks(runner));
             nRunner.addChild(getTimerStates(runner.get_timerStates()));
         }
         return nRunners;
@@ -108,11 +110,25 @@ public class CaseExporter {
     }
 
 
-    private XNode getMarkedTasks(String tag, Set<String> taskNames) {
-        XNode nTasks = new XNode(tag + "tasks");
-        for (String taskName : taskNames) {
-            nTasks.addChild("task", taskName);
-        }
+    private XNode getEnabledTasks(YNetRunner runner) {
+        XNode nTasks = new XNode("enabledtasks");
+        runner.getEnabledTaskNames().forEach(e -> nTasks.addChild("task", e));
+        return nTasks;
+    }
+
+
+    private XNode getBusyTasks(YNetRunner runner) {
+        XNode nTasks = new XNode("busytasks");
+        runner.getBusyTasks().forEach(b -> {
+            XNode nTask = nTasks.addChild("task");
+            nTask.addChild("name", b.getID());
+            if (b.isMultiInstance()) {
+                String doc = b.getMIOutputData().getDataDocString();
+                XNode miNode = nTask.addChild("midata");
+                miNode.addContent(doc);
+                miNode.addAttribute("uid", b.getMIOutputData().getUniqueIdentifier());
+            }
+        });
         return nTasks;
     }
 
@@ -174,6 +190,19 @@ public class CaseExporter {
         XNode nData = new XNode("data");
         nData.addContent(item.getDataString());
         return nData;
+    }
+
+
+    private void addMIDataIfRequired(XNode taskNode, YIdentifier runnerID, String taskName) {
+        YNetRunner runner = _engine.getNetRunner(runnerID);
+        for (YTask task : runner.getBusyTasks()) {
+            if (task.getName().equals(taskName)) {
+                if (task.isMultiInstance()) {
+                    String doc = task.getMIOutputData().getDataDocString();
+                    taskNode.addChild("midata", JDOMUtil.encodeEscapes(doc));
+                }
+            }
+        }
     }
 
 

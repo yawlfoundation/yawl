@@ -183,6 +183,11 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
+    public GroupedMIOutputData getMIOutputData() {
+        return _groupedMultiInstanceOutputData;
+    }
+
+
     public String getPredicate(YExternalNetElement netElement) {
         YFlow flow = getPostsetFlow(netElement);
         return flow.getXpathPredicate();

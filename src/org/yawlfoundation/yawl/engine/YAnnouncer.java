@@ -390,7 +390,7 @@ public class YAnnouncer {
     /******************************************************************************/
     // WORKITEM REANNOUNCEMENTS //
 
-    private void reannounceRestoredItems() {
+    protected void reannounceRestoredItems() {
 
         //MLF: moved from restore logic. There is no point in reannouncing before the first gateway
         //     is registered as the announcements will simply fall on deaf errors. Obviously we

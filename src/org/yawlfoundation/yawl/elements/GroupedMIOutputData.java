@@ -19,7 +19,7 @@ public class GroupedMIOutputData {
     private Document _dataDoc;
     private Document _dynamicDataDoc;
 
-    protected GroupedMIOutputData() { }       // for hibernate instantiation
+    public GroupedMIOutputData() { }       // for hibernate and importer instantiation
 
     protected GroupedMIOutputData(YIdentifier caseID, String taskID, String rootName) {
         _uniqueID = caseID.get_idString() + ":" + taskID;
@@ -52,12 +52,12 @@ public class GroupedMIOutputData {
 
     
     // for hibernate
-    protected String getDataDocString() {
+    public String getDataDocString() {
         return JDOMUtil.documentToString(_dataDoc);
     }
 
     // for hibernate
-    protected void setDataDocString(String xml) {
+    public void setDataDocString(String xml) {
         _dataDoc = JDOMUtil.stringToDocument(xml);
     }
 
@@ -72,7 +72,7 @@ public class GroupedMIOutputData {
     }
     
     // for hibernate
-    protected void setUniqueIdentifier(String id) {
+    public void setUniqueIdentifier(String id) {
         _uniqueID = id;
     }
 
