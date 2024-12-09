@@ -176,6 +176,12 @@ public class YWorkItemRepository {
     public void cleanseRepository() {
         Set<String> itemsToRemove = new HashSet<String>();
         for (YWorkItem workitem : _itemMap.values()) {
+
+            // keep completed mi tasks in repository until parent completes
+            if (workitem.getTask().isMultiInstance() && workitem.hasCompletedStatus()) {
+                continue;
+            }
+
             YNetRunner runner = YEngine.getInstance().getNetRunnerRepository().get(workitem);
 
             if (runner != null) {                                      //MLF can be null

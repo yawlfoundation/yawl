@@ -70,7 +70,10 @@ public class YNetRunnerRepository extends ConcurrentHashMap<YIdentifier, YNetRun
         }
         else if (workitem.hasLiveStatus() || workitem.hasCompletedStatus() ||
                 status.equals(statusSuspended)) {
-            runner = get(caseID.getParent());
+            YIdentifier parentID = caseID.getParent();
+            if (parentID != null) {
+                runner = get(parentID);
+            }
         }
         return runner;     // may be null
     }

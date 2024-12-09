@@ -29,6 +29,7 @@
     	</id>
 
  		<property name="dataDocString" column="datadoc" type="text"/>
+		<property name="completedItemsString" column="completeditems" type="text"/>
 	</class>
 	
 </hibernate-mapping>
