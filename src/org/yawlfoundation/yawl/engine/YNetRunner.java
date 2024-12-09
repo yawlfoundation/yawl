@@ -847,6 +847,10 @@ public class YNetRunner {
             _logger.debug("NOTIFYING RUNNER");
             kick(pmgr);
         }
+        else {   // mi workitem complete but task has remaining incomplete items
+            atomicTask.getMIOutputData().addCompletedWorkItem(workItem);
+            if (pmgr != null) pmgr.updateObject(atomicTask.getMIOutputData());
+        }
         _logger.debug("<-- completeTask: {}, Exited={}", atomicTask.getID(), taskExited);
 
         return taskExited;

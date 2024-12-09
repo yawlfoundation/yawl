@@ -266,6 +266,7 @@ public class YEngineRestorer {
     }
 
 
+    // from CaseImporter
     protected void setGroupedMIOutputData(Set<GroupedMIOutputData> miOutputDataSet) {
         miOutputDataSet.forEach(miData ->
                 _miOutputDataLookupTable.put(miData.getUniqueIdentifier(), miData));
@@ -582,6 +583,29 @@ public class YEngineRestorer {
 
 
     protected void resortMultiInstanceStartingData() {
+
+        // completed mi child items need to be readded to the item repository
+        // so they appear in subsequent case state exports
+        for (GroupedMIOutputData miOutputData : _miOutputDataLookupTable.values()) {
+            for (YWorkItem item : miOutputData.getCompletedWorkItems()) {
+                for (YTask task : _miTasks) {
+                    if (item.getTaskID().equals(task.getID())) {
+                        item.setTask(task);
+                        break;
+                    }
+                }
+                for (YWorkItem parent : _engine.getWorkItemRepository().getParentWorkItems()) {
+                    String parentID = parent.getCaseID().toString();
+                    if (item.getWorkItemID().getCaseID().toString().startsWith(parentID + ".")) {
+                        item.getCaseID().set_parent(parent.getCaseID());
+                        break;
+                    }
+                }
+                item.setEngine(_engine);
+                item.addToRepository();
+            }
+        }
+
         _miTasks.forEach(YTask::sortMultiInstanceStartingData);
     }
 

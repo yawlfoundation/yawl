@@ -55,6 +55,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.SecondaryResources;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
+import org.yawlfoundation.yawl.resourcing.resource.YResourceUnavailableException;
 import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.*;
@@ -628,8 +629,9 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
             // check that a copy of each engine child item is stored locally
             for (WorkItemRecord wir : engineItems) {
-                if (wir.isAutoTask()) continue;                // ignore automated tasks
-
+                if (wir.isAutoTask()) continue;              // ignore automated tasks
+                if (! wir.hasLiveStatus()) continue;         // ignore completed MI items
+                
                 if (!_workItemCache.containsKey(wir.getID())) {
 
                     // Parent items are treated differently. If they have never been started
@@ -1242,21 +1244,26 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
     private boolean secondaryResourcesAvailable(WorkItemRecord wir, Participant p) {
         ResourceMap rMap = getResourceMap(wir);
-        if (!(rMap == null || rMap.getSecondaryResources().available(wir))) {
-            _log.warn("Workitem '{}' could not be started due " +
-                    "to one or more unavailable secondary resources. The workitem " +
-                    "has been placed on the participant's allocated queue.", wir.getID());
-            if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
-                withdrawOffer(rMap, wir);
+        if (rMap != null) {
+            try {
+                return rMap.getSecondaryResources().available(wir);
             }
-            wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
-            p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
-            return false;
+            catch (YResourceUnavailableException yrue) {
+                _log.warn("{}. Workitem '{}' could not be started due " +
+                        "to one or more unavailable secondary resources. The workitem " +
+                        "has been placed on the participant's allocated queue.",
+                        yrue.getMessage(), wir.getID());
+                if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
+                    withdrawOffer(rMap, wir);
+                }
+                wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+                p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+            }
         }
-        return true;
+        return false;
     }
 
-
+    
     // USER - TASK PRIVILEGE ACTIONS //
 
     public boolean suspendWorkItem(Participant p, WorkItemRecord wir) {
