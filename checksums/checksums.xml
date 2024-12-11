@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>5.1</version>
-  <timestamp>2024-12-09 15.44.35</timestamp>
+  <timestamp>2024-12-11 21.32.57</timestamp>
   <lib hash="865cd9c8b965c077db85552a20df265b">
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2024-02-26T14:47:25" path="A"/>
     <file name="jboss-logging-3.4.3.Final.jar" md5="b298d4b79e591843c1eb1458ea79f070" size="60782" timestamp="2024-02-26T14:47:25" path="A"/>
@@ -125,12 +125,12 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1703</build>
+      <build>1709</build>
       <files>
-        <file name="WEB-INF/classes/hibernate.cfg.xml" md5="b1314d5778fb00be1e7cf49000facb1b" size="491" timestamp="2024-12-09T15:23:14" path="AW"/>
-        <file name="WEB-INF/classes/version.properties" md5="17f430a1ee449a26fa4b60545fdfa362" size="186" timestamp="2024-12-09T15:23:14" path="B"/>
-        <file name="WEB-INF/classes/defaultClients.properties" md5="f5871581817867266a3a3997e7082649" size="1257" timestamp="2024-12-09T15:23:14" path="C"/>
-        <file name="WEB-INF/web.xml" md5="ae0b6cad2997b06cb4e79d58797241bf" size="11797" timestamp="2024-12-09T15:23:14" path="B"/>
+        <file name="WEB-INF/classes/hibernate.cfg.xml" md5="b1314d5778fb00be1e7cf49000facb1b" size="491" timestamp="2024-12-11T21:32:55" path="AW"/>
+        <file name="WEB-INF/classes/version.properties" md5="59422a5997856d6dc1c27f34fab236c7" size="186" timestamp="2024-12-11T21:32:55" path="B"/>
+        <file name="WEB-INF/classes/defaultClients.properties" md5="f5871581817867266a3a3997e7082649" size="1257" timestamp="2024-12-11T21:32:55" path="C"/>
+        <file name="WEB-INF/web.xml" md5="ae0b6cad2997b06cb4e79d58797241bf" size="11797" timestamp="2024-12-11T21:32:55" path="B"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -816,7 +816,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-5.1.jar" md5="6f7f68726a9d957a93d73fa246d9e73e" size="2985358" timestamp="2024-12-09T15:44:33" path="AM"/>
+    <file name="yawl-lib-5.1.jar" md5="54ce4f2cc8cb96cc29c43eedd5850601" size="2990968" timestamp="2024-12-11T21:32:54" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>434</build>

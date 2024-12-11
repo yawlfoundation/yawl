@@ -188,7 +188,7 @@ public class CaseExporter {
 
     private XNode getWIData(YWorkItem item) {
         XNode nData = new XNode("data");
-        nData.addContent(item.getDataString());
+        nData.addContent(item.get_dataString());
         return nData;
     }
 
