@@ -84,7 +84,8 @@ public class GroupedMIOutputData {
         String uniqueID = nItem.getChildText("uniqueid");
         YWorkItemID id = new YWorkItemID(new YIdentifier(caseID), taskID, uniqueID);
         item.setWorkItemID(id);
-        
+        item.set_thisID(id.toString() + "!" + id.getUniqueID());
+
         item.set_specIdentifier(nItem.getChildText("specidentifier"));
         item.set_specUri(nItem.getChildText("specuri"));
         item.set_specVersion(nItem.getChildText("specversion"));
