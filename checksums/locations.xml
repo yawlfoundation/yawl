@@ -87,6 +87,7 @@
             <file name="commons-vfs2-2.1.jar" path="A"/>
             <file name="concurrent-1.3.4.jar" path="A"/>
             <file name="cos.jar" path="A"/>
+            <file name="courier-java-3.3.0.jar" path="A"/>
             <file name="dataprovider.jar" path="A"/>
             <file name="defaulttheme-gray.jar" path="A"/>
             <file name="derbyclient.jar" path="A"/>
@@ -95,6 +96,7 @@
             <file name="ehcache-core-2.4.3.jar" path="A"/>
             <file name="ehcache.xml" path="A"/>
             <file name="errorhandler.jar" path="A"/>
+            <file name="gson-2.11.0.jar" path="A"/>
             <file name="guava-21.0.jar" path="A"/>
             <file name="h2-1.3.176.jar" path="A"/>
             <file name="hawkular.jar" path="A"/>
@@ -106,6 +108,12 @@
             <file name="hibernate.cfg.xml" path="A"/>
             <file name="hsqldb.jar" path="A"/>
             <file name="istack-commons-runtime-4.1.1.jar" path="A"/>
+            <file name="jackson-annotations-2.18.2.jar" path="A"/>
+            <file name="jackson-core-2.18.2.jar" path="A"/>
+            <file name="jackson-databind-2.18.2.jar" path="A"/>
+            <file name="jackson-datatype-jdk8-2.18.2.jar" path="A"/>
+            <file name="jackson-datatype-jsr310-2.18.2.jar" path="A"/>
+            <file name="java-sdk-1.0.1.jar" path="A"/>
             <file name="jakarta.xml.bind-api-3.0.1.jar" path="A"/>
             <file name="jandex-2.4.2.Final.jar" path="A"/>
             <file name="javax.activation-api-1.2.0.jar" path="A"/>
@@ -145,12 +153,16 @@
             <file name="log4j-api-2.18.0.jar" path="A"/>
             <file name="log4j-core-2.18.0.jar" path="A"/>
             <file name="log4j-slf4j-impl-2.17.1.jar" path="A"/>
+            <file name="kotlin-stdlib-2.1.0.jar" path="A"/>
             <file name="macify-1.4.jar" path="A"/>
             <file name="mail.jar" path="A"/>
             <file name="mailapi.jar" path="A"/>
             <file name="mchange-commons-java-0.2.3.4.jar" path="A"/>
             <file name="mysql-connector-java-5.1.22-bin.jar" path="A"/>
             <file name="ojdbc6_9.jar" path="A"/>
+            <file name="okhttp-4.12.0.jar" path="A"/>
+            <file name="okio-3.9.1.jar" path="A"/>
+            <file name="okio-jvm-3.9.1.jar" path="A"/>
             <file name="OpenForecast-0.5.0.jar" path="A"/>
             <file name="orderfulfillment.jar" path="A"/>
             <file name="postgresql-42.2.8.jar" path="A"/>
@@ -331,6 +343,7 @@
             <file name="visualiser.jsp" path="M"/>
             <file name="WEB-INF/classes/LDAPSource.properties" path="S"/>
             <file name="WEB-INF/classes/version.properties" path="P"/>
+            <file name="WEB-INF/classes/mail.properties" path="P"/>
             <file name="WEB-INF/classes/hibernate.cfg.xml" path="AW"/>
             <file name="WEB-INF/faces-config.xml" path="R"/>
             <file name="WEB-INF/managed-beans.xml" path="R"/>

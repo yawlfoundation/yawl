@@ -174,12 +174,16 @@
     <property name="commonsVfs" value="commons-vfs2-2.1.jar"/>
     <!-- sch -->
     <property name="concurrent" value="concurrent-1.3.4.jar"/>
+    <!-- res -->
+    <property name="courier" value="courier-java-3.3.0.jar"/>
     <!-- prl -->
     <property name="derby" value="derbyclient.jar"/>
     <!-- dbd -->
     <property name="ecore" value="ecore.jar"/>
     <!-- eng, xsd -->
     <property name="ehcache" value="ehcache-core-2.4.3.jar"/>
+    <!-- res -->
+    <property name="gson" value="gson-2.11.0.jar"/>
     <!-- hbn -->
     <property name="guava" value="guava-21.0.jar"/>
     <!-- bal -->
@@ -201,6 +205,13 @@
     <property name="hsql" value="hsqldb.jar"/>
     <!-- hbn -->
     <property name="istack" value="istack-commons-runtime-4.1.1.jar"/>
+    <!-- res -->
+    <property name="jackson-annotations" value="jackson-annotations-2.18.2.jar"/>
+    <property name="jackson-core" value="jackson-core-2.18.2.jar"/>
+    <property name="jackson-databind" value="jackson-databind-2.18.2.jar"/>
+    <property name="jackson-jdk8" value="jackson-datatype-jdk8-2.18.2.jar"/>
+    <property name="jackson-jsr310" value="jackson-datatype-jsr310-2.18.2.jar"/>
+
     <!-- hbn -->
     <property name="jandex" value="jandex-2.4.2.Final.jar"/>
     <!-- eng, hbn -->
@@ -282,6 +293,8 @@
     <property name="jung-visualization" value="jung-visualization-2.0.jar"/>
     <!-- prl -->
     <property name="junit" value="junit-4.10.jar"/>
+
+    <property name="kotlin" value="kotlin-stdlib-2.1.0.jar"/>
     <!-- mul -->
     <property name="log4j-api" value="log4j-api-2.18.0.jar"/>
     <!-- mul -->
@@ -296,10 +309,16 @@
     <property name="mail" value="mail.jar"/>
     <!-- mss -->
     <property name="mailapi" value="mailapi.jar"/>
+    <!-- res -->
+    <property name="mailsender" value="java-sdk-1.0.1.jar"/>
     <!-- hbn -->
     <property name="mchange" value="mchange-commons-java-0.2.3.4.jar"/>
     <!-- sml -->
     <property name="mysql" value="mysql-connector-java-5.1.22-bin.jar"/>
+
+    <property name="okhttp" value="okhttp-4.12.0.jar"/>
+    <property name="okio" value="okio-3.9.1.jar"/>
+    <property name="okio-jvm" value="okio-jvm-3.9.1.jar"/>
     <!-- off -->
     <property name="openforecast" value="OpenForecast-0.5.0.jar"/>
     <!-- bal -->
@@ -470,6 +489,11 @@
 
     <property name="jaxb.libs" value="${jaxb1} ${jaxb-api} ${jaxb-impl} ${jaxb-xjc}"/>
 
+    <property name="res_mail_libs" value="${courier} ${gson} ${jackson-annotations}
+                    ${jackson-core} ${jackson-databind} ${jackson-jdk8} ${jackson-jsr310}
+                    ${kotlin} ${okhttp} ${okio} ${okio-jvm} ${mailsender}"/>
+
+
 
     <!--
         Per webapp dependency lists
@@ -482,8 +506,8 @@
 
     <property name="webapp_resourceService.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs}
-                     ${dbClient} ${commonsLang} ${commonsCodec}
-                     ${xerces} ${saxon.libs}"/>
+                     ${dbClient} ${commonsLang} ${commonsCodec} ${mailsender} ${gson}
+                     ${xerces} ${saxon.libs} ${res_mail_libs}"/>
 <!--    ${jsf.libs}-->
 
     <property name="webapp_workletService.libs"
@@ -626,6 +650,18 @@
     <path id="cp.mail">
         <pathelement location="${lib.dir}/${mail}"/>
         <pathelement location="${lib.dir}/${activation}"/>
+        <pathelement location="${lib.dir}/${courier}"/>
+        <pathelement location="${lib.dir}/${gson}"/>
+        <pathelement location="${lib.dir}/${jackson-annotations}"/>
+        <pathelement location="${lib.dir}/${jackson-core}"/>
+        <pathelement location="${lib.dir}/${jackson-databind}"/>
+        <pathelement location="${lib.dir}/${jackson-jdk8}"/>
+        <pathelement location="${lib.dir}/${jackson-jsr310}"/>
+        <pathelement location="${lib.dir}/${mailsender}"/>
+        <pathelement location="${lib.dir}/${kotlin}"/>
+        <pathelement location="${lib.dir}/${okhttp}"/>
+        <pathelement location="${lib.dir}/${okio}"/>
+        <pathelement location="${lib.dir}/${okio-jvm}"/>
     </path>
 
     <path id="cp.scheduling">
@@ -643,6 +679,7 @@
         <pathelement location="${lib.dir}/${mailapi}"/>
         <pathelement location="${lib.dir}/${simplemail}"/>
         <pathelement location="${lib.dir}/${smtp}"/>
+        <pathelement location="${lib.dir}/${mailsender}"/>
     </path>
 
     <path id="cp.proclet">
@@ -1636,6 +1673,9 @@
 
         <copy file="${build.dir}/${resource.app.name}/version.properties"
               tofile="${temp.dir}/${resource.app.name}/WEB-INF/classes/version.properties"/>
+
+        <copy file="${build.dir}/${resource.app.name}/mail.properties"
+              tofile="${temp.dir}/${resource.app.name}/WEB-INF/classes/mail.properties"/>
 
         <!-- 5. Copy web.xml file into dir structure -->
         <copy todir="${temp.dir}/${resource.app.name}/WEB-INF"

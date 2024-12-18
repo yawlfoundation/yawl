@@ -22,6 +22,7 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.Collections;
@@ -165,6 +166,7 @@ public class QueueSet {
     public void addToQueue(WorkItemRecord wir, int queue) {
         checkQueueExists(queue) ;
         getQueue(queue).add(wir, true);
+        notifyIfRequired(wir, queue);
     }
 
 
@@ -295,6 +297,20 @@ public class QueueSet {
                 WorkQueue wq = new WorkQueue() ;
                 wq.fromXML(qElem);
                 setQueue(wq) ;
+            }
+        }
+    }
+
+
+    private void notifyIfRequired(WorkItemRecord wir, int queue) {
+        if (queue == WorkQueue.OFFERED || queue == WorkQueue.ALLOCATED) {
+            ResourceManager rm = ResourceManager.getInstance();
+            Participant p = rm.getOrgDataSet().getParticipant(_ownerID);
+            if (p != null && p.getEmail() != null) {
+                if ((queue == WorkQueue.OFFERED && p.isEmailOnOffer()) ||
+                        p.isEmailOnAllocation()) {
+                    rm.sendMailNotification(p, wir, queue);
+                }
             }
         }
     }

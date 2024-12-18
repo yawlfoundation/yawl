@@ -1072,7 +1072,8 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException if the service can't be reached
      */
     public String addParticipant(String userid, String password, boolean encrypt,
-                                 String lastname, String firstname, boolean admin,
+                                 String lastname, String firstname, String email,
+                                 boolean onAllocation, boolean onOffer, boolean admin,
                                  String description, String notes, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("addParticipant", handle);
@@ -1081,11 +1082,25 @@ public class ResourceGatewayClient extends Interface_Client {
         params.put("encrypt", String.valueOf(encrypt));
         params.put("lastname", lastname);
         params.put("firstname", firstname);
+        params.put("email", email);
         params.put("admin", String.valueOf(admin));
+        params.put("emailOnAllocation", String.valueOf(onAllocation));
+        params.put("emailOnOffer", String.valueOf(onOffer));
         params.put("description", description);
         params.put("notes", notes);
         return executeGet(_serviceURI, params) ;
     }
+
+
+    /** @deprecated */
+    public String addParticipant(String userid, String password, boolean encrypt,
+                                     String lastname, String firstname, boolean admin,
+                                     String description, String notes, String handle)
+                throws IOException {
+        return addParticipant(userid, password, encrypt, lastname, firstname, null,
+                false, false, admin, description, notes, handle);
+    }
+
 
 
     /**
@@ -1335,7 +1350,8 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException if the service can't be reached
      */
     public String updateParticipant(String participantID, String userid, String password,
-                                    boolean encrypt, String lastname,String firstname,
+                                    boolean encrypt, String lastname, String firstname,
+                                    String email, boolean onAllocation, boolean onOffer,
                                     boolean admin, String description, String notes,
                                     String handle) throws IOException {
         Map<String, String> params = prepareParamMap("updateParticipant", handle);
@@ -1345,11 +1361,25 @@ public class ResourceGatewayClient extends Interface_Client {
         params.put("encrypt", String.valueOf(encrypt));
         params.put("lastname", lastname);
         params.put("firstname", firstname);
+        params.put("email", email);
+        params.put("emailOnAllocation", String.valueOf(onAllocation));
+        params.put("emailOnOffer", String.valueOf(onOffer));
         params.put("admin", String.valueOf(admin));
         params.put("description", description);
         params.put("notes", notes);
         return executeGet(_serviceURI, params) ;
     }
+
+
+    /** @deprecated */
+    public String updateParticipant(String participantID, String userid, String password,
+                                    boolean encrypt, String lastname,String firstname,
+                                    boolean admin, String description, String notes,
+                                    String handle) throws IOException {
+        return updateParticipant(participantID, userid, password, encrypt, lastname,
+                firstname, null, false, false, admin, description, notes, handle);
+    }
+
 
 
     /**

@@ -312,6 +312,17 @@
         </description>
      </context-param>
 
+    <!-- This param, when available, enables the service to send worklist notifications
+         via email. -->
+
+     <context-param>
+        <param-name>MailService_BackEnd</param-name>
+        <param-value>http://localhost:8080/mailService/gateway</param-value>
+        <description>
+           The URL of the mail service.
+        </description>
+     </context-param>
+
     <!-- This param, when available, enables scheduling announcements to a
          scheduling service listening on Interface S. -->
 <!--

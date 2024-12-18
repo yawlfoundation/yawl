@@ -200,6 +200,11 @@ public final class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public void initEmailer(InputStream stream) throws IOException {
+        Emailer.getInstance().loadProperties(stream);
+    }
+
+
     public YBuildProperties getBuildProperties() {
         return _buildProps;
     }
@@ -2958,6 +2963,16 @@ public final class ResourceManager extends InterfaceBWebsideController {
             result += ": " + itemID;
         }
         return result;
+    }
+
+
+    public void sendMailNotification(Participant p, WorkItemRecord wir, int queue) {
+        try {
+            Emailer.getInstance().sendNotification(_services.getMailClient(), p, wir, queue);
+        }
+        catch (IOException ioe) {
+            _logger.warn("Failed to notify participnt via email: ", ioe.getMessage());
+        }
     }
 
     //***************************************************************************//
