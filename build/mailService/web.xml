@@ -31,6 +31,15 @@
         http://www.yawlfoundation.org/.
     </description>
 
+
+    <context-param>
+         <param-name>InterfaceA_Backend</param-name>
+         <param-value>http://localhost:8080/yawl/ia</param-value>
+         <description>
+             The URL of the engine's interface A.
+         </description>
+     </context-param>
+
     <context-param>
         <param-name>InterfaceB_BackEnd</param-name>
         <param-value>http://localhost:8080/yawl/ib</param-value>
@@ -109,9 +118,9 @@
 
     <context-param>
         <param-name>senderName</param-name>
-        <param-value></param-value>
+        <param-value>YAWL Admin</param-value>
         <description>
-           The name of the sender. Can be left empty, to be provided at runtime.
+           The name of the sender. Can be left empty, to be provided at runtime (optional).
         </description>
     </context-param>
 

@@ -1240,8 +1240,9 @@ public class ResourceGatewayClientAdapter {
     public String addParticipant(Participant p, boolean encryptPassword, String handle)
             throws IOException {
         return _rgclient.addParticipant(p.getUserID(), p.getPassword(), encryptPassword,
-                p.getLastName(), p.getFirstName(), p.isAdministrator(),
-                p.getDescription(), p.getNotes(), handle);
+                p.getLastName(), p.getFirstName(), p.getEmail(), p.isEmailOnAllocation(),
+                p.isEmailOnOffer(), p.isAdministrator(), p.getDescription(), p.getNotes(),
+                handle);
     }
 
 
@@ -1385,7 +1386,8 @@ public class ResourceGatewayClientAdapter {
     public String updateParticipant(Participant p, boolean encryptPassword, String handle)
             throws IOException {
         return _rgclient.updateParticipant(p.getID(), p.getUserID(), p.getPassword(),
-                encryptPassword, p.getLastName(), p.getFirstName(), p.isAdministrator(),
+                encryptPassword, p.getLastName(), p.getFirstName(), p.getEmail(),
+                p.isEmailOnAllocation(), p.isEmailOnOffer(), p.isAdministrator(),
                 p.getDescription(), p.getNotes(), handle);
     }
 

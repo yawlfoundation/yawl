@@ -44,7 +44,7 @@ public class RoundRobinByTime extends AbstractAllocator {
         setName(this.getClass().getSimpleName()) ;        
         setDisplayName("Round Robin (by time)");
         setDescription("The Round-Robin (by Time) allocator distributes a workitem to the " +
-                       "participant in the distribution set who performed " +
+                       "participant in the distribution set who completed " +
                        "the task the least recently.");
     }
 

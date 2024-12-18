@@ -63,6 +63,11 @@
                   type="string"
                   access="field"/>
 
+        <property name="_email"
+                  column="Email"
+                  type="string"
+                  access="field"/>
+
         <property name="_userID"
                   column="UserID"
                   unique="true"
@@ -79,7 +84,15 @@
                   type="boolean"
                   access="field"/>
 
-         <set name="_positions" table="rs_Participant_Position" access="field" lazy="false">
+        <property name="_emailOnAllocation"
+                  column="EmailOnAllocation"
+                  type="boolean"/>
+
+        <property name="_emailOnOffer"
+                  column="EmailOnOffer"
+                  type="boolean"/>
+
+        <set name="_positions" table="rs_Participant_Position" access="field" lazy="false">
     		 <key column="ParticipantID"/>
              <many-to-many class="Position" column="P_ID" lazy="false"/>
 	     </set>

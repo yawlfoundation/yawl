@@ -280,7 +280,7 @@ public class OfferInteraction extends AbstractInteraction {
             // apply each filter
             for (AbstractFilter filter : _filters)
                 _distributionSet =
-                    (HashSet<Participant>) filter.performFilter(_distributionSet) ;
+                    (HashSet<Participant>) filter.performFilter(_distributionSet, wir) ;
 
             // apply each constraint
             for (AbstractConstraint constraint : _constraints)
