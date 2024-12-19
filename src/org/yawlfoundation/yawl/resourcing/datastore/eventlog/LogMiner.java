@@ -49,6 +49,8 @@ public class LogMiner {
     private boolean _replaceResourceIdsWithUserIds;
     private boolean _ignoreUnknownXesEvents;
 
+    private final Object _mutex = new Object();
+    
     // some error messages
     private static final String _exErrStr = "<failure>Unable to retrieve data.</failure>";
     private static final String _pmErrStr = "<failure>Error connecting to database.</failure>";
@@ -378,26 +380,28 @@ public class LogMiner {
 
 
     public String getMergedXESLog(YSpecificationID specid, boolean withData) {
-        Logger logger = LogManager.getLogger(this.getClass());
-        logger.info("XES #getMergedXESLog: begins ->");
-        logger.info("XES #getMergedXESLog: resource log generation begins");
+        synchronized (_mutex) {
+            Logger logger = LogManager.getLogger(this.getClass());
+            logger.info("XES #getMergedXESLog: begins ->");
+            logger.info("XES #getMergedXESLog: resource log generation begins");
 
-        XNode rsCases = getXESLog(specid);                        // not null
+            XNode rsCases = getXESLog(specid);                        // not null
 
-        logger.info("XES #getMergedXESLog: resource log generation ends, engine log requested");
+            logger.info("XES #getMergedXESLog: resource log generation ends, engine log requested");
 
-        String engCases = ResourceManager.getInstance().getClients()
-                .getEngineXESLog(specid, withData, _ignoreUnknownXesEvents);      // not null
+            String engCases = ResourceManager.getInstance().getClients()
+                    .getEngineXESLog(specid, withData, _ignoreUnknownXesEvents);      // not null
 
-        logger.info("XES #getMergedXESLog: engine log returned, merge logs begins");
+            logger.info("XES #getMergedXESLog: engine log returned, merge logs begins");
 
-        if (successful(engCases)) {
-            String log = new ResourceXESLog(_ignoreUnknownXesEvents).mergeLogs(rsCases, engCases);
-            logger.info("XES #getMergedXESLog: merge logs ends");
-            logger.info("XES #getMergedXESLog: -> ends");
-            return log;
+            if (successful(engCases)) {
+                String log = new ResourceXESLog(_ignoreUnknownXesEvents).mergeLogs(rsCases, engCases);
+                logger.info("XES #getMergedXESLog: merge logs ends");
+                logger.info("XES #getMergedXESLog: -> ends");
+                return log;
+            }
+            return "";
         }
-        return "";
     }
 
     
