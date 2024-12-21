@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
 import org.apache.commons.io.FileUtils;
+import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.util.HttpUtil;
@@ -25,6 +26,9 @@ public class YawlUiUpdater {
             + "/webapps/yawlui/WEB-INF/";
     private final String REMOTE_PATH =
             "https://raw.githubusercontent.com/yawlfoundation/yawlui/master/";
+    private final String YAWL_LIB_PATH = TomcatUtil.getCatalinaHome() +
+            "/yawllib/";
+    private final String YAWL_LIB_JAR_NAME = "yawl-lib-" + YControlPanel.VERSION + ".jar";
     private final String UPDATE_JAR_NAME = "yawlui-update.jar";
 
     public YawlUiUpdater() { }
@@ -115,6 +119,7 @@ public class YawlUiUpdater {
         public void doUpdate(File tmpDir) {
             File updateJar = FileUtil.makeFile(tmpDir.getAbsolutePath(), UPDATE_JAR_NAME);
             File classesDir = new File(getClassesDir());
+            File libDir = new File(getLibDir());
             File backupDir = new File(tmpDir, "ui-classes");
             if (updateJar.exists()) {
                 try {
@@ -128,6 +133,10 @@ public class YawlUiUpdater {
                     // copy existing application.properties from tmp to classes
                     File appProps = new File(backupDir, "application.properties");
                     FileUtils.copyFileToDirectory(appProps, classesDir);
+
+                    // copy in the newest yawl library
+                    File yawlLibJar = new File(YAWL_LIB_PATH, YAWL_LIB_JAR_NAME);
+                    FileUtils.copyFileToDirectory(yawlLibJar, libDir);
 
                     // success: delete the tmp dir
                     FileUtils.deleteDirectory(backupDir);
