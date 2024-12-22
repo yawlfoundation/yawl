@@ -18,8 +18,6 @@
 
 package org.yawlfoundation.yawl.controlpanel.update;
 
-import org.apache.commons.io.FileUtils;
-import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.components.ComponentsPane;
 import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
@@ -546,21 +544,6 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             if (!requiredLibs.contains(lib)) {
                 FileUtil.delete(tomcatRoot, FileUtil.buildPath("yawllib", lib));
             }
-        }
-        updateYawlLibInUI(tomcatRoot);
-    }
-
-
-    // the newest yawl lib should always be installed with the UI libs
-    protected void updateYawlLibInUI(File tomcatRoot) {
-        String libJarPath = tomcatRoot + "yawllib/yawl-lib-" + YControlPanel.VERSION + ".jar";
-        File yawlLibJar = new File(libJarPath);
-        File uiLibDir = new File(tomcatRoot + "webapps/yawlui/WEB-INF/lib/");
-        try {
-            FileUtils.copyFileToDirectory(yawlLibJar, uiLibDir);
-        }
-        catch (IOException e) {
-            showWarning("Copy of " + libJarPath + " to UI lib directory failed. ");
         }
     }
 

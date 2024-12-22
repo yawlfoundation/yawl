@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>5.1</version>
-  <timestamp>2024-12-22 09.20.19</timestamp>
+  <timestamp>2024-12-22 13.11.54</timestamp>
   <lib hash="56465b6f2ca7d30ab41551bbef9b9faf">
     <file name="java-sdk-1.0.1.jar" md5="b9aa0aed59e34be1259c7444cc3558bb" size="159271" timestamp="2024-12-13T08:43:05" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2024-02-26T14:47:25" path="A"/>
@@ -843,11 +843,11 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-5.1.jar" md5="8155dc6c4c438321d561bb3295199998" size="2999865" timestamp="2024-12-22T09:20:19" path="AM"/>
+    <file name="yawl-lib-5.1.jar" md5="e7b32f587064f93bb433aa43da4f92dd" size="2999865" timestamp="2024-12-22T13:11:54" path="AM"/>
   </yawllib>
   <controlpanel>
-    <build>435</build>
-    <file name="YawlControlPanel-5.1.jar" md5="da23b7dd24af8c610837b893bb4329d5" size="428414" timestamp="2024-12-22T09:20:19" path="AM"/>
+    <build>448</build>
+    <file name="YawlControlPanel-5.1.jar" md5="a4c2538210f9e9bb5a6ea195d8e670ed" size="428515" timestamp="2024-12-22T13:11:54" path="AM"/>
   </controlpanel>
   <paths>
     <path id="host">https://raw.githubusercontent.com/</path>

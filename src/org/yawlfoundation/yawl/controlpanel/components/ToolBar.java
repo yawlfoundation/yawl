@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.update.BackgroundChecker;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateLoader;
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebPageLauncher;
 
@@ -188,6 +189,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
     }
 
     private void startEngine() {
+        FileUtil.updateYawlLibInUI();        // ensure UI has latest lib before starting
         boolean running = TomcatUtil.isEngineRunning();
         if (! running) {
             try {
