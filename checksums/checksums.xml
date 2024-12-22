@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>5.1</version>
-  <timestamp>2024-12-22 13.11.54</timestamp>
+  <timestamp>2024-12-23 08.10.51</timestamp>
   <lib hash="56465b6f2ca7d30ab41551bbef9b9faf">
     <file name="java-sdk-1.0.1.jar" md5="b9aa0aed59e34be1259c7444cc3558bb" size="159271" timestamp="2024-12-13T08:43:05" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2024-02-26T14:47:25" path="A"/>
@@ -344,22 +344,22 @@
       </lib>
     </workletService>
     <resourceService>
-      <build>4173</build>
+      <build>4174</build>
       <files>
-        <file name="welcome.htm" md5="a3dfe9a0fc668b839258b33667a229bc" size="778" timestamp="2024-12-20T07:17:20" path="Q"/>
-        <file name="WEB-INF/classes/hibernate.cfg.xml" md5="b1314d5778fb00be1e7cf49000facb1b" size="491" timestamp="2024-12-20T07:17:20" path="AW"/>
-        <file name="WEB-INF/classes/version.properties" md5="96aee33c8931dd9180db0309d3b0b57b" size="186" timestamp="2024-12-20T07:17:20" path="P"/>
-        <file name="WEB-INF/classes/mail.properties" md5="43caa1ba4cb0cd20bc5cf161855f5ed2" size="850" timestamp="2024-12-20T07:17:20" path="P"/>
-        <file name="WEB-INF/classes/LDAPSource.properties" md5="0a728e6f530ea3ca666e45a5a00f26ce" size="3864" timestamp="2024-12-20T07:17:20" path="S"/>
-        <file name="WEB-INF/web.xml" md5="a95b3b6caed2d8f316dd9188f4c1bbdb" size="18506" timestamp="2024-12-20T07:17:20" path="P"/>
-        <file name="graphics/Thumbs.db" md5="eb936b9acc99b18871e86d669ddad40a" size="16384" timestamp="2024-12-20T07:17:20" path="N"/>
-        <file name="graphics/logosmall.jpg" md5="050677df96ab6793a39e4d59f4fe0578" size="2062" timestamp="2024-12-20T07:17:20" path="N"/>
-        <file name="graphics/bg01.gif" md5="45268fa75e5992b96983eed8f9ae9abc" size="82" timestamp="2024-12-20T07:17:20" path="N"/>
-        <file name="graphics/logobig.jpg" md5="8e2e8fe313e7af29c44fa84551297815" size="11662" timestamp="2024-12-20T07:17:20" path="N"/>
-        <file name="graphics/subtext.jpg" md5="af8aae0c419d1945a35ec47b4b95692f" size="1179" timestamp="2024-12-20T07:17:20" path="G"/>
-        <file name="graphics/common.css" md5="cebb397e37f82800b8d96672e1534c55" size="2782" timestamp="2024-12-20T07:17:20" path="G"/>
-        <file name="graphics/wsText.jpg" md5="aaf9275d974ea1b4a30d12dae5e87c03" size="1274" timestamp="2024-12-20T07:17:20" path="N"/>
-        <file name="graphics/yawl.swf" md5="3849953b829c6032dc645cf5b01188e3" size="8660" timestamp="2024-12-20T07:17:20" path="G"/>
+        <file name="welcome.htm" md5="a3dfe9a0fc668b839258b33667a229bc" size="778" timestamp="2024-12-23T08:10:50" path="Q"/>
+        <file name="WEB-INF/classes/hibernate.cfg.xml" md5="b1314d5778fb00be1e7cf49000facb1b" size="491" timestamp="2024-12-23T08:10:50" path="AW"/>
+        <file name="WEB-INF/classes/version.properties" md5="f9f9edbaef2651b6d895150189e545a5" size="186" timestamp="2024-12-23T08:10:50" path="P"/>
+        <file name="WEB-INF/classes/mail.properties" md5="43caa1ba4cb0cd20bc5cf161855f5ed2" size="850" timestamp="2024-12-23T08:10:50" path="P"/>
+        <file name="WEB-INF/classes/LDAPSource.properties" md5="0a728e6f530ea3ca666e45a5a00f26ce" size="3864" timestamp="2024-12-23T08:10:50" path="S"/>
+        <file name="WEB-INF/web.xml" md5="a95b3b6caed2d8f316dd9188f4c1bbdb" size="18506" timestamp="2024-12-23T08:10:50" path="P"/>
+        <file name="graphics/Thumbs.db" md5="eb936b9acc99b18871e86d669ddad40a" size="16384" timestamp="2024-12-23T08:10:50" path="N"/>
+        <file name="graphics/logosmall.jpg" md5="050677df96ab6793a39e4d59f4fe0578" size="2062" timestamp="2024-12-23T08:10:50" path="N"/>
+        <file name="graphics/bg01.gif" md5="45268fa75e5992b96983eed8f9ae9abc" size="82" timestamp="2024-12-23T08:10:50" path="N"/>
+        <file name="graphics/logobig.jpg" md5="8e2e8fe313e7af29c44fa84551297815" size="11662" timestamp="2024-12-23T08:10:50" path="N"/>
+        <file name="graphics/subtext.jpg" md5="af8aae0c419d1945a35ec47b4b95692f" size="1179" timestamp="2024-12-23T08:10:50" path="G"/>
+        <file name="graphics/common.css" md5="cebb397e37f82800b8d96672e1534c55" size="2782" timestamp="2024-12-23T08:10:50" path="G"/>
+        <file name="graphics/wsText.jpg" md5="aaf9275d974ea1b4a30d12dae5e87c03" size="1274" timestamp="2024-12-23T08:10:50" path="N"/>
+        <file name="graphics/yawl.swf" md5="3849953b829c6032dc645cf5b01188e3" size="8660" timestamp="2024-12-23T08:10:50" path="G"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -843,7 +843,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-5.1.jar" md5="e7b32f587064f93bb433aa43da4f92dd" size="2999865" timestamp="2024-12-22T13:11:54" path="AM"/>
+    <file name="yawl-lib-5.1.jar" md5="c8cf19edb9b1e0e84a37ad1c27cf8f48" size="2999929" timestamp="2024-12-23T08:10:49" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>448</build>
