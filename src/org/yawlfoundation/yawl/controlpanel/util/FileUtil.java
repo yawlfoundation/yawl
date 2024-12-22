@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.controlpanel.util;
 
+import org.apache.commons.io.FileUtils;
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateConstants;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -264,5 +265,26 @@ public class FileUtil {
     }
 
 
+    public static void updateYawlLibInUI() {
+        String tomcatRoot = TomcatUtil.getCatalinaHome();
+        String yawlLibJarName = "yawl-lib-" + YControlPanel.VERSION + ".jar";
+        String yawlLibJarPath = tomcatRoot + File.separator + "yawllib" +
+                File.separator + yawlLibJarName;
+        String uiLibDirName = tomcatRoot  + File.separator + "webapps" + File.separator +
+                "yawlui" + File.separator + "WEB-INF" + File.separator + "lib" + File.separator;
+        String uiLibJarPath = uiLibDirName + yawlLibJarName;
+        
+        File yawlLibJar = new File(yawlLibJarPath);
+        File uiLibJar = new File(uiLibJarPath);
+        
+        if (FileUtils.isFileNewer(yawlLibJar, uiLibJar)) {
+            try {
+                FileUtils.copyFile(yawlLibJar, uiLibJar);
+            }
+            catch (IOException e) {
+                // proceed as normal
+            }
+        }
+    }
 
 }
