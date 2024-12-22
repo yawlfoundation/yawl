@@ -542,6 +542,11 @@ public class StringUtil {
     }
 
 
+    public static boolean strToBoolean(String s) {
+        return !isNullOrEmpty(s) && s.equalsIgnoreCase("true");
+    }
+
+
     public static Duration strToDuration(String s) {
         if (s != null) {
             try {

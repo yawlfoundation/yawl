@@ -500,9 +500,9 @@ public class Participant extends AbstractResource implements Cloneable {
         setFirstName(JDOMUtil.decodeEscapes(e.getChildText("firstname")));
         setLastName(JDOMUtil.decodeEscapes(e.getChildText("lastname")));
         setEmail(JDOMUtil.decodeEscapes(e.getChildText("email")));
-        setEmailOnAllocation(e.getChildText("isEmailOnAllocation").equals("true"));
-        setEmailOnOffer(e.getChildText("isEmailOnOffer").equals("true"));
-        setAdministrator(e.getChildText("isAdministrator").equals("true"));
+        setEmailOnAllocation(StringUtil.strToBoolean(e.getChildText("isEmailOnAllocation")));
+        setEmailOnOffer(StringUtil.strToBoolean(e.getChildText("isEmailOnOffer")));
+        setAdministrator(StringUtil.strToBoolean(e.getChildText("isAdministrator")));
         setDescription(JDOMUtil.decodeEscapes(e.getChildText("description")));
         setNotes(JDOMUtil.decodeEscapes(e.getChildText("notes")));
     }
