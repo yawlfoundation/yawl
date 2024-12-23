@@ -124,6 +124,49 @@ public abstract class AbstractAllocator extends AbstractSelector {
         }
         return pMap;
     }
+
+
+    // pre: event and participants both not empty
+    protected Set<Participant> filterForLowestFrequency(Set<Participant> participants, List events) {
+
+        // find count for each participant
+        Map<String, Long> frequencies = new HashMap<>();
+        for (Object e : events) {
+            ResourceEvent event = (ResourceEvent) e;
+            String id = event.get_resourceID();
+            if (!frequencies.containsKey(id)) {
+                frequencies.put(id, 1L);
+            }
+            else {
+                frequencies.put(id, frequencies.get(id) + 1);
+            }
+        }
+
+        // get lowest count
+        long leastFrequent = Long.MAX_VALUE;
+        for (Long value : frequencies.values()) {
+            if (value < leastFrequent) {
+                leastFrequent = value;
+            }
+        }
+
+        // filter list to include only those participants with lowest count
+        List<String> lowest = new ArrayList<>();
+        for (String id : frequencies.keySet()) {
+            if (frequencies.get(id) == leastFrequent) {
+                lowest.add(id);
+            }
+        }
+
+        Set<Participant> filtered = new HashSet<>(participants);
+        for (Participant p : participants) {
+            if (!lowest.contains(p.getID())) {
+                filtered.remove(p);
+            }
+        }
+
+        return filtered;
+    }
             
 
     /**

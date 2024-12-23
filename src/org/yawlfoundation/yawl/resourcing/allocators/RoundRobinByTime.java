@@ -61,7 +61,7 @@ public class RoundRobinByTime extends AbstractAllocator {
                 // more than one part. in the set
                 List events = getLoggedEvents(wir, EventLogger.event.complete);
                 if (! events.isEmpty()) {
-                    for (Participant p : participants) {
+                    for (Participant p : filterForLowestFrequency(participants,events)) {
                         long eventTime = getEarliestTime(events, p);
                         if (eventTime == Long.MAX_VALUE) {
                             chosen = p; break;         // this p has never performed item

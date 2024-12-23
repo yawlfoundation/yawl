@@ -23,9 +23,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Allocates a workitem to a participant on a round-robin basis, to the participant who
@@ -42,7 +40,7 @@ public class RoundRobinByAllocationTime extends AbstractAllocator {
     public RoundRobinByAllocationTime() {
         super();
         setName(this.getClass().getSimpleName()) ;        
-        setDisplayName("Round Robin (by time)");
+        setDisplayName("Round Robin (by Allocation time)");
         setDescription("The Round-Robin (by Allocation Time) allocator distributes a " +
                 "workitem to the participant in the distribution set who was allocated " +
                 "(as opposed to completed) the task the least recently.");
@@ -53,7 +51,7 @@ public class RoundRobinByAllocationTime extends AbstractAllocator {
                                          WorkItemRecord wir) {
         Participant chosen = null;
         long maxTime = Long.MAX_VALUE;                                     // initiator
-        if ((participants != null) && (participants.size() > 0)) {
+        if ((participants != null) && (!participants.isEmpty())) {
             if (participants.size() == 1) {
                 chosen = participants.iterator().next();               // only one in set
             }
@@ -61,7 +59,7 @@ public class RoundRobinByAllocationTime extends AbstractAllocator {
                 // more than one part. in the set
                 List events = getLoggedEvents(wir, EventLogger.event.allocate);
                 if (! events.isEmpty()) {
-                    for (Participant p : participants) {
+                    for (Participant p : filterForLowestFrequency(participants, events)) {
                         long eventTime = getEarliestTime(events, p);
                         if (eventTime == Long.MAX_VALUE) {
                             chosen = p; break;         // this p has never performed item
@@ -96,6 +94,5 @@ public class RoundRobinByAllocationTime extends AbstractAllocator {
         }
         return result;
     }
-
 
 }
