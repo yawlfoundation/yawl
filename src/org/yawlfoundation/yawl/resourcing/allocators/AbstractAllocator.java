@@ -126,49 +126,37 @@ public abstract class AbstractAllocator extends AbstractSelector {
     }
 
 
-    // pre: event and participants both not empty
-    protected Set<Participant> filterForLowestFrequency(Set<Participant> participants, List events) {
-
-        // find count for each participant
-        Map<String, Long> frequencies = new HashMap<>();
-        for (Object e : events) {
-            ResourceEvent event = (ResourceEvent) e;
-            String id = event.get_resourceID();
-            if (!frequencies.containsKey(id)) {
-                frequencies.put(id, 1L);
-            }
-            else {
-                frequencies.put(id, frequencies.get(id) + 1);
-            }
+    public Participant allocateOnStatus(Set<Participant> participants,
+                                         WorkItemRecord wir, EventLogger.event status) {
+        if (participants == null || participants.isEmpty()) {
+            return null;                                        // none in set
         }
-
-        // get lowest count
-        long leastFrequent = Long.MAX_VALUE;
-        for (Long value : frequencies.values()) {
-            if (value < leastFrequent) {
-                leastFrequent = value;
-            }
+        else if (participants.size() == 1) {
+            return participants.iterator().next();              // only one in set
         }
+        else {                                                  // more than one in set
+            List events = getLoggedEvents(wir, status);
+            if (!events.isEmpty()) {
+                events.sort(new TimeDescComparator());
+                Map<String, Participant> pMap = participantSetToMap(participants);
+                for (Object o : events) {
+                    ResourceEvent event = (ResourceEvent) o;
+                    pMap.remove(event.get_resourceID());
 
-        // filter list to include only those participants with lowest count
-        List<String> lowest = new ArrayList<>();
-        for (String id : frequencies.keySet()) {
-            if (frequencies.get(id) == leastFrequent) {
-                lowest.add(id);
+                    // found the part who was allocated this wir the longest time ago
+                    if (pMap.size() == 1) {
+                        return pMap.values().iterator().next();
+                    }
+                }
+
+                // still more the one in the set means they have never been allocated
+                participants = new HashSet<>(pMap.values());
             }
+            return new RandomChoice().performAllocation(participants, wir);
         }
-
-        Set<Participant> filtered = new HashSet<>(participants);
-        for (Participant p : participants) {
-            if (!lowest.contains(p.getID())) {
-                filtered.remove(p);
-            }
-        }
-
-        return filtered;
     }
-            
 
+    
     /**
      * Gets from the cost service the cost per msec of each of the participants ids
      * listed for the work item
@@ -308,6 +296,16 @@ public abstract class AbstractAllocator extends AbstractSelector {
         boolean hasPair() { return ! ((fromEvent == null) || (toEvent == null)); }
 
         long getDuration() { return toEvent.get_timeStamp() - fromEvent.get_timeStamp(); }
+    }
+
+
+    // sorts events on timestamp descending (instead of the default ascending)
+    static class TimeDescComparator<Object> implements Comparator<Object> {
+        @Override
+        public int compare(Object o1, Object o2) {
+            return (int) (((ResourceEvent) o2).get_timeStamp() -
+                    ((ResourceEvent) o1).get_timeStamp());
+        }
     }
 
 

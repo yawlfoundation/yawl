@@ -20,11 +20,8 @@ package org.yawlfoundation.yawl.resourcing.allocators;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
-import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -51,51 +48,7 @@ public class RoundRobinByTime extends AbstractAllocator {
 
     public Participant performAllocation(Set<Participant> participants,
                                          WorkItemRecord wir) {
-        Participant chosen = null;
-        long maxTime = Long.MAX_VALUE;                                     // initiator
-        if ((participants != null) && (participants.size() > 0)) {
-            if (participants.size() == 1) {
-                chosen = participants.iterator().next();               // only one in set
-            }
-            else {
-                // more than one part. in the set
-                List events = getLoggedEvents(wir, EventLogger.event.complete);
-                if (! events.isEmpty()) {
-                    for (Participant p : filterForLowestFrequency(participants,events)) {
-                        long eventTime = getEarliestTime(events, p);
-                        if (eventTime == Long.MAX_VALUE) {
-                            chosen = p; break;         // this p has never performed item
-                        }
-                        else {
-                            if (eventTime < maxTime) {
-                                chosen = p ;
-                                maxTime = eventTime ;
-                            }
-                        }
-                    }
-                }
-                else {
-
-                    // if log is unavailable, default to a random choice
-                    chosen = new RandomChoice().performAllocation(participants, wir);
-                }
-            }
-        }
-        return chosen;
+        return allocateOnStatus(participants, wir, EventLogger.event.complete);
     }
-
-
-    private long getEarliestTime(List events, Participant p) {
-        long result = Long.MAX_VALUE;
-        Iterator itr = events.iterator();
-        while (itr.hasNext()) {
-            ResourceEvent event = (ResourceEvent) itr.next();
-            if (event.get_resourceID().equals(p.getID()) &&
-               (event.get_timeStamp() < result))
-                 result = event.get_timeStamp();
-        }
-        return result;
-    }
-
 
 }
