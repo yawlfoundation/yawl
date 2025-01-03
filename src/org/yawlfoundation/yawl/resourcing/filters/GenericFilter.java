@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.filters;
 
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.Map;
@@ -41,6 +42,8 @@ public class GenericFilter extends AbstractFilter {
 
     public GenericFilter(String name, Map<String, String> params) { super(name, params); }
 
-    public Set<Participant> performFilter(Set<Participant> resources) { return null; }
+    public Set<Participant> performFilter(Set<Participant> resources, WorkItemRecord wir) {
+        return null;
+    }
 
 }

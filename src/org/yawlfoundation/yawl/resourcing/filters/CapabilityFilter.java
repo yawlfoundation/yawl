@@ -18,11 +18,13 @@
 
 package org.yawlfoundation.yawl.resourcing.filters;
 
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.resourcing.resource.Capability;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -48,21 +50,25 @@ public class CapabilityFilter extends AbstractFilter {
     }
 
 
-    public Set<Participant> performFilter(Set<Participant> distSet) {
+    public Set<Participant> performFilter(Set<Participant> distSet, WorkItemRecord wir) {
         if ((distSet == null) || distSet.isEmpty()) return distSet;
         Set<Participant> result = new HashSet<Participant>();
-        Set<AbstractResource> capableSet = parse(getParamValue("Capability"));
+        Set<AbstractResource> capableSet = parse(getParamValue("Capability"), wir);
         for (Participant p : distSet) if (capableSet.contains(p)) result.add(p);
         return result;
     }
 
 
-    private Set<AbstractResource> parse(String expression) {
+    private Set<AbstractResource> parse(String expression, WorkItemRecord wir) {
         if (expression != null) {
             List<Set<AbstractResource>> pSets = new ArrayList<Set<AbstractResource>>();
             for (String capName : expression.split("[&|]")) {
+                capName = capName.trim();
+                if (capName.startsWith("$")) {
+                    capName = getRuntimeValue(capName, wir);
+                }
                 Capability c = ResourceManager.getInstance().
-                        getOrgDataSet().getCapabilityByLabel(capName.trim());
+                        getOrgDataSet().getCapabilityByLabel(capName);
                 if (c == null) c = new Capability();
                 pSets.add(c.getResources());
             }
@@ -70,5 +76,18 @@ public class CapabilityFilter extends AbstractFilter {
         }
         return Collections.emptySet();
     }
+
+    
+    private String getRuntimeValue(String s, WorkItemRecord wir) {
+        String varName = s.substring(2, s.indexOf('}'));       // extract varname
+        try {
+            String varValue = ResourceManager.getInstance().getNetParamValue(wir.getCaseID(), varName);
+            return varValue != null ? varValue : "";
+        }
+        catch (IOException e) {
+            return "";
+        }
+    }
+    
 
 }
