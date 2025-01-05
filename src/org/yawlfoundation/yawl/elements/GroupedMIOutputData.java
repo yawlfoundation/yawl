@@ -65,8 +65,10 @@ public class GroupedMIOutputData {
 
     public List<YWorkItem> getCompletedWorkItems() {
         List<YWorkItem> items = new ArrayList<>();
-        for (Content eItem : _completedWorkitems.getRootElement().getContent()) {
-            items.add(makeWorkItem((Element) eItem));
+        if (_completedWorkitems != null) {
+            for (Content eItem : _completedWorkitems.getRootElement().getContent()) {
+                items.add(makeWorkItem((Element) eItem));
+            }
         }
         return items;
     }
