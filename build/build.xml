@@ -2274,7 +2274,10 @@
 
     <target name="build_mailService.war"
             depends="compile, build_mailService_SharedTomcat">
-
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"
+                     includes="YClient.class"/>
+        </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"/>
         </copy>
@@ -2297,7 +2300,8 @@
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
-                     includes="JDOMUtil.class StringUtil.class PasswordEncryptor.class"/>
+                     includes="JDOMUtil.class StringUtil.class PasswordEncryptor.class 
+            	              MailSettings.class Sessions.class Sessions$InterfaceAClient.class"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
