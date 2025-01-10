@@ -20,12 +20,15 @@ package org.yawlfoundation.yawl.engine.interfce;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -76,6 +79,16 @@ public class YHttpServlet extends HttpServlet {
     protected double getDoubleFromContext(String param) {
         String s = getServletContext().getInitParameter(param);
         return StringUtil.strToDouble(s, -1);
+    }
+
+
+    protected String encryptPassword(String s) {
+        try {
+            return PasswordEncryptor.encrypt(s);
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException nsae) {
+            // nothing to do - call will return 'incorrect password'
+            return s;
+        }
     }
 
 

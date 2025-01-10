@@ -271,6 +271,9 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 else if (action.equals("connect")) {
                     String userID = request.getParameter("userid");
                     String password = request.getParameter("password");
+                    if (StringUtil.strToBoolean(request.getParameter("encrypt"))) {
+                        password = encryptPassword(password);
+                    }
                     int interval = request.getSession().getMaxInactiveInterval();
                     msg.append(_engine.connect(userID, password, interval));
                 }
@@ -331,8 +334,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     msg.append(_engine.getWorkItem(workItemID, sessionHandle));
                 }
                 else if (action.equals("startOne")) {
-                    String userID = request.getParameter("user");
-                    msg.append(_engine.startWorkItem(userID, null, sessionHandle));
+                    msg.append(_engine.startWorkItem(workItemID, null, sessionHandle));
                 }
                 else if (action.equals("getLiveItems")) {
                     msg.append(_engine.describeAllWorkItems(sessionHandle));
