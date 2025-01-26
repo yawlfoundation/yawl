@@ -45,7 +45,6 @@ import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A superclass of any type of task in the YAWL language.
@@ -442,16 +441,22 @@ public abstract class YTask extends YExternalNetElement {
     public void sortMultiInstanceStartingData() {
         try {
             _multiInstanceSpecificParamsIterator = splitStartingDataForMultiInstances().iterator();
-
-            List<YIdentifier> sortedIDs = new ArrayList<>(_i.get_children())
-                    .stream().sorted(new Comparator<YIdentifier>() {
-                        @Override
-                        public int compare(YIdentifier o1, YIdentifier o2) {
-                            return o1.toString().compareTo(o2.toString());
-                        }
-                    }).collect(Collectors.toList());
-
-            for (YIdentifier id : sortedIDs) {
+            List<YIdentifier> nonNullIDs = new ArrayList<>();
+            for (YIdentifier yid : _i.get_children()) {
+                if (yid != null) nonNullIDs.add(yid);
+            }
+            
+            nonNullIDs.sort(new Comparator<YIdentifier>() {
+                @Override
+                public int compare(YIdentifier o1, YIdentifier o2) {
+                    String s1 = o1.toString();
+                    String s2 = o2.toString();
+                    if (s1 == null || s2 == null) return 0;
+                    return s1.compareTo(s2);
+                }
+            });
+            
+            for (YIdentifier id : nonNullIDs) {
                 if (id.getLocations().isEmpty()) continue;     // don't include parents
                 _caseToDataMap.put(id, getStartingDataSnapshot());
             }

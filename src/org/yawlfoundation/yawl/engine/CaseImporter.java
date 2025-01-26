@@ -396,7 +396,9 @@ public class CaseImporter {
     private void persistIdentifiers(YNetRunner runner) throws YPersistenceException {
         persist(runner.getCaseID());
         for (YIdentifier yid : runner.getCaseID().getChildren()) {
-            persist(yid);
+            if (yid != null) {
+                persist(yid);
+            }
         }
     }
 

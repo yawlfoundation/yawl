@@ -139,7 +139,9 @@ public class CaseExporter {
         nID.addChild(getLocations(id));
         XNode nChildren = nID.addChild("children");
         for (YIdentifier child : id.getChildren()) {
-             nChildren.addChild(getIdentifier(child));
+            if (child != null) {
+                nChildren.addChild(getIdentifier(child));
+            }
         }
         return nID;
     }
