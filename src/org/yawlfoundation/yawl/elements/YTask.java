@@ -451,7 +451,9 @@ public abstract class YTask extends YExternalNetElement {
                 public int compare(YIdentifier o1, YIdentifier o2) {
                     String s1 = o1.toString();
                     String s2 = o2.toString();
-                    if (s1 == null || s2 == null) return 0;
+                    if (s1 == null && s2 == null) return 0;
+                    if (s1 == null) return -1;
+                    if (s2 == null) return 1;
                     return s1.compareTo(s2);
                 }
             });
