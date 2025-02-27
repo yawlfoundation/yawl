@@ -448,6 +448,10 @@ public class YNetRunner {
             }
             kick(pmgr);
         }
+//        else if (busyCompositeTask.isMultiInstance()) {
+//            YNetRunner subNetRunner = _engine.getNetRunnerRepository().remove(caseIDForSubnet);
+//            if (subNetRunner != null) pmgr.deleteObject(subNetRunner);
+//        }
         _logger.debug("<-- processCompletedSubnet");
     }
 
@@ -872,15 +876,17 @@ public class YNetRunner {
                 ((YCondition) netElement).removeAll(pmgr);
             }
         }
-        _enabledTasks = new HashSet<YTask>();
-        _busyTasks = new HashSet<YTask>();
+        _enabledTasks = new HashSet<>();
+        _busyTasks = new HashSet<>();
 
-        if (_containingCompositeTask != null) {
+        if (_containingCompositeTask == null) {
+            _engine.getNetRunnerRepository().remove(_caseIDForNet);
+        }
+        else {
             YEventLogger.getInstance().logNetCancelled(
                     getSpecificationID(), this, _containingCompositeTask.getID(), null);
         }
         if (isRootNet()) _workItemRepository.removeWorkItemsForCase(_caseIDForNet);
-        _engine.getNetRunnerRepository().remove(_caseIDForNet);
     }
 
 

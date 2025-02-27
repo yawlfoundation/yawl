@@ -182,11 +182,10 @@ public class YEngineRestorer {
     }
 
 
-    // called directly by CaseImporter
+    // called directly by CaseImporter or from above method 
     protected void restoreProcessInstances(List<YNetRunner> runners) throws YPersistenceException {
         _log.debug("Restoring {} net runners", runners.size());
-        _runners = runners;
-        restoreRunners(_runners);
+        _runners = restoreRunners(runners);
         _log.debug("Restoring process instances - Ends");
     }
 
@@ -417,7 +416,8 @@ public class YEngineRestorer {
 
     private Map<String, YNetRunner> restoreNets(List<YNetRunner> runners)
             throws YPersistenceException {
-        Map<String, YNetRunner> result = new HashMap<String, YNetRunner>();
+        Map<String, YNetRunner> runnerMap = new HashMap<String, YNetRunner>();
+        Set<YNetRunner> orphanedRunners = new HashSet<>();
 
         // restore all root nets first
         for (YNetRunner runner : runners) {
@@ -425,7 +425,7 @@ public class YEngineRestorer {
             if (runner.getContainingTaskID() == null) { // this is a root net runner
                 YNet net = (YNet) getSpecification(runner).getRootNet().clone();
                 runner.setNet(net);
-                result.put(runner.getCaseID().toString(), runner);
+                runnerMap.put(runner.getCaseID().toString(), runner);
             }
         }
 
@@ -436,7 +436,7 @@ public class YEngineRestorer {
                 // Find the parent runner
                 String runnerID = runner.getCaseID().toString();
                 String parentID = runnerID.substring(0, runnerID.lastIndexOf("."));
-                YNetRunner parentrunner = result.get(parentID);
+                YNetRunner parentrunner = runnerMap.get(parentID);
                 if (parentrunner != null) {
                     _log.debug("Restoring composite YNetRunner: {}", parentID);
                     YNet parentnet = parentrunner.getNet();
@@ -453,17 +453,24 @@ public class YEngineRestorer {
                                 runner.getCaseID().toString());
                         throw new YPersistenceException(msg);
                     }
-                    result.put(runner.getCaseID().toString(), runner);
+                    runnerMap.put(runner.getCaseID().toString(), runner);
+                }
+                else {
+                    orphanedRunners.add(runner); // literally has no parent
                 }
             }
         }
-        return result;
+
+        // orphaned runners are remnants of completed mi subnets so can be removed
+        unpersistObjects(orphanedRunners);
+        
+        return runnerMap;
     }
 
 
-    private void restoreRunners(List<YNetRunner> runners) throws YPersistenceException {
+    private List<YNetRunner> restoreRunners(List<YNetRunner> runners) throws YPersistenceException {
         Map<String, YNetRunner> runnerMap = restoreNets(runners);
-        for (YNetRunner runner : runners) {
+        for (YNetRunner runner : runnerMap.values()) {
             YNet net = runner.getNet();
             if (runner.getContainingTaskID() == null) {
 
@@ -492,6 +499,8 @@ public class YEngineRestorer {
             runner.refreshAnnouncements();
         }
         if (! _importingCases) removeOrphanedIdentifiers();
+
+        return new ArrayList<>(runnerMap.values());
     }
 
 
