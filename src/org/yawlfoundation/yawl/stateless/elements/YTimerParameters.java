@@ -250,7 +250,7 @@ public class YTimerParameters {
         node = node.getChild();
         if (node == null) return null;
 
-        String netParam = node.getChildText("netParam");
+        String netParam = node.getChildText("netparam");
         if (netParam != null) {
             set(netParam);
             return this;
