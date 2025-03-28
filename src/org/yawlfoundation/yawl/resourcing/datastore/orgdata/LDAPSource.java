@@ -108,6 +108,10 @@ public class LDAPSource extends DataSource {
                 if (isNotNullOrEmpty(roles)) {
                    _attributeMap.put("roles", roles); 
                 }
+                String email = getProperty("email");
+                if (isNotNullOrEmpty(email)) {
+                    _attributeMap.put("email", email);
+                }
             }
         }
         return _attributeMap;
@@ -292,6 +296,12 @@ public class LDAPSource extends DataSource {
         if (allNotNullOrEmpty(lastname, firstname, userid)) {
             p = new Participant(lastname, firstname, userid);
             p.setID("U_" + userid);
+
+            // if email is configured, add it
+            String email = getStringValue(attributes, "email");
+            if (email != null) {
+                p.setEmail(email);
+            }
 
             // if authentication is done via LDAP, keep the LDAP name - userid mapping
             if (_user2nameMap != null) {

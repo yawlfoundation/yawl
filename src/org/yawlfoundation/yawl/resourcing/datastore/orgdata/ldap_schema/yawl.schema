@@ -11,6 +11,13 @@ attributetype ( YAWLattributeType:1 NAME 'yawlNotes'
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{4096}
 	SINGLE-VALUE
 	USAGE userApplications )
+attributetype ( YAWLattributeType:1 NAME 'yawlEmail'
+	DESC 'YAWL participant email address'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{4096}
+	SINGLE-VALUE
+	USAGE userApplications )
 attributetype ( YAWLattributeType:2 NAME 'yawlPositionReportsTo'
 	DESC 'YAWL position relationship - position reports to position'
 	SUP distinguishedName
@@ -97,7 +104,7 @@ objectclass ( YAWLobjectClass:4 NAME 'yawlParticipant'
 	DESC 'Attributes for YAWL participants like notes, description, privileges (administrator, Manage Cases, etc.)'
 	AUXILIARY
 	MUST ( givenName $ uid $ sn $ userPassword )
-	MAY ( yawlNotes $ description $ yawlInternalId $ yawlPrivilegeAdministrator $ yawlPrivilegeCanChainExecution $ yawlPrivilegeCanChooseItemToStart $ yawlPrivilegeCanManageCases $ yawlPrivilegeCanReorder $ yawlPrivilegeCanStartConcurrent $ yawlPrivilegeCanViewOrgGroupItems $ yawlPrivilegeCanViewTeamItems ) )
+	MAY ( yawlNotes $ description $ yawlInternalId $ yaelEmail $ yawlPrivilegeAdministrator $ yawlPrivilegeCanChainExecution $ yawlPrivilegeCanChooseItemToStart $ yawlPrivilegeCanManageCases $ yawlPrivilegeCanReorder $ yawlPrivilegeCanStartConcurrent $ yawlPrivilegeCanViewOrgGroupItems $ yawlPrivilegeCanViewTeamItems ) )
 objectclass ( YAWLobjectClass:5 NAME 'yawlOrgGroup'
 	DESC 'An Org Group in YAWL'
 	STRUCTURAL

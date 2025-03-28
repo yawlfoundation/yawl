@@ -43,6 +43,9 @@ public class OutputPanel extends JPanel {
     }
 
 
+    public void clear() { if (_textPane != null) _textPane.setText(""); }
+
+
     private void buildUI() {
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(5,5,5,5));

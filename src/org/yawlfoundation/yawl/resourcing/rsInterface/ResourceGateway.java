@@ -961,7 +961,13 @@ public class ResourceGateway extends YHttpServlet {
                         UserPrivileges privs = new UserPrivileges(pid);
                         privs.setPrivilegesFromBits(bits);
                         p.setUserPrivileges(privs);
-                        result = SUCCESS;
+                        result = SUCCESS;               // prime result
+                        try {
+                            p.save();
+                        }
+                        catch (ResourceGatewayException rge) {
+                            result = fail(rge.getMessage());
+                        }
                     }
                     else result = fail("No privileges received");
                 }

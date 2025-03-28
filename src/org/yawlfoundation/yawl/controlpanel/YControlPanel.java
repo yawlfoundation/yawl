@@ -49,8 +49,9 @@ public class YControlPanel extends JFrame {
     private final EngineMonitor _engineMonitor;
     private JTabbedPane _tabbedPane;
     private ComponentsPane _componentsPane;
+    private OutputPanel _outputPanel;
 
-    public static final String VERSION = "5.1";
+    public static final String VERSION = "5.2";
 
 
     public YControlPanel() {
@@ -96,6 +97,12 @@ public class YControlPanel extends JFrame {
     public void showComponentsPane() { _tabbedPane.setSelectedIndex(1); }
 
 
+    public void showOutputPane() { _tabbedPane.setSelectedIndex(0); }
+
+
+    public void clearOutputPane() { _outputPanel.clear(); }
+
+
     private String getAppTitle() { return "YAWL Control Panel " + getVersion(); }
 
 
@@ -109,7 +116,8 @@ public class YControlPanel extends JFrame {
         JPanel content = new JPanel(new BorderLayout());
 
         _tabbedPane = new JTabbedPane();
-        _tabbedPane.add("Output Log", new OutputPanel());
+        _outputPanel = new OutputPanel();
+        _tabbedPane.add("Output Log", _outputPanel);
         _tabbedPane.add("Components", createComponentsPanel());
         content.add(_tabbedPane, BorderLayout.CENTER);
         _tabbedPane.setToolTipTextAt(1, "View, install, remove and update components");

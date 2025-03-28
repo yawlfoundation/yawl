@@ -18,9 +18,12 @@
 
 package org.yawlfoundation.yawl.resourcing.filters;
 
+import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
+import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.*;
 
@@ -64,45 +67,44 @@ public class OrgFilter extends AbstractFilter {
 
         // do posn first as it will usually result in a smaller set
         if (posValue != null) {
-            Set<AbstractResource> positionSet = parsePositionValue(posValue);
+            Set<AbstractResource> positionSet = parse("Position", wir);
             for (Participant p : distSet) if (positionSet.contains(p)) result.add(p);
             distSet = result;
         }
 
         if (ogValue != null) {
             result = new HashSet<Participant>() ;
-            Set<AbstractResource> orgGroupSet = parseOrgGroupValue(ogValue, distSet);
+            Set<AbstractResource> orgGroupSet = parseOrgGroupValue(ogValue, wir, distSet);
             for (Participant p : distSet) if (orgGroupSet.contains(p)) result.add(p) ;
         }
         return result;
     }
 
-
-    private Set<AbstractResource> parsePositionValue(String expression) {
-        if (expression != null) {
-            List<Set<AbstractResource>> pSets = new ArrayList<Set<AbstractResource>>();
-            for (String posName : expression.split("[&|]")) {
-                Position p = ResourceManager.getInstance().
-                        getOrgDataSet().getPositionByLabel(posName.trim());
-                if (p == null) p = new Position();
-                pSets.add(p.getResources());
-            }
-            return evaluate(pSets, expression);
-        }
-        return Collections.emptySet();
-    }
-
+    
     private Set<AbstractResource> parseOrgGroupValue(String expression,
+                                                     WorkItemRecord wir,
                                                      Set<Participant> distSet) {
         if (expression != null) {
             List<Set<AbstractResource>> pSets = new ArrayList<Set<AbstractResource>>();
             for (String ogName : expression.split("[&|]")) {
-                OrgGroup og = ResourceManager.getInstance().
-                        getOrgDataSet().getOrgGroupByLabel(ogName.trim());
-                if (og == null) og = new OrgGroup();
+                ogName = ogName.trim();
+                if (ogName.startsWith("$")) {
+                    ogName = getRuntimeValue(ogName, wir);
+                }
                 Set<AbstractResource> resources = new HashSet<AbstractResource>();
-                for (Participant p : distSet) {
-                    if (p.isOrgGroupMember(og)) resources.add(p);  // hierarchical
+                if (ogName != null) {
+                    OrgGroup og = ResourceManager.getInstance().
+                            getOrgDataSet().getOrgGroupByLabel(ogName.trim());
+                    if (og != null) {
+                        for (Participant p : distSet) {
+                            if (p.isOrgGroupMember(og)) resources.add(p);  // hierarchical
+                        }
+                    }
+                    else {
+                        LogManager.getLogger(getClass()).warn(
+                                "Org Group filter for {}: unknown org group '{}' in" +
+                                        " filter expression. Will ignore.", ogName, wir.getID());
+                    }
                 }
                 pSets.add(resources);
             }

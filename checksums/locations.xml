@@ -496,10 +496,10 @@
             <file name="style.css" path="AO"/>
         </orderfulfillment>
         <yawllib>
-            <file name="yawl-lib-5.1.jar" path="AM"/>
+            <file name="yawl-lib-5.2.jar" path="AM"/>
         </yawllib>
         <controlpanel>
-            <file name="YawlControlPanel-5.1.jar" path="AM"/>
+            <file name="YawlControlPanel-5.2.jar" path="AM"/>
         </controlpanel>
     </files>
 </locations>

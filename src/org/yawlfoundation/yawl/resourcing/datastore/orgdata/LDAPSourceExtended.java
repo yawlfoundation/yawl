@@ -310,6 +310,7 @@ public class LDAPSourceExtended extends DataSource {
         String description = getAttributeAsString(attr, ATTR_DESCRIPTION);
         String notes = getAttributeAsString(attr, ATTR_NOTES); 
         String yawlInternalId = getAttributeAsString(attr, ATTR_YAWL_INTERNAL_ID);
+        String email = getAttributeAsString(attr, ATTR_MAIL);
         
         Boolean isAdministrator = getAttributeAsBoolean(attr, ATTR_PRIVILEGE_ADMINISTRATOR);
         Boolean canChooseItemToStart = getAttributeAsBoolean(attr, ATTR_PRIVILEGE_CAN_CHOOSE_ITEM_TO_START);
@@ -332,6 +333,7 @@ public class LDAPSourceExtended extends DataSource {
         participant.setUserPrivileges(userPrivileges);
         participant.setAdministrator(isAdministrator);
 
+        participant.setEmail(email);
         participant.setDescription(description);
         participant.setNotes(notes);
         

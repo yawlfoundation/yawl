@@ -33,7 +33,7 @@
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
     <filter token="MAIL_LOGGING_LEVEL" value="${mail.logging.level}"/>
 
-    <property name="app.version" value="5.1"/>
+    <property name="app.version" value="5.2"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 

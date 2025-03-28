@@ -18,12 +18,17 @@
 
 package org.yawlfoundation.yawl.resourcing.filters;
 
+import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
+import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
+import org.yawlfoundation.yawl.resourcing.resource.AbstractResourceAttribute;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * The base class for all filters.
@@ -94,6 +99,75 @@ public abstract class AbstractFilter extends AbstractSelector {
 
 
     /******************************************************************************/
+
+    protected Set<AbstractResource> parse(String key, WorkItemRecord wir) {
+        String expression = getParamValue(key);
+        if (expression != null) {
+            List<Set<AbstractResource>> pSets = new ArrayList<Set<AbstractResource>>();
+            for (String label : expression.split("[&|]")) {
+                label = label.trim();
+                if (label.startsWith("$")) {
+                    label = getRuntimeValue(label, wir);
+                }
+                Set<AbstractResource> resources = new HashSet<AbstractResource>();
+                if (label != null) {
+                    AbstractResourceAttribute attribute = getByLabel(key, label);
+                    if (attribute != null) {
+                        resources = attribute.getResources();
+                    }
+                    else {
+                        LogManager.getLogger(getClass()).warn(
+                                "{} filter for {}: unknown {} '{}' in" +
+                                        " filter expression. Will ignore.",
+                                key, wir.getID(), key.toLowerCase(), label);
+                    }
+                }
+                pSets.add(resources);
+            }
+            return evaluate(pSets, expression);
+        }
+        return Collections.emptySet();
+    }
+
+
+    protected String getRuntimeValue(String expression, WorkItemRecord wir) {
+
+        // expression will be of the form ${varName)
+        String varName = expression.substring(2, expression.indexOf('}'));       // extract varname
+
+        String varValue = null;
+        try {
+            varValue = ResourceManager.getInstance().getNetParamValue(wir.getCaseID(), varName);
+        }
+        catch (IOException e) {
+            LogManager.getLogger(getClass()).warn("In {} for {}: {}. " +
+                    "Will ignore the expression token '{}' and continue",
+                    getClassName(), wir.getID(), e.getMessage(), varName);
+        }
+        if (varValue == null) {
+            LogManager.getLogger(getClass()).warn("In {} for {}: " +
+                            "unknown net parameter in filter expression."  +
+                    "Will ignore the expression token '{}' and continue",
+                    getClassName(), wir.getID(), varName);
+        }
+        return varValue;
+    }
+
+
+    protected AbstractResourceAttribute getByLabel(String key, String label) {
+        ResourceDataSet dataSet = ResourceManager.getInstance().getOrgDataSet();
+        if (key.equals("Capability")) {
+            return dataSet.getCapabilityByLabel(label);
+        }
+        if (key.equals("Position")) {
+            return dataSet.getPositionByLabel(label);
+        }
+        if (key.equals("OrgGroup")) {
+            return dataSet.getOrgGroupByLabel(label);
+        }
+        return null;
+    }
+
 
     /**
      * Abstract method, to be implemented by all child classes, which carries out
