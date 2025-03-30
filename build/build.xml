@@ -183,6 +183,8 @@
     <!-- eng, xsd -->
     <property name="ehcache" value="ehcache-core-2.4.3.jar"/>
     <!-- res -->
+    <property name="emailaddress" value="emailaddress-rfc2822-2.1.4.jar"/>
+    <!-- sml -->
     <property name="gson" value="gson-2.11.0.jar"/>
     <!-- hbn -->
     <property name="guava" value="guava-21.0.jar"/>
@@ -215,6 +217,10 @@
     <!-- hbn -->
     <property name="jandex" value="jandex-2.4.2.Final.jar"/>
     <!-- eng, hbn -->
+    <property name="jakarta-activation" value="jakarta.activation-1.2.2.jar"/>
+    <!-- sml -->
+    <property name="jakarta-mail" value="jakarta.mail-1.6.7.jar"/>
+    <!-- sml -->
     <property name="jakarta-xml" value="jakarta.xml.bind-api-3.0.1.jar"/>
     <!-- dbd -->
     <property name="javax-activation" value="javax.activation-api-1.2.0.jar"/>
@@ -340,7 +346,7 @@
     <!-- mul -->
     <property name="servlet" value="servlet-api.jar"/>
     <!-- mul -->
-    <property name="simplemail" value="simple-java-mail-4.4.5.jar"/>
+    <property name="simplemail" value="simple-java-mail-5.5.1.jar"/>
     <!-- sml -->
     <property name="slf4j" value="slf4j-api-1.7.12.jar"/>
     <!-- hbn -->
@@ -473,7 +479,8 @@
               value="${saxon} ${saxondom} ${saxonapi} ${saxonjdom}"/>
 
     <property name="simplemail.libs"
-              value="${mailapi} ${simplemail} ${smtp} ${slf4j} ${activation}"/>
+              value="${simplemail} ${slf4j} ${jakarta-activation}
+    	             ${jakarta-mail} ${emailaddress}"/>
 
     <property name="scheduling.libs"
               value="${json} ${commonsDbcp} ${commonsPool} ${jaxen} ${ucp}
@@ -538,7 +545,7 @@
               value="${jdom} ${log4j.libs} ${twitter4j} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_mailService.libs"
-              value="${jdom} ${log4j.libs} ${simplemail.libs} ${commonsCodec} ${xerces}"/>
+              value="${jdom} ${log4j.libs} ${simplemail.libs} ${commonsCodec} ${xerces} ${commonsLang3}"/>
 
     <property name="webapp_schedulingService.libs"
               value="${scheduling.libs} ${persistence.libs} ${jdom} ${log4j.libs}
@@ -676,10 +683,9 @@
     </path>
 
     <path id="cp.simplemail">
-        <pathelement location="${lib.dir}/${mailapi}"/>
         <pathelement location="${lib.dir}/${simplemail}"/>
-        <pathelement location="${lib.dir}/${smtp}"/>
         <pathelement location="${lib.dir}/${mailsender}"/>
+    	<pathelement location="${lib.dir}/${javax-mail}"/>
     </path>
 
     <path id="cp.proclet">
@@ -2301,7 +2307,8 @@
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="JDOMUtil.class StringUtil.class PasswordEncryptor.class 
-            	              MailSettings.class Sessions.class Sessions$InterfaceAClient.class"/>
+            	              MailSettings.class Sessions.class
+            	              Sessions$InterfaceAClient.class XNode*.class"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>

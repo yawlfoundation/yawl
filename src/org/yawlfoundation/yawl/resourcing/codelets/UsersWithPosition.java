@@ -46,7 +46,8 @@ public class UsersWithPosition extends AbstractCodelet {
 		Set<Participant> participants = Optional
 				.ofNullable(rm.getOrgDataSet().getParticipantsWithPosition(positionName))
 				.orElse(Collections.emptySet());
-		String userids = participants.stream().map(p -> p.getUserID()).collect(Collectors.joining(","));
+		String userids = participants.stream().map(Participant::getUserID)
+				.collect(Collectors.joining(","));
 		setParameterValue("userids", userids);
 		return getOutputData();
 	}

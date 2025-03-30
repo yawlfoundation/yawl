@@ -18,9 +18,14 @@
 
 package org.yawlfoundation.yawl.mailService;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdom2.Element;
 import org.simplejavamail.email.Email;
+import org.simplejavamail.email.EmailBuilder;
+import org.simplejavamail.email.EmailPopulatingBuilder;
+import org.simplejavamail.email.Recipient;
 import org.simplejavamail.mailer.Mailer;
+import org.simplejavamail.mailer.MailerBuilder;
 import org.simplejavamail.mailer.config.TransportStrategy;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -30,6 +35,11 @@ import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.mail.Message;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A service that provides for emails to be sent by tasks
@@ -68,7 +78,7 @@ public class MailService extends InterfaceBWebsideController {
                             getOutputData(wir.getTaskID(), result), null,  _handle);
         }
         catch (Exception ioe) {
-            ioe.printStackTrace();
+            _logger.catching(ioe);
         }
     }
 
@@ -139,7 +149,10 @@ public class MailService extends InterfaceBWebsideController {
         settings.bccAddress = bccAddress;
         settings.subject = subject;
         settings.content = content;
-        
+
+        _logger.debug("MailService.sendMail(String...) calling sendMail(MailSettings)" +
+                " with settings = {}", settings.toXML());
+
         return sendMail(settings);
     }
 
@@ -155,6 +168,9 @@ public class MailService extends InterfaceBWebsideController {
         if (settings.fromName == null) settings.fromName = _defaults.fromName;;
         if (settings.fromAddress == null) settings.fromAddress = _defaults.fromAddress;
 
+        _logger.debug("MailService.sendMail(String) calling sendMail(MailSettings)" +
+                " with settings = {}", settings.toXML());
+        
         return sendMail(settings);
     }
 
@@ -167,9 +183,13 @@ public class MailService extends InterfaceBWebsideController {
             settings = buildSettings(wir);
         }
         catch (MailSettingsException mse) {
+            _logger.error("sendMail(WorkItemRecord): mail settings exception {}",
+                    mse.getMessage());
             return mse.getMessage();
         }
 
+        _logger.debug("MailService.sendMail(WorkItemRecord) calling sendMail(MailSettings)" +
+                " with settings = {}", settings.toXML());
         return sendMail(settings);
     }
 
@@ -180,14 +200,24 @@ public class MailService extends InterfaceBWebsideController {
 
 
     private String sendMail(Email email, MailSettings settings) {
+        _logger.debug(
+                "Sending mail with host={}, port={}, user={}, password={}, strategy={}",
+                settings.host, settings.port, settings.user,
+                StringUtils.isNotEmpty(settings.password) ? "***SECRET***" : "",
+                settings.strategy);
+
         try {
-            new Mailer(settings.host, settings.port, settings.user,
-                    settings.password, settings.strategy)
-                    .sendMail(email);
-            return "Mail successfully sent.";
+            Mailer m = MailerBuilder
+                    .withSMTPServer(settings.host, settings.port, settings.user, settings.password)
+                    .withTransportStrategy(settings.strategy)
+                    .withDebugLogging(true)
+                    .buildMailer();
+
+            m.sendMail(email);
+            return String.format("Mail id <%s> successfully sent.", email.getId());
         }
         catch (Exception e) {
-            _logger.error("Error sending mail.", e.getCause());
+            _logger.catching(e);
             return e.getMessage();
         }
     }
@@ -196,13 +226,13 @@ public class MailService extends InterfaceBWebsideController {
     private MailSettings buildSettings(WorkItemRecord wir) throws MailSettingsException {
         if (wir == null) throw new MailSettingsException("Work item is null.");
         Element data = wir.getDataList();
-        if (data == null) throw new MailSettingsException("Work item contains no data.");
+        if (data == null) _logger.throwing(new MailSettingsException("Work item contains no data."));
         MailSettings settings = new MailSettings();
         settings.host = getSetting(data, "host");
         settings.port = getPort(data);
         settings.strategy = getTransportStrategy(data);
-        settings.user = getSetting(data, "user");
-        settings.password = getSetting(data, "password");
+        settings.user = getSetting(data, "user", true);
+        settings.password = getSetting(data, "password", true);
         settings.fromName = getSetting(data, "senderName");
         settings.fromAddress = getSetting(data, "senderAddress");
         settings.toName = getSetting(data, "recipientName", true);
@@ -211,41 +241,54 @@ public class MailService extends InterfaceBWebsideController {
         settings.bccAddress = getSetting(data, "BCC", true);
         settings.subject = getSetting(data, "subject");
         settings.content = getSetting(data, "content");
+        _logger.debug("MailService.buildSettings(WorkItemRecord) returning " + settings.toXML());
         return settings;
     }
 
 
     private Email buildEmail(MailSettings settings) {
-        Email email = new Email();
-        addRecipients(email, settings);
-        email.setFromAddress(settings.fromName, settings.fromAddress);
-        email.setSubject(settings.subject);
-        if (settings.content.contains("<")) {
-            email.setTextHTML(settings.content);
+        _logger.debug("start buildEmail(MailSettings) {}", settings.toXML());
+
+        String fromName = settings.fromName;
+        String fromAddress = settings.fromAddress;
+        String toName = StringUtils.defaultString(settings.toName);
+        List<String> toAddresses = new ArrayList<>(Arrays.asList(
+                settings.toAddress.split(";")));
+        List<Recipient> ccRecipients = asRecipientList(settings.ccAddress,
+                Message.RecipientType.CC);
+        List<Recipient> bccRecipients = asRecipientList(settings.bccAddress,
+                Message.RecipientType.BCC);
+
+        _logger.debug(
+                String.format("Building email with from=%s, to=%s, cc=%s, bcc=%s, subject=%s",
+                        fromAddress,
+                toName + "<" + String.join(",", toAddresses) + ">",
+                "<" + ccRecipients.stream().map(Recipient::getAddress).collect(
+                        Collectors.joining(",")) + ">",
+                "<" + bccRecipients.stream().map(Recipient::getAddress).collect(
+                        Collectors.joining(",")) + ">",
+                StringUtils.defaultString(settings.subject)));
+
+        EmailPopulatingBuilder emailBuilder = EmailBuilder.startingBlank()
+                .from(fromName, fromAddress)
+                .to(toName, toAddresses)
+                .cc(ccRecipients)
+                .bcc(bccRecipients)
+                .withSubject(settings.subject);
+
+        String body = StringUtils.defaultString(settings.content);
+        if (body.contains("<")) {
+            emailBuilder = emailBuilder.withHTMLText(body);
         }
         else {
-            email.setText(settings.content);            // plain text
+            emailBuilder = emailBuilder.withPlainText(body); // plain text
         }
-        return email;
+
+        _logger.debug("returning from buildEmail(MailSettings)");
+        return emailBuilder.buildEmail();
     }
 
-
-    private void addRecipients(Email email, MailSettings settings) {
-        addRecipients(email, settings.toName, settings.toAddress, Message.RecipientType.TO);
-        addRecipients(email, null, settings.ccAddress, Message.RecipientType.CC);
-        addRecipients(email, null, settings.bccAddress, Message.RecipientType.BCC);
-    }
-
-
-    private void addRecipients(Email email, String name, String address,
-                              Message.RecipientType mailType) {
-        if (! StringUtil.isNullOrEmpty(address)) {
-            if (name == null) name = "";
-            email.addRecipients(name, mailType, address);
-        }
-    }
-
-
+    
     // settings not optional by default
     private String getSetting(Element data, String name) throws MailSettingsException {
         return getSetting(data, name, false);
@@ -255,9 +298,14 @@ public class MailService extends InterfaceBWebsideController {
     private String getSetting(Element data, String name, boolean optional)
             throws MailSettingsException {
         String setting = getDataValue(data, name);
-        if (StringUtil.isNullOrEmpty(setting)) setting = _defaults.getSetting(name);
-        if (StringUtil.isNullOrEmpty(setting) && ! optional) throw new MailSettingsException(
-                "Required value for '" + name + "' not supplied.");
+        if (StringUtil.isNullOrEmpty(setting))
+       	    setting = System.getProperty("yawl.mail." + name);
+        if (StringUtil.isNullOrEmpty(setting))
+            setting = _defaults.getSetting(name);
+        if (StringUtil.isNullOrEmpty(setting) && ! optional) {
+            _logger.throwing( new MailSettingsException(
+                    "Required value for '" + name + "' not supplied."));
+        }
         return setting;
     }
 
@@ -271,12 +319,12 @@ public class MailService extends InterfaceBWebsideController {
 
     private TransportStrategy getTransportStrategy(String strategyString) {
         if (StringUtil.isNullOrEmpty(strategyString)) return _defaults.strategy;
-        if ("PLAIN".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_PLAIN;
-        if ("SSL".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_SSL;
+        if ("PLAIN".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP;
+        if ("SSL".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTPS;
         if ("TLS".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_TLS;
-        
-        _logger.error("Unknown transport strategy ('" + strategyString + "'). " +
-                "Fall back to default (SSL).");
+
+        _logger.error("Unknown transport strategy ('{}'). Fall back to default (SSL).",
+                strategyString);
         return null; //defaults.strategy;
     }
 
@@ -297,7 +345,18 @@ public class MailService extends InterfaceBWebsideController {
         return output;
     }
 
-    
+
+    private List<Recipient> asRecipientList(String recipients,
+                                            Message.RecipientType recipientType) {
+        if (! StringUtil.isNullOrEmpty(recipients)) {
+            return Arrays.stream(recipients.split(";")).map(s -> {
+                return new Recipient(null, s, recipientType);
+            }).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+
     private boolean connected() throws IOException {
         return _handle != null && checkConnection(_handle);
     }

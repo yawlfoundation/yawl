@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.simplejavamail.mailer.config.TransportStrategy;
 
 /**
@@ -8,9 +10,11 @@ import org.simplejavamail.mailer.config.TransportStrategy;
  * @date 18/12/2024
  */
 public class MailSettings {
+    private Logger _logger = LogManager.getLogger(getClass());
+    
     public String host = null;
     public int port = 25;
-    public TransportStrategy strategy = TransportStrategy.SMTP_SSL;
+    public TransportStrategy strategy = TransportStrategy.SMTPS;
     public String user = null;
     public String password = null;
     public String fromName = null;
@@ -44,6 +48,7 @@ public class MailSettings {
 
 
     public MailSettings copyOf() {
+        _logger.debug("enter MailSettings.copyOf()");
         MailSettings settings = new MailSettings();
         settings.host = this.host;
         settings.port = this.port;
@@ -58,6 +63,7 @@ public class MailSettings {
         settings.bccAddress = this.bccAddress;
         settings.subject = this.subject;
         settings.content = this.content;
+        _logger.debug("copyOf() returning " + settings.toXML());
         return settings;
     }
 
@@ -74,13 +80,14 @@ public class MailSettings {
         node.addChild( "toaddress", toAddress);
         node.addChild( "CC", ccAddress);
         node.addChild( "BCC", bccAddress);
-        node.addChild( "subject", subject);
-        node.addChild( "content", content);
+        node.addChild( "subject", subject, true);
+        node.addChild( "content", content, true);
         return node.toString();
     }
 
 
     public void fromXML(String xml) {
+        _logger.debug(String.format("enter fromXML(%s)", xml));
         XNode node = new XNodeParser().parse(xml);
         if (node != null) {
             host = node.getChildText("host");
@@ -93,9 +100,10 @@ public class MailSettings {
             toAddress = node.getChildText("toaddress");
             ccAddress = node.getChildText("CC");
             bccAddress = node.getChildText("BCC");
-            subject = node.getChildText("subject");
-            content = node.getChildText("content");
+            subject = node.getChildText("subject", true);
+            content = node.getChildText("content", true);
         }
+        _logger.debug("returning from fromXML()");
     }
 }
 

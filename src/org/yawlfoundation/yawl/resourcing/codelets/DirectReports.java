@@ -55,8 +55,10 @@ public class DirectReports extends AbstractCodelet {
 		if (null != pos) {
 			Set<Participant> reports = rds.getParticipantsReportingToPosition(pos);
 			if (null != reports) {
-				reportIds = reports.stream().filter(a -> rds.getImmediateSupervisor(a).hasPosition(pos))
-						.map(a -> a.getUserID()).collect(Collectors.joining(","));
+				reportIds = reports.stream().filter(a ->
+								rds.getImmediateSupervisor(a).hasPosition(pos))
+						.map(a -> a.getUserID())
+						.collect(Collectors.joining(","));
 			}
 		}
 		setParameterValue("directreportids", reportIds);

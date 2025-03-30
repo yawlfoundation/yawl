@@ -95,6 +95,7 @@
             <file name="ecore.jar" path="A"/>
             <file name="ehcache-core-2.4.3.jar" path="A"/>
             <file name="ehcache.xml" path="A"/>
+            <file name="emailaddress-rfc2822-2.1.4.jar" path="A"/>
             <file name="errorhandler.jar" path="A"/>
             <file name="gson-2.11.0.jar" path="A"/>
             <file name="guava-21.0.jar" path="A"/>
@@ -113,9 +114,11 @@
             <file name="jackson-databind-2.18.2.jar" path="A"/>
             <file name="jackson-datatype-jdk8-2.18.2.jar" path="A"/>
             <file name="jackson-datatype-jsr310-2.18.2.jar" path="A"/>
-            <file name="java-sdk-1.0.1.jar" path="A"/>
+            <file name="jakarta.activation-1.2.2.jar" path="A"/>
+            <file name="jakarta.mail-1.6.7.jar" path="A"/>
             <file name="jakarta.xml.bind-api-3.0.1.jar" path="A"/>
             <file name="jandex-2.4.2.Final.jar" path="A"/>
+            <file name="java-sdk-1.0.1.jar" path="A"/>
             <file name="javax.activation-api-1.2.0.jar" path="A"/>
             <file name="javax.persistence-api-2.2.jar" path="A"/>
             <file name="jaxb-api-2.3.1.jar" path="A"/>
@@ -173,7 +176,7 @@
             <file name="saxon9-s9api.jar" path="A"/>
             <file name="saxon9.jar" path="A"/>
             <file name="servlet-api.jar" path="A"/>
-            <file name="simple-java-mail-4.4.5.jar" path="A"/>
+            <file name="simple-java-mail-5.5.1.jar" path="A"/>
             <file name="slf4j-api-1.7.12.jar" path="A"/>
             <file name="smtp.jar" path="A"/>
             <file name="sqlx.jar" path="A"/>

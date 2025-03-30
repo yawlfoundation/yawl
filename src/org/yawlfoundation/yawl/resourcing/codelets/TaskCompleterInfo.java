@@ -51,13 +51,13 @@ public class TaskCompleterInfo extends AbstractCodelet {
                 ResourceManager.getInstance().getWhoCompletedTask(taskName, getWorkItem());
         if (completers.isEmpty()) {
             throw new CodeletExecutionException("Unknown task completer. Either the " +
-              "taskName '" + taskName +
-              "'  is invalid or a task of that name has not yet completed for this case.");
+                    "taskName '" + taskName +
+                    "' is invalid or a task of that name has not yet completed for this case.");
         }
         Participant p = completers.iterator().next();      // only one for atomic tasks
         setParameterValue("name", p.getFullName());
         setParameterValue("userid", p.getUserID());
-        
+
         return getOutputData();
     }
 

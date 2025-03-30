@@ -21,7 +21,10 @@ package org.yawlfoundation.yawl.resourcing.codelets;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.resource.Capability;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Position;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +54,8 @@ public class ParticipantInfo extends AbstractCodelet {
 		String delimiter = ",";
 		try {
 			delimiter = getValue("delimiter");
-		} catch (CodeletExecutionException cee) {
+		}
+		catch (CodeletExecutionException cee) {
 			; // no-op
 		}
 
@@ -62,26 +66,31 @@ public class ParticipantInfo extends AbstractCodelet {
 		setParameterValue("lastname", haveParticipant ? p.getLastName() : "");
 		setParameterValue("fullname", haveParticipant ? p.getFullName() : "");
 		setParameterValue("email", haveParticipant ? p.getEmail() : "");
-		setParameterValue("emailOnAllocation", Boolean.toString(haveParticipant ? p.isEmailOnAllocation() : false));
-		setParameterValue("emailOnOffer", Boolean.toString(haveParticipant ? p.isEmailOnOffer() : false));
-		setParameterValue("isAdministrator", Boolean.toString(haveParticipant ? p.isAdministrator() : false));
+		setParameterValue("emailOnAllocation", Boolean.toString(haveParticipant ?
+				p.isEmailOnAllocation() : false));
+		setParameterValue("emailOnOffer", Boolean.toString(haveParticipant ?
+				p.isEmailOnOffer() : false));
+		setParameterValue("isAdministrator", Boolean.toString(haveParticipant ?
+				p.isAdministrator() : false));
 		setParameterValue("description", haveParticipant ? p.getDescription() : "");
 		setParameterValue("notes", haveParticipant ? p.getNotes() : "");
-		setParameterValue("positions",
-				haveParticipant
-						? p.getPositions().stream().map(pos -> pos.getName()).collect(Collectors.joining(delimiter))
+		setParameterValue("positions", haveParticipant ?
+				p.getPositions().stream().map(Position::getName)
+						.collect(Collectors.joining(delimiter))
 						: "");
-		setParameterValue("roles",
-				haveParticipant ? p.getRoles().stream().map(r -> r.getName()).collect(Collectors.joining(delimiter))
+		setParameterValue("roles", haveParticipant ?
+				p.getRoles().stream().map(Role::getName)
+						.collect(Collectors.joining(delimiter))
 						: "");
-		setParameterValue("capabilities",
-				haveParticipant
-						? p.getCapabilities().stream().map(c -> c.getName()).collect(Collectors.joining(delimiter))
+		setParameterValue("capabilities", haveParticipant ?
+				p.getCapabilities().stream().map(Capability::getName)
+						.collect(Collectors.joining(delimiter))
 						: "");
-		return getOutputData();
 
+		return getOutputData();
 	}
 
+	
 	@Override
 	public List<YParameter> getRequiredParams() {
 		List<YParameter> params = new ArrayList<YParameter>();
