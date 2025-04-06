@@ -2322,11 +2322,11 @@
         <jar destfile="${output.dir}/${mail.app.name}.war">
             <fileset dir="${temp.dir}/${mail.app.name}"/>
         </jar>
-<!--        <checkSums rootdir="${basedir}" todir="${checksums.dir}"-->
-<!--                   appname="${mail.app.name}"-->
-<!--                   locations="${checksums.dir}/locations.xml"-->
-<!--                   excludes="WEB-INF/lib/* classes/org/*-->
-<!--                             log4j2.xml hibernate.properties"/>-->
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${mail.app.name}"
+                   locations="${checksums.dir}/locations.xml"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${mail.app.name}"/>

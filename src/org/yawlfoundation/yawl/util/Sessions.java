@@ -23,13 +23,9 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * A generic session manager utility that can be used by custom services to allow
@@ -54,8 +50,8 @@ public class Sessions {
      * Constructs a new Sessions object
      */
     public Sessions() {
-        idToHandle = new HashMap<>();
-        handleToTimer = new HashMap<>();
+        idToHandle = new ConcurrentHashMap<>();
+        handleToTimer = new ConcurrentHashMap<>();
     }
 
 

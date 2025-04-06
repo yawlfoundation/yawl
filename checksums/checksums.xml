@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>5.2</version>
-  <timestamp>2025-03-31 08.13.58</timestamp>
+  <timestamp>2025-04-07 09.06.42</timestamp>
   <lib hash="504df96700fbe5778fa3147980e01f08">
     <file name="java-sdk-1.0.1.jar" md5="b9aa0aed59e34be1259c7444cc3558bb" size="159271" timestamp="2025-01-06T07:53:05" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -654,9 +654,9 @@
       </lib>
     </mailSender>
     <mailService>
-      <build>195</build>
+      <build>200</build>
       <files>
-        <file name="WEB-INF/web.xml" md5="a226455872f299f11eb979ab74b6e67c" size="6531" timestamp="2021-06-04T15:35:47" path="AK"/>
+        <file name="WEB-INF/web.xml" md5="796acfb37893b783f4c8afaf1ef272e6" size="6821" timestamp="2025-04-07T09:06:42" path="AK"/>
       </files>
       <lib>
         <file name="jdom-2.0.5.jar"/>
@@ -664,12 +664,14 @@
         <file name="log4j-core-2.18.0.jar"/>
         <file name="log4j-1.2-api-2.17.1.jar"/>
         <file name="log4j-slf4j-impl-2.17.1.jar"/>
-        <file name="mailapi.jar"/>
-        <file name="simple-java-mail-4.4.5.jar"/>
-        <file name="smtp.jar"/>
+        <file name="simple-java-mail-5.5.1.jar"/>
         <file name="slf4j-api-1.7.12.jar"/>
+        <file name="jakarta.activation-1.2.2.jar"/>
+        <file name="jakarta.mail-1.6.7.jar"/>
+        <file name="emailaddress-rfc2822-2.1.4.jar"/>
         <file name="commons-codec-1.9.jar"/>
         <file name="xercesImpl.jar"/>
+        <file name="commons-lang3-3.6.jar"/>
       </lib>
     </mailService>
     <procletService>
@@ -846,7 +848,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-5.2.jar" md5="822fbe2e359d3ac6ab21dbf71af76e89" size="3053203" timestamp="2025-03-31T08:13:16" path="AM"/>
+    <file name="yawl-lib-5.2.jar" md5="b176f70cc5789e20a2c6965ee6e4205d" size="3053202" timestamp="2025-04-07T09:06:41" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>454</build>
