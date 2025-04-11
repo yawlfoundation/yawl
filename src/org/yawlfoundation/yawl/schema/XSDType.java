@@ -161,6 +161,11 @@ public class XSDType {
         return (ordinal >= INTEGER) && (ordinal <= DECIMAL);
     }
 
+    public static boolean isStringType(String type) {
+        int ordinal = getOrdinal(type);
+        return (ordinal >= STRING) && (ordinal <= TOKEN);
+    }
+
     public static boolean isIntegralType(String type) {
         int ordinal = getOrdinal(type);
         return (ordinal >= INTEGER) && (ordinal <= UNSIGNED_BYTE);
