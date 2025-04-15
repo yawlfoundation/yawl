@@ -2164,21 +2164,42 @@ public final class ResourceManager extends InterfaceBWebsideController {
                 if (!password.equals(adminPassword)) {
                     result = fail(INVALID_LOGON_ERR);
                 }
-            } else result = adminPassword;
-
-            return result;
+            }
+            else result = adminPassword;
+        }
+        else {
+            boolean validPassword = false;
+            Participant p = getParticipantFromUserID(userid);
+            if (p != null) {
+                if (_orgDataSet.isUserAuthenticationExternal()) {
+                    try {
+                        validPassword = _orgdb.authenticate(userid, password);
+                    }
+                    catch (YAuthenticationException yae) {
+                        return fail(yae.getMessage());
+                    }
+                }
+                else {
+                    validPassword = p.isValidPassword(password);
+                }
+                if (validPassword) {
+                    if (admin && !p.isAdministrator()) {
+                        result = fail("Administrative privileges required.");
+                    }
+                }
+                else result = fail(INVALID_LOGON_ERR);
+            }
+            else result = fail(INVALID_LOGON_ERR);
         }
 
-        Participant p = getParticipantFromUserID(userid);
-        if (p != null) {
-            if (p.getPassword().equals(password)) {
-                if (admin && !p.isAdministrator()) {
-                    result = fail("Administrative privileges required.");
-                }
-            } else result = fail(INVALID_LOGON_ERR);
-        } else result = fail("Unknown user name");
-
+        logLoginAttempt(userid, successful(result));
         return result;
+    }
+
+
+    private void logLoginAttempt(String userid, boolean successful) {
+        EventLogger.audit(userid, (successful ? EventLogger.audit.logon :
+                EventLogger.audit.invalid));
     }
 
 

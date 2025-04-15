@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import javax.naming.*;
 import javax.naming.directory.*;
@@ -336,10 +337,39 @@ public class LDAPSourceExtended extends DataSource {
         participant.setEmail(email);
         participant.setDescription(description);
         participant.setNotes(notes);
-        
+
+        if (!getProperty("delegateauthentication").equalsIgnoreCase("true")) {
+            participant.setPassword(loadUserPassword(attr));
+        }
+
         _uid2dnMap.put(uid, dn.toString());
         
         return participant;
+    }
+
+
+    /**
+     * Loads the LDAP server-stored password for a Participant, if specified to do so
+     * via the properties file.
+     * @param attributes the LDAP attributes for a user entry
+     * @return an encypted password, or null if configured not to load password into
+     * each Participant object.
+     */
+    private String loadUserPassword(Attributes attributes) {
+        String password = null;
+        String pwAttribute = getProperty("password");
+        if (isNotNullOrEmpty(pwAttribute)) {
+            try {
+                byte[] pwBytes = getByteValue(attributes, pwAttribute);
+                if (pwBytes != null) {
+                    password = PasswordEncryptor.encrypt(new String(pwBytes));
+                }
+            }
+            catch (Exception e) {
+                // do nothing - null will be returned
+            }
+        }
+        return password;
     }
     
     private OrgGroup createOrgGroup(LdapName dn, Attributes attr) throws NamingException {
@@ -473,7 +503,14 @@ public class LDAPSourceExtended extends DataSource {
     private String getProperty(String key) {
         String property = _props.getProperty(key);
         return property != null ? property : "";                 // ensure not null
-    }    
+    }
+
+    
+    private byte[] getByteValue(Attributes attributes, String attributeName)
+            throws NamingException {
+        Attribute attr = attributes.get(attributeName);
+        return (attr != null) ? (byte[]) attr.get() : null;
+    }
 
     private DirContext getDirContext() {
         InitialDirContext ctx = null;
