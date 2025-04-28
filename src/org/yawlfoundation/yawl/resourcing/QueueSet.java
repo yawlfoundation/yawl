@@ -308,7 +308,7 @@ public class QueueSet {
             Participant p = rm.getOrgDataSet().getParticipant(_ownerID);
             if (p != null && p.getEmail() != null) {
                 if ((queue == WorkQueue.OFFERED && p.isEmailOnOffer()) ||
-                        p.isEmailOnAllocation()) {
+                        (queue == WorkQueue.ALLOCATED && p.isEmailOnAllocation())) {
                     rm.sendMailNotification(p, wir, queue);
                 }
             }
