@@ -1015,6 +1015,11 @@ public class ResourceGatewayClient extends Interface_Client {
     }
 
 
+    public String isUserAuthenticationExternal(String handle) throws IOException {
+        return executeBooleanGet("isUserAuthenticationExternal", null, handle);
+    }
+
+
     /*******************************************************************************/
 
     /**

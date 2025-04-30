@@ -625,12 +625,20 @@ public class ResourceGatewayClientAdapter {
 
     public boolean isOrgDataSetModifiable(String handle) {
         try {
-             return _rgclient.isOrgDataSetModifiable(handle).equals("true") ;
-         }
-         catch (IOException ioe) { return false; }
+            return _rgclient.isOrgDataSetModifiable(handle).equals("true") ;
+        }
+        catch (IOException ioe) { return false; }
     }
 
 
+    public boolean isUserAuthenticationExternal(String handle) {
+        try {
+            return _rgclient.isUserAuthenticationExternal(handle).equals("true") ;
+        }
+        catch (IOException ioe) { return false; }
+    }
+
+    
     /**
      * Checks if an id corresponds to a capability id known to the service
      * @param capabilityID the id to check

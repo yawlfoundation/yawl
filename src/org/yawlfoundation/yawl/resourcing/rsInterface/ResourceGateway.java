@@ -252,6 +252,9 @@ public class ResourceGateway extends YHttpServlet {
             else if (action.equalsIgnoreCase("isOrgDataSetModifiable")) {
                 result = String.valueOf(getOrgDataSet().isExternalOrgDataModsAllowed());
             }
+            else if (action.equalsIgnoreCase("isUserAuthenticationExternal")) {
+                result = String.valueOf(getOrgDataSet().isUserAuthenticationExternal());
+            }
             else if (action.equalsIgnoreCase("importOrgData")) {
                 String xml = req.getParameter("xml");
                 List<String> outcome = new DataBackupEngine().importOrgData(xml);
