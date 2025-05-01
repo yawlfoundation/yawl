@@ -375,7 +375,9 @@ public class YNetRunner {
                     }
                     Set<YExternalNetElement> postset = element.getPostsetElements();
                     for (YExternalNetElement postsetElement : postset) {
-                        createDeadlockItem(pmgr, (YTask) postsetElement);
+                        if (! postsetElement.equals(element)) {  // avoid looped element
+                            createDeadlockItem(pmgr, (YTask) postsetElement);
+                        }
                     }
                 }
             }

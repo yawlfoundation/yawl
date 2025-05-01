@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>5.2</version>
-  <timestamp>2025-05-01 07.48.49</timestamp>
+  <timestamp>2025-05-02 08.15.18</timestamp>
   <lib hash="504df96700fbe5778fa3147980e01f08">
     <file name="java-sdk-1.0.1.jar" md5="b9aa0aed59e34be1259c7444cc3558bb" size="159271" timestamp="2025-01-06T07:53:05" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -140,12 +140,12 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1724</build>
+      <build>1725</build>
       <files>
-        <file name="WEB-INF/classes/hibernate.cfg.xml" md5="4ea4c33cc045d0aa2c9e20442756898d" size="505" timestamp="2025-03-31T08:13:16" path="AW"/>
-        <file name="WEB-INF/classes/version.properties" md5="52419621e1264cc61fb099d095b4e66a" size="186" timestamp="2025-03-31T08:13:16" path="B"/>
-        <file name="WEB-INF/classes/defaultClients.properties" md5="f5871581817867266a3a3997e7082649" size="1257" timestamp="2025-03-31T08:13:16" path="C"/>
-        <file name="WEB-INF/web.xml" md5="ae0b6cad2997b06cb4e79d58797241bf" size="11797" timestamp="2025-03-31T08:13:16" path="B"/>
+        <file name="WEB-INF/classes/hibernate.cfg.xml" md5="4ea4c33cc045d0aa2c9e20442756898d" size="505" timestamp="2025-05-02T08:15:16" path="AW"/>
+        <file name="WEB-INF/classes/version.properties" md5="71a3e42e95cdde0ef841d8169b5d869d" size="186" timestamp="2025-05-02T08:15:16" path="B"/>
+        <file name="WEB-INF/classes/defaultClients.properties" md5="f5871581817867266a3a3997e7082649" size="1257" timestamp="2025-05-02T08:15:16" path="C"/>
+        <file name="WEB-INF/web.xml" md5="ae0b6cad2997b06cb4e79d58797241bf" size="11797" timestamp="2025-05-02T08:15:16" path="B"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -848,7 +848,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-5.2.jar" md5="f7bb8d6454ba39a96a971b78ee6a6291" size="3053888" timestamp="2025-05-01T07:48:47" path="AM"/>
+    <file name="yawl-lib-5.2.jar" md5="6c11852f500db24e6072809f8c1ca0ce" size="3053900" timestamp="2025-05-02T08:15:15" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>454</build>
