@@ -116,42 +116,55 @@ public class YWorkItemTimer implements YTimedObject {
             
     public void handleTimerExpiry() {
         if (_owner != null) {
+            YEngine engine = getAnnouncer().getEngine();
 
-            // if the item is an autotask with a timer, it has acted as a delay, so
-            // we now have to announce the enabled item
-            if (!_owner.requiresManualResourcing()) {
+            // this section is MUTEX'ed with YStatelessEngine.unloadCase. If it has
+            // first use, this timer will fully complete (expire) before the case
+            // begins unloading. If it has 2nd use, the unload will have closed this
+            // timer.
+            synchronized (engine.UNLOAD_MUTEX) {
+
+                // if case has been unloaded, which includes closing this timer,
+                // no further action is required
+                if (_state == State.closed) {
+                    return;
+                }
+
+                // if the item is an autotask with a timer, it has acted as a delay, so
+                // we now have to announce the enabled item
+                if (!_owner.requiresManualResourcing()) {
+                    setExpiredState();
+                    getAnnouncer().announceWorkItemEvent(
+                            new YWorkItemEvent(YEventType.ITEM_ENABLED, _owner));
+                    return;
+                }
+
+                // special case: if the workitem timer started on enabled, and the item
+                // has since been started, the ownerID now refers to the parent, and so the
+                // child is needed so it can be expired correctly.
+                if (_owner.getStatus().equals(YWorkItemStatus.statusIsParent)) {
+                    Set<YWorkItem> children = _owner.getChildren();
+                    if ((children != null) && (!children.isEmpty())) {
+                        _owner = children.iterator().next();          // there will only be 1
+                    }
+                }
+
                 setExpiredState();
-                getAnnouncer().announceWorkItemEvent(
-                        new YWorkItemEvent(YEventType.ITEM_ENABLED, _owner));
-                return;  
-            }
 
-            // special case: if the workitem timer started on enabled, and the item
-            // has since been started, the ownerID now refers to the parent, and so the
-            // child is needed so it can be expired correctly.
-            if (_owner.getStatus().equals(YWorkItemStatus.statusIsParent)) {
-                Set<YWorkItem> children = _owner.getChildren();
-                if ((children != null) && (! children.isEmpty())) {
-                    _owner = children.iterator().next();          // there will only be 1
+                try {
+                    if (_owner.getStatus().equals(YWorkItemStatus.statusEnabled)) {
+                        if (_owner.requiresManualResourcing())              // not an autotask
+                            engine.skipWorkItem(_owner);
+                    }
+                    else if (_owner.hasUnfinishedStatus()) {
+                        if (_owner.requiresManualResourcing())              // not an autotask
+                            engine.completeWorkItem(_owner, _owner.getDataString(), null,
+                                    WorkItemCompletion.Force);
+                    }
                 }
-            }
-
-            setExpiredState();
-
-            try {
-                YEngine engine = getAnnouncer().getEngine();
-                if (_owner.getStatus().equals(YWorkItemStatus.statusEnabled)) {
-                    if (_owner.requiresManualResourcing())              // not an autotask
-                        engine.skipWorkItem(_owner) ;
+                catch (Exception e) {
+                    // handle exc.
                 }
-                else if (_owner.hasUnfinishedStatus()) {
-                    if (_owner.requiresManualResourcing())              // not an autotask
-                        engine.completeWorkItem(_owner, _owner.getDataString(), null,
-                                WorkItemCompletion.Force) ;
-                }
-            }
-            catch (Exception e) {
-                // handle exc.
             }
         }
     }

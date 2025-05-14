@@ -62,6 +62,11 @@ public class YEngine {
     private static final AtomicInteger ENGINE_COUNTER = new AtomicInteger();
     private final int _engineNbr;
 
+    // used to prevent race condition between YStatelessEngine#unloadCase and
+    // YWorkItemTimer#handleTimerExpiry
+    public final Object UNLOAD_MUTEX = new Object();
+
+
     /**
      * Constructor called from YStatelessEngine
      */
