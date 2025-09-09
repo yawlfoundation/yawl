@@ -195,6 +195,9 @@ public class YWorkItem {
     /** completes persisting and event logging for a parent workitem if required */
     private void completeParentPersistence() {
 
+        // edge case: no parent work item
+        if (_parent == null) return;
+
         synchronized(_parent) {                      // sequentially handle children
 
             // if all siblings are completed, then the parent is completed too
