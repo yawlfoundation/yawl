@@ -733,17 +733,6 @@
     </condition>
 
 
-    <!--
-        This custom task writes checksum data for all files in a release build,
-        from where it is used for auto updating
-    -->
-    <taskdef name="checkSums"
-             classname="org.yawlfoundation.yawl.util.CheckSumTask">
-        <classpath>
-            <pathelement path="${classes.dir}"/>
-            <pathelement path="antTask"/>
-        </classpath>
-    </taskdef>
 
     <!-- increment build number & date -->
     <target name="updateBuildProperties">
@@ -1052,6 +1041,16 @@
         <!-- prepare Log4J properties file -->
         <copy filtering="true" overwrite="true"
               file="${properties.dir}/log4j2.xml" todir="${classes.dir}"/>
+        <!--
+          This custom task writes checksum data for all files in a release build,
+          from where it is used for auto updating
+        -->
+        <taskdef name="checkSums" classname="org.yawlfoundation.yawl.util.CheckSumTask">
+          <classpath>
+            <pathelement path="${classes.dir}"/>
+            <pathelement path="antTask"/>
+          </classpath>
+        </taskdef>
 
         <!-- adjust hbm.xml files depending on db chosen -->
         <antcall target="configureHbmXML"/>
