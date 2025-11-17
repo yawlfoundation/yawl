@@ -428,8 +428,8 @@
         <file name="okio-3.9.1.jar"/>
         <file name="okio-jvm-3.9.1.jar"/>
         <file name="java-sdk-1.0.1.jar"/>
-      <!--  <file name="microsoft-graph-6.55.0.jar"/>
-        <file name="microsoft-graph-core-3.6.5.jar"/> -->
+      <!--  <file name="microsoft-graph-6.55.0.jar"/> -->
+        <file name="microsoft-graph-core-3.6.5.jar"/> 
         <file name="microsoft-kiota-authentication-azure-1.8.10.jar"/>
         <file name="microsoft-kiota-http-okHttp-1.8.10.jar"/>
         <file name="microsoft-kiota-serialization-form-1.8.10.jar"/>
