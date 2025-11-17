@@ -94,7 +94,7 @@
     <file name="log4j-api-2.18.0.jar" md5="38d29af13312d716f8d1d8fd79736f05" size="315115" timestamp="2022-07-28T16:14:58" path="A"/>
     <file name="jung-api-2.0.jar" md5="1e4ce4f98a5327227ccb51443e8c6186" size="40952" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="microsoft-kiota-authentication-azure-1.8.10.jar" md5="5fc0f0a8d71e7dc166ae018f5b581758" size="6148" timestamp="2025-10-27T16:34:05" path="A"/>
-<!--    <file name="microsoft-graph-6.55.0.jar" md5="c28a4d04927a9553c271070978423505" size="56689381" timestamp="2025-10-27T16:32:21" path="A"/> -->
+    <file name="microsoft-graph-6.55.0.jar" md5="c28a4d04927a9553c271070978423505" size="56689381" timestamp="2025-10-27T16:32:21" path="A"/>
     <file name="commons-math3-3.6.1.jar" md5="5b730d97e4e6368069de1983937c508e" size="2213560" timestamp="2016-03-17T13:34:20" path="A"/>
     <file name="postgresql-42.2.8.jar" md5="e6dcc1898639407bf530b7a34e870b55" size="900064" timestamp="2019-11-07T16:04:17" path="A"/>
     <file name="jakarta.annotation-api-3.0.0.jar" md5="7faffaab962918da4cf5ddfd76609dd2" size="26378" timestamp="2025-10-27T16:35:53" path="A"/>
@@ -428,7 +428,6 @@
         <file name="okio-3.9.1.jar"/>
         <file name="okio-jvm-3.9.1.jar"/>
         <file name="java-sdk-1.0.1.jar"/>
-      <!--  <file name="microsoft-graph-6.55.0.jar"/> -->
         <file name="microsoft-graph-core-3.6.5.jar"/> 
         <file name="microsoft-kiota-authentication-azure-1.8.10.jar"/>
         <file name="microsoft-kiota-http-okHttp-1.8.10.jar"/>
