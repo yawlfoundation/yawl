@@ -61,6 +61,8 @@ public class ProgressPanel extends JPanel {
 
 
     public void update(int progress) {
+        if (progress < 0) progress = 0;
+        if (progress > 100) progress = 100;
         _bar.setValue(progress);
         _bar.setString(getProgressString(progress));
     }

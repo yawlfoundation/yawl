@@ -2,8 +2,8 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>5.2</version>
-  <timestamp>2025-11-10 15.08.42</timestamp>
-  <lib hash="46dfdae0f59e55bb8c771fc476a73999">
+  <timestamp>2025-11-17 16.17.22</timestamp>
+  <lib hash="6e3a3f22ab1eb47008344f92fcc67d79">
     <file name="java-sdk-1.0.1.jar" md5="b9aa0aed59e34be1259c7444cc3558bb" size="159271" timestamp="2025-01-06T07:53:05" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="courier-java-3.3.0.jar" md5="e7a93219b9c1d43e02f7b53fd5d0899f" size="1386836" timestamp="2025-01-06T07:53:05" path="A"/>
@@ -105,7 +105,7 @@
     <file name="xercesImpl.jar" md5="da09b75b562ca9a8e9a535d2148be8e4" size="1229289" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="macify-1.4.jar" md5="0e25f516b113033b2da4591161f1e117" size="11684" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="jaxen-1.1.6.jar" md5="a140517286b56eea981e188dcc3a13f6" size="231882" timestamp="2015-08-12T13:39:28" path="A"/>
-    <file name="commons-collections-3.2.1.jar" md5="13bc641afd7fd95e09b260f69c1e4c91" size="575389" timestamp="2015-08-12T13:39:27" path="A"/>
+    <file name="commons-collections-3.2.1.jar" md5="4ff5f15da8c76f9437096db18387c1ce" size="575389" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="saxon9-jdom.jar" md5="ec6f0f16d513e1bf5a67a9671e46c7d6" size="36793" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="hibernate-ehcache-5.6.14.Final.jar" md5="b57429c90f9c14a2ed71d0dc013eb254" size="54790" timestamp="2023-01-27T18:29:31" path="A"/>
     <file name="mysql-connector-java-5.1.22-bin.jar" md5="2c069d69928c75cd28172fd33772a1db" size="832960" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -872,11 +872,11 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-5.2.jar" md5="205bcee38464bdf69912d99056978368" size="3055629" timestamp="2025-11-10T15:08:34" path="AM"/>
+    <file name="yawl-lib-5.2.jar" md5="0180c43f81750f98566ca598d7c83d49" size="3055629" timestamp="2025-11-17T16:17:21" path="AM"/>
   </yawllib>
   <controlpanel>
-    <build>454</build>
-    <file name="YawlControlPanel-5.2.jar" md5="2e3593e7375adaaefdcfcb6059e629e1" size="428743" timestamp="2025-03-31T08:13:58" path="AM"/>
+    <build>455</build>
+    <file name="YawlControlPanel-5.2.jar" md5="12ac3e2a0ecd6aff830ffca5e72d1ec1" size="428788" timestamp="2025-11-17T16:17:22" path="AM"/>
   </controlpanel>
   <paths>
     <path id="host">https://raw.githubusercontent.com/</path>
