@@ -2,8 +2,8 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>5.2</version>
-  <timestamp>2025-11-17 17.02.51</timestamp>
-  <lib hash="46dfdae0f59e55bb8c771fc476a73999">
+  <timestamp>2025-11-17 17.08.30</timestamp>
+  <lib hash="a9d2854c20f71831ad792fc8faa788dc">
     <file name="java-sdk-1.0.1.jar" md5="b9aa0aed59e34be1259c7444cc3558bb" size="159271" timestamp="2025-01-06T07:53:05" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="courier-java-3.3.0.jar" md5="e7a93219b9c1d43e02f7b53fd5d0899f" size="1386836" timestamp="2025-01-06T07:53:05" path="A"/>
@@ -94,7 +94,7 @@
     <file name="log4j-api-2.18.0.jar" md5="38d29af13312d716f8d1d8fd79736f05" size="315115" timestamp="2022-07-28T16:14:58" path="A"/>
     <file name="jung-api-2.0.jar" md5="1e4ce4f98a5327227ccb51443e8c6186" size="40952" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="microsoft-kiota-authentication-azure-1.8.10.jar" md5="5fc0f0a8d71e7dc166ae018f5b581758" size="6148" timestamp="2025-10-27T16:34:05" path="A"/>
-    <file name="microsoft-graph-6.55.0.jar" md5="c28a4d04927a9553c271070978423505" size="56689381" timestamp="2025-10-27T16:32:21" path="A"/>
+    <file name="microsoft-graph-6.55.0.jar" md5="497f71572057dd562b678152dca1d505" size="56689381" timestamp="2025-10-27T16:32:21" path="A"/>
     <file name="commons-math3-3.6.1.jar" md5="5b730d97e4e6368069de1983937c508e" size="2213560" timestamp="2016-03-17T13:34:20" path="A"/>
     <file name="postgresql-42.2.8.jar" md5="e6dcc1898639407bf530b7a34e870b55" size="900064" timestamp="2019-11-07T16:04:17" path="A"/>
     <file name="jakarta.annotation-api-3.0.0.jar" md5="7faffaab962918da4cf5ddfd76609dd2" size="26378" timestamp="2025-10-27T16:35:53" path="A"/>
@@ -359,22 +359,22 @@
       </lib>
     </workletService>
     <resourceService>
-      <build>4200</build>
+      <build>4201</build>
       <files>
-        <file name="welcome.htm" md5="a3dfe9a0fc668b839258b33667a229bc" size="778" timestamp="2025-11-17T17:02:44" path="Q"/>
-        <file name="WEB-INF/classes/hibernate.cfg.xml" md5="4ea4c33cc045d0aa2c9e20442756898d" size="505" timestamp="2025-11-17T17:02:44" path="AW"/>
-        <file name="WEB-INF/classes/version.properties" md5="6ba87dd86ec5fd5595f64f56f30d0c19" size="184" timestamp="2025-11-17T17:02:44" path="P"/>
-        <file name="WEB-INF/classes/mail.properties" md5="e90ddf62ce96513696a60e90c5af216f" size="1224" timestamp="2025-11-17T17:02:44" path="P"/>
-        <file name="WEB-INF/classes/LDAPSource.properties" md5="a87b645da531d62420bdbff4b305411a" size="3920" timestamp="2025-11-17T17:02:44" path="S"/>
-        <file name="WEB-INF/web.xml" md5="a95b3b6caed2d8f316dd9188f4c1bbdb" size="18506" timestamp="2025-11-17T17:02:44" path="P"/>
-        <file name="graphics/Thumbs.db" md5="eb936b9acc99b18871e86d669ddad40a" size="16384" timestamp="2025-11-17T17:02:44" path="N"/>
-        <file name="graphics/logosmall.jpg" md5="050677df96ab6793a39e4d59f4fe0578" size="2062" timestamp="2025-11-17T17:02:44" path="N"/>
-        <file name="graphics/bg01.gif" md5="45268fa75e5992b96983eed8f9ae9abc" size="82" timestamp="2025-11-17T17:02:44" path="N"/>
-        <file name="graphics/logobig.jpg" md5="8e2e8fe313e7af29c44fa84551297815" size="11662" timestamp="2025-11-17T17:02:44" path="N"/>
-        <file name="graphics/subtext.jpg" md5="af8aae0c419d1945a35ec47b4b95692f" size="1179" timestamp="2025-11-17T17:02:44" path="G"/>
-        <file name="graphics/common.css" md5="cebb397e37f82800b8d96672e1534c55" size="2782" timestamp="2025-11-17T17:02:44" path="G"/>
-        <file name="graphics/wsText.jpg" md5="aaf9275d974ea1b4a30d12dae5e87c03" size="1274" timestamp="2025-11-17T17:02:44" path="N"/>
-        <file name="graphics/yawl.swf" md5="3849953b829c6032dc645cf5b01188e3" size="8660" timestamp="2025-11-17T17:02:44" path="G"/>
+        <file name="welcome.htm" md5="a3dfe9a0fc668b839258b33667a229bc" size="778" timestamp="2025-11-17T17:08:26" path="Q"/>
+        <file name="WEB-INF/classes/hibernate.cfg.xml" md5="4ea4c33cc045d0aa2c9e20442756898d" size="505" timestamp="2025-11-17T17:08:26" path="AW"/>
+        <file name="WEB-INF/classes/version.properties" md5="2ae63141c3340ec99ad7112954805530" size="184" timestamp="2025-11-17T17:08:26" path="P"/>
+        <file name="WEB-INF/classes/mail.properties" md5="e90ddf62ce96513696a60e90c5af216f" size="1224" timestamp="2025-11-17T17:08:26" path="P"/>
+        <file name="WEB-INF/classes/LDAPSource.properties" md5="a87b645da531d62420bdbff4b305411a" size="3920" timestamp="2025-11-17T17:08:26" path="S"/>
+        <file name="WEB-INF/web.xml" md5="a95b3b6caed2d8f316dd9188f4c1bbdb" size="18506" timestamp="2025-11-17T17:08:26" path="P"/>
+        <file name="graphics/Thumbs.db" md5="eb936b9acc99b18871e86d669ddad40a" size="16384" timestamp="2025-11-17T17:08:26" path="N"/>
+        <file name="graphics/logosmall.jpg" md5="050677df96ab6793a39e4d59f4fe0578" size="2062" timestamp="2025-11-17T17:08:26" path="N"/>
+        <file name="graphics/bg01.gif" md5="45268fa75e5992b96983eed8f9ae9abc" size="82" timestamp="2025-11-17T17:08:26" path="N"/>
+        <file name="graphics/logobig.jpg" md5="8e2e8fe313e7af29c44fa84551297815" size="11662" timestamp="2025-11-17T17:08:26" path="N"/>
+        <file name="graphics/subtext.jpg" md5="af8aae0c419d1945a35ec47b4b95692f" size="1179" timestamp="2025-11-17T17:08:26" path="G"/>
+        <file name="graphics/common.css" md5="cebb397e37f82800b8d96672e1534c55" size="2782" timestamp="2025-11-17T17:08:26" path="G"/>
+        <file name="graphics/wsText.jpg" md5="aaf9275d974ea1b4a30d12dae5e87c03" size="1274" timestamp="2025-11-17T17:08:26" path="N"/>
+        <file name="graphics/yawl.swf" md5="3849953b829c6032dc645cf5b01188e3" size="8660" timestamp="2025-11-17T17:08:26" path="G"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -871,7 +871,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-5.2.jar" md5="9721c8e6d50d4a27a1ca78af18198402" size="3055629" timestamp="2025-11-17T17:02:43" path="AM"/>
+    <file name="yawl-lib-5.2.jar" md5="bbc80fda046ce43924d77e632b086a9d" size="3055629" timestamp="2025-11-17T17:08:25" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>455</build>
