@@ -109,6 +109,10 @@ public class WorkQueueGateway extends YHttpServlet {
                 password = encryptPassword(password);
             }
             result = _rm.login(userid, password, req.getSession().getId()); // user connect
+        }
+        else if (action.equalsIgnoreCase("userlogout")) {
+            _rm.logout(handle);
+            result = success;
         } else if (action.equalsIgnoreCase("checkConnection")) {
             result = _rm.checkServiceConnection(handle) ? success :
                     fail("Invalid or disconnected session handle");
@@ -266,9 +270,9 @@ public class WorkQueueGateway extends YHttpServlet {
         } else if (action.equals("disconnect")) {
             _rm.serviceDisconnect(handle);
             result = success;
-        } else if (action.equals("userlogout")) {
-            _rm.logout(handle);
-            result = success;
+//        } else if (action.equals("userlogout")) {
+//            _rm.logout(handle);
+//            result = success;
         } else if (action.equals("acceptOffer")) {
             result = doResourceAction(req, action);
         } else if (action.equals("startWorkItem")) {

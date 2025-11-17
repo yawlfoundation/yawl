@@ -35,10 +35,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.mail.Message;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +52,7 @@ public class MailService extends InterfaceBWebsideController {
 
     private static MailService _instance;
     private final MailSettings _defaults = new MailSettings();
+    private final Properties _extraProperties = new Properties();
 
 
     private MailService() { }
@@ -210,6 +208,7 @@ public class MailService extends InterfaceBWebsideController {
             Mailer m = MailerBuilder
                     .withSMTPServer(settings.host, settings.port, settings.user, settings.password)
                     .withTransportStrategy(settings.strategy)
+                    .withProperties(_extraProperties)               // if TLS, "TLSv1.2"
                     .withDebugLogging(true)
                     .buildMailer();
 
@@ -321,9 +320,12 @@ public class MailService extends InterfaceBWebsideController {
         if (StringUtil.isNullOrEmpty(strategyString)) return _defaults.strategy;
         if ("PLAIN".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP;
         if ("SSL".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTPS;
-        if ("TLS".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_TLS;
+        if ("TLS".equalsIgnoreCase(strategyString)) {
+            _extraProperties.put("mail.smtp.ssl.protocols", "TLSv1.2");
+            return TransportStrategy.SMTP_TLS;
+        }
 
-        _logger.error("Unknown transport strategy ('{}'). Fall back to default (SSL).",
+        _logger.error("Unknown transport strategy ('{}'). Fall back to default (SMTPS).",
                 strategyString);
         return null; //defaults.strategy;
     }

@@ -55,7 +55,9 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
 
 
     public YMultiInstanceAttributes(YTask container) {
-        this(container, "1", "2", "2", CREATION_MODE_STATIC);
+        // max and threshold initially set to 'infinity' (internally Integer.MAX_VALUE)
+        this(container, "1", "2147483647",
+                "2147483647", CREATION_MODE_STATIC);
     }
 
 

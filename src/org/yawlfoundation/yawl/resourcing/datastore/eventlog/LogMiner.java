@@ -943,7 +943,7 @@ public class LogMiner {
         else if ((lastChar >= '0') && (lastChar <= '9')) {      // post-beta 7
             taskName = taskName.substring(0, taskName.lastIndexOf('_'));
         }
-        return taskName.replace('_', ' ');
+        return taskName; //.replace('_', ' ');
     }
     
 

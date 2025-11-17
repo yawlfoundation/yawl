@@ -1,13 +1,20 @@
 package org.yawlfoundation.yawl.resourcing.util;
 
+import com.azure.identity.ClientSecretCredential;
+import com.azure.identity.ClientSecretCredentialBuilder;
 import com.courier.api.Courier;
 import com.courier.api.requests.SendMessageRequest;
 import com.courier.api.resources.send.types.*;
+import com.courier.api.resources.send.types.Message;
+import com.courier.api.resources.send.types.Recipient;
 import com.courier.api.types.SendMessageResponse;
 import com.mailersend.sdk.MailerSend;
 import com.mailersend.sdk.MailerSendResponse;
 import com.mailersend.sdk.emails.Email;
 import com.mailersend.sdk.exceptions.MailerSendException;
+import com.microsoft.graph.models.*;
+import com.microsoft.graph.serviceclient.GraphServiceClient;
+import com.microsoft.graph.users.item.sendmail.SendMailPostRequestBody;
 import org.simplejavamail.mailer.config.TransportStrategy;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
@@ -19,9 +26,8 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.List;
 
 /**
  * @author Michael Adams
@@ -29,10 +35,9 @@ import java.util.Properties;
  */
 public class Emailer {
 
-    public enum Provider { Courier, MailerSend, Custom, None }
+    public enum Provider { Courier, MailerSend, Outlook, Custom, None }
 
     private Provider _provider = Provider.None;
-    private String _uid;
     private Properties _props = new Properties();
     private static Emailer INSTANCE;
 
@@ -73,6 +78,8 @@ public class Emailer {
                     switch (_provider) {
                         case Courier:
                             sendViaCourier(p.getEmail(), data); break;
+                        case Outlook:
+                            sendViaOutlook(p.getEmail(), data); break;
                         case MailerSend:
                             sendViaMailer(p.getEmail(), data); break;
                         case Custom:
@@ -118,6 +125,9 @@ public class Emailer {
         else if (providerStr.equalsIgnoreCase("Courier")) {
             _provider = Provider.Courier;
         }
+        else if (providerStr.equalsIgnoreCase("Outlook")) {
+            _provider = Provider.Outlook;
+        }
         else if (providerStr.equalsIgnoreCase("Mailer")) {
             _provider = Provider.MailerSend;
         }
@@ -143,7 +153,7 @@ public class Emailer {
         }
     }
 
-    private void sendViaCourier(String emailAddr, Map<String, Object> dataMap) {
+    private String sendViaCourier(String emailAddr, Map<String, Object> dataMap) {
 
         Courier courier = Courier.builder().authorizationToken(getToken()).build();
 
@@ -158,15 +168,12 @@ public class Emailer {
                                 .to(recipient).build()
                 )).build());
 
-        resp.toString();
+        return resp.toString();
     }
 
 
     private void sendViaMailer(String emailAddr, Map<String, Object> dataMap) throws IOException {
-        String fromAddress = _props.getProperty("fromAddress");
-        if (fromAddress == null) {
-            throw new IOException("Missing 'from address' in properties");
-        }
+        String fromAddress = loadProperty("fromAddress");
 
         Email email = new Email();
         email.setFrom("yawl.notifications", fromAddress);
@@ -184,6 +191,41 @@ public class Emailer {
         }
     }
 
+
+    public void sendViaOutlook(String toAddr, Map<String, Object> dataMap) throws IOException {
+        String clientId = loadProperty("clientId");
+        String clientSecret = loadProperty("clientSecret");
+        String tenantId = loadProperty("tenantId");
+
+        ClientSecretCredential credential = new ClientSecretCredentialBuilder()
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .tenantId(tenantId)
+                .build();
+
+        GraphServiceClient graphClient = new GraphServiceClient(credential,
+                "https://graph.microsoft.com/.default");
+
+        com.microsoft.graph.models.Message message = new com.microsoft.graph.models.Message();
+        message.setSubject("YAWL Worklist Notification");
+        ItemBody body = new ItemBody();
+        body.setContentType(BodyType.Html);
+        body.setContent(parseContent(dataMap)); //getReportHtml method returns html string
+        message.setBody(body);
+        
+        EmailAddress toAddress = new EmailAddress();
+        toAddress.setAddress(toAddr);
+        com.microsoft.graph.models.Recipient recipient = new com.microsoft.graph.models.Recipient();
+        recipient.setEmailAddress(toAddress);
+        message.setToRecipients(List.of(recipient));
+
+        SendMailPostRequestBody sendMailPostRequestBody = new SendMailPostRequestBody();
+        sendMailPostRequestBody.setMessage(message);
+        sendMailPostRequestBody.setSaveToSentItems(false);
+
+        graphClient.me().sendMail().post(sendMailPostRequestBody);
+    }
+    
 
     private Map<String, Object> mapData(Participant p, WorkItemRecord wir, int queue) {
         Map<String, Object> map = new HashMap<>();
@@ -204,6 +246,13 @@ public class Emailer {
         map.put("allocatedCount", String.valueOf(p.getWorkQueues().getQueueSize(WorkQueue.ALLOCATED)));
         map.put("startedCount", String.valueOf(p.getWorkQueues().getQueueSize(WorkQueue.STARTED)));
         map.put("suspendedCount", String.valueOf(p.getWorkQueues().getQueueSize(WorkQueue.SUSPENDED)));
+
+        // add ui_url if available
+        String ui_url = _props.getProperty("ui_url");
+        if (! StringUtil.isNullOrEmpty(ui_url)) {
+            map.put("ui_url", ui_url);
+        }
+
         return map;
     }
 
@@ -217,7 +266,16 @@ public class Emailer {
         return content;
     }
 
-    
+
+    private String loadProperty(String key) throws IOException {
+        String property = _props.getProperty(key);
+        if (property != null) {
+            return property;
+        }
+        throw new IOException("Missing required '" + key + "' in properties");
+    }
+
+
     private String dateTimeString(long time) {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(time);
     }

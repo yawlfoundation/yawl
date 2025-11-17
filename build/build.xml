@@ -322,7 +322,7 @@
     <!-- sml -->
     <property name="mysql" value="mysql-connector-java-5.1.22-bin.jar"/>
 
-    <property name="okhttp" value="okhttp-4.12.0.jar"/>
+    <property name="okhttp" value="okhttp-5.2.1.jar"/>
     <property name="okio" value="okio-3.9.1.jar"/>
     <property name="okio-jvm" value="okio-jvm-3.9.1.jar"/>
     <!-- off -->
@@ -372,6 +372,23 @@
     <!-- sch -->
     <property name="xmlunit" value="xmlunit-1.3.jar"/>
     <!-- sch -->
+
+    <!-- This last lot are to allow the resource service to send email via outlook -->
+    <property name="azure-core" value="azure-core-1.57.0.jar"/>
+    <property name="azure-identity" value="azure-identity-1.18.1.jar"/>
+    <property name="azure-identity" value="azure-identity-1.18.1.jar"/>
+    <property name="jakarta-annotation" value="jakarta.annotation-api-3.0.0.jar"/>
+    <property name="microsoft-graph" value="microsoft-graph-6.55.0.jar"/>
+    <property name="microsoft-graph-core" value="microsoft-graph-core-3.6.5.jar"/>
+    <property name="kiota-authentication-azure"
+              value="microsoft-kiota-authentication-azure-1.8.10.jar"/>
+    <property name="kiota-abstractions" value="microsoft-kiota-abstractions-1.8.10.jar"/>
+    <property name="kiota-http" value="microsoft-kiota-http-okHttp-1.8.10.jar"/>
+    <property name="kiota-serialization-form" value="microsoft-kiota-serialization-form-1.8.10.jar"/>
+    <property name="kiota-serialization-json" value="microsoft-kiota-serialization-json-1.8.10.jar"/>
+    <property name="kiota-serialization-multipart" value="microsoft-kiota-serialization-multipart-1.8.10.jar"/>
+    <property name="kiota-serialization-text" value="microsoft-kiota-serialization-text-1.8.10.jar"/>
+
 
     <!--
         Filters and properties for per-database-type operations, using
@@ -498,10 +515,13 @@
 
     <property name="res_mail_libs" value="${courier} ${gson} ${jackson-annotations}
                     ${jackson-core} ${jackson-databind} ${jackson-jdk8} ${jackson-jsr310}
-                    ${kotlin} ${okhttp} ${okio} ${okio-jvm} ${mailsender}"/>
-
-
-
+                    ${kotlin} ${okhttp} ${okio} ${okio-jvm} ${mailsender}
+                    ${microsoft-graph} ${microsoft-graph-core} ${kiota-authentication-azure}
+                    ${kiota-http} ${kiota-serialization-form} ${kiota-serialization-json}
+                    ${kiota-serialization-multipart} ${kiota-serialization-text}
+                    ${kiota-abstractions} ${okhttp}"
+    />
+    
     <!--
         Per webapp dependency lists
     -->
@@ -545,7 +565,9 @@
               value="${jdom} ${log4j.libs} ${twitter4j} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_mailService.libs"
-              value="${jdom} ${log4j.libs} ${simplemail.libs} ${commonsCodec} ${xerces} ${commonsLang3}"/>
+              value="${jdom} ${log4j.libs} ${simplemail.libs} ${commonsCodec}
+              ${xerces} ${commonsLang3} ${azure-core} ${azure-identity}"
+    />
 
     <property name="webapp_schedulingService.libs"
               value="${scheduling.libs} ${persistence.libs} ${jdom} ${log4j.libs}
@@ -669,6 +691,18 @@
         <pathelement location="${lib.dir}/${okhttp}"/>
         <pathelement location="${lib.dir}/${okio}"/>
         <pathelement location="${lib.dir}/${okio-jvm}"/>
+
+        <pathelement location="${lib.dir}/${azure-core}"/>
+        <pathelement location="${lib.dir}/${azure-identity}"/>
+        <pathelement location="${lib.dir}/${microsoft-graph}"/>
+        <pathelement location="${lib.dir}/${microsoft-graph-core}"/>
+        <pathelement location="${lib.dir}/${kiota-http}"/>
+        <pathelement location="${lib.dir}/${kiota-abstractions}"/>
+        <pathelement location="${lib.dir}/${kiota-http}"/>
+        <pathelement location="${lib.dir}/${kiota-serialization-form}"/>
+        <pathelement location="${lib.dir}/${kiota-serialization-json}"/>
+        <pathelement location="${lib.dir}/${kiota-serialization-multipart}"/>
+        <pathelement location="${lib.dir}/${kiota-serialization-text}"/>
     </path>
 
     <path id="cp.scheduling">
