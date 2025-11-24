@@ -570,14 +570,27 @@ public class YLogServer {
             node.addChild("started", casesStarted);
             node.addChild("completed", casesCompleted);
             node.addChild("cancelled", casesCancelled);
-            node.addChild("completionMaxtime", StringUtil.formatTime(maxCompletedTime));
-            node.addChild("completionMintime", StringUtil.formatTime(minCompletedTime));
-            node.addChild("completionAvgtime",
-                    StringUtil.formatTime((long) totalCompletedTime / casesCompleted));
-            node.addChild("cancelledMaxtime", StringUtil.formatTime(maxCancelledTime));
-            node.addChild("cancelledMintime", StringUtil.formatTime(minCancelledTime));
-            node.addChild("cancelledAvgtime",
-                    StringUtil.formatTime((long) totalCancelledTime / casesCancelled));
+
+            String value = maxCompletedTime == 0 ? "N/A" :
+                    StringUtil.formatTime(maxCompletedTime);
+            node.addChild("completionMaxtime", value);
+            value = minCompletedTime == Long.MAX_VALUE ? "N/A" :
+                    StringUtil.formatTime(minCompletedTime);
+            node.addChild("completionMintime", value);
+            value = casesCompleted == 0 ? "N/A" :
+                    StringUtil.formatTime((long) totalCompletedTime / casesCompleted);
+            node.addChild("completionAvgtime", value);
+
+            value = maxCancelledTime == 0 ? "N/A" :
+                    StringUtil.formatTime(maxCancelledTime);
+            node.addChild("cancelledMaxtime", value);
+            value = minCancelledTime == Long.MAX_VALUE ? "N/A" :
+                     StringUtil.formatTime(minCancelledTime);
+            node.addChild("cancelledMintime", value);
+            value = casesCancelled == 0 ? "N/A" :
+                    StringUtil.formatTime((long) totalCancelledTime / casesCancelled);
+            node.addChild("cancelledAvgtime", value);
+            
             result = node.toString();
         }
         else result = CONNECTION_ERROR;

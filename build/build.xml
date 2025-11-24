@@ -323,6 +323,7 @@
     <property name="mysql" value="mysql-connector-java-5.1.22-bin.jar"/>
 
     <property name="okhttp" value="okhttp-5.2.1.jar"/>
+    <property name="okhttp3" value="okhttp-4.12.0.jar"/>
     <property name="okio" value="okio-3.9.1.jar"/>
     <property name="okio-jvm" value="okio-jvm-3.9.1.jar"/>
     <!-- off -->
@@ -515,7 +516,7 @@
 
     <property name="res_mail_libs" value="${courier} ${gson} ${jackson-annotations}
                     ${jackson-core} ${jackson-databind} ${jackson-jdk8} ${jackson-jsr310}
-                    ${kotlin} ${okhttp} ${okio} ${okio-jvm} ${mailsender}
+                    ${kotlin} ${okhttp3} ${okio} ${okio-jvm} ${mailsender}
                     ${microsoft-graph} ${microsoft-graph-core} ${kiota-authentication-azure}
                     ${kiota-http} ${kiota-serialization-form} ${kiota-serialization-json}
                     ${kiota-serialization-multipart} ${kiota-serialization-text}
@@ -689,6 +690,7 @@
         <pathelement location="${lib.dir}/${mailsender}"/>
         <pathelement location="${lib.dir}/${kotlin}"/>
         <pathelement location="${lib.dir}/${okhttp}"/>
+        <pathelement location="${lib.dir}/${okhttp3}"/>
         <pathelement location="${lib.dir}/${okio}"/>
         <pathelement location="${lib.dir}/${okio-jvm}"/>
 
