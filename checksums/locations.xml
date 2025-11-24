@@ -163,6 +163,7 @@
             <file name="mchange-commons-java-0.2.3.4.jar" path="A"/>
             <file name="mysql-connector-java-5.1.22-bin.jar" path="A"/>
             <file name="ojdbc6_9.jar" path="A"/>
+            <file name="okhttp-4.12.0.jar" path="A"/>
             <file name="okhttp-5.2.1.jar" path="A"/>
             <file name="okio-3.9.1.jar" path="A"/>
             <file name="okio-jvm-3.9.1.jar" path="A"/>
