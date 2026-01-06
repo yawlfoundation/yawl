@@ -185,6 +185,8 @@ public class DynFormFieldAssembler {
                     // new populated complex type - recurse in a new field list
                     String groupID = getNextGroupID();
                     List<Element> dataList = (data != null) ? data.getChildren(name) : null;
+
+                    // use data to determine how many fields to create
                     if (! (dataList == null || dataList.isEmpty())) {
                         for (Element var : dataList) {
                             field = addGroupField(name, eField, ns, var,
@@ -194,10 +196,15 @@ public class DynFormFieldAssembler {
                         }
                     }
                     else {
-                        field = addGroupField(name, eField, ns, null,
-                                minOccurs, maxOccurs, level, appInfo);
-                        field.setGroupID(groupID);
-                        result.add(field);
+
+                        // create minoccurs x field
+                        int min = SubPanelController.convertOccurs(minOccurs);
+                        for (int i=0; i<min; i++) {
+                            field = addGroupField(name, eField, ns, null,
+                                    "1", maxOccurs, level, appInfo);
+                            field.setGroupID(groupID);
+                            result.add(field);
+                        }
                     }
                 }
             }

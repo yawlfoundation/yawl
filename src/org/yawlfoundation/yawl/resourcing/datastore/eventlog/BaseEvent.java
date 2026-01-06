@@ -30,6 +30,9 @@ import java.util.Date;
  */
 public abstract class BaseEvent {
 
+    protected static final SimpleDateFormat SDF =
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+
     protected long _id ;                                           // hibernate PK
     protected String _event ;
     protected long _timeStamp ;
@@ -54,7 +57,7 @@ public abstract class BaseEvent {
     public void set_timeStamp(long timeStamp) {_timeStamp = timeStamp; }
 
     public String getTimeStampString() {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date(_timeStamp));
+        return SDF.format(new Date(_timeStamp));
     }
 
     public String getTimeStampMidString() {

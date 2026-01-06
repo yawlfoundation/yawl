@@ -34,4 +34,11 @@ interface YDataType {
 
     Element getSchema(String name);
 
+    
+     default Element addElement(Element parent, String name) {
+        Element element = new Element(name, YAWL_NAMESPACE);
+        parent.addContent(element);
+        return element;
+    }
+
 }

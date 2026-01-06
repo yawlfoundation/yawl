@@ -32,6 +32,9 @@ import java.util.Date;
  */
 public class YLogEvent {
 
+    private static final SimpleDateFormat SDF =
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+
     private long eventID;                   // PK - auto generated
     private long instanceID;                // FK to YLogTaskInstance OR YLogNetInstance
     private String descriptor ;             // the type of event
@@ -83,7 +86,7 @@ public class YLogEvent {
     }
 
     public String getTimestampString() {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date(timestamp));
+        return SDF.format(new Date(timestamp));
     }
 
     public String getTimestampMidString() {

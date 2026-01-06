@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.schema.internal;
 
 import org.jdom2.Element;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,12 +34,17 @@ public enum YInternalType {
     // all available internal types are listed here as enums
     YDocumentType(new YDocumentType()),
     YStringListType(new YStringListType()),
-    YTimerType(new YTimerType());
+    YTimerType(new YTimerType()),
+    YGeoLatLongType(new YGeoLatLongType()),
+    YGeoCircleType(new YGeoCircleType()),
+    YGeoRectType(new YGeoRectType()),
+    YGeoPolygonType(new YGeoPolygonType())
+    ;
 
-    private YDataType _type;
+    private final YDataType _type;
 
     private static Map<String, YInternalType> _fromStringMap =
-            new Hashtable<String, YInternalType>();
+            new HashMap<String, YInternalType>();
 
 
     static {

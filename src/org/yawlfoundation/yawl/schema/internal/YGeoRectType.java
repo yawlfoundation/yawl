@@ -21,22 +21,29 @@ package org.yawlfoundation.yawl.schema.internal;
 import org.jdom2.Element;
 
 /**
- * Defines a datatype for a string list (i.e. a container for 0 or more strings)
+ * Defines a data type for a document (id and string)
  *
  * @author: Michael Adams
- * @date: 04/2009
  */
-class YStringListType implements YDataType {
+
+class YGeoRectType extends YGeoLatLongType implements YDataType {
 
     private static final String SCHEMA =
-            "\n\t<xs:complexType name=\"YStringListType\">\n" +
+            "\n\t<xs:complexType name=\"YGeoRectType\">\n" +
                     "\t\t<xs:sequence>\n" +
-                    "\t\t\t<xs:element name=\"item\" type=\"xs:string\"" +
-                    " minOccurs=\"0\" maxOccurs=\"unbounded\"/>\n" +
+                    "\t\t\t<xs:element name=\"top-left\">\n" +
+                    "\t\t\t\t<xs:complexType>\n" +
+                    INNER_SCHEMA_STRING +
+                    "\t\t\t\t</xs:complexType>\n" +
+                    "\t\t\t</xs:element>\n" +
+                    "\t\t\t<xs:element name=\"bottom-right\">\n" +
+                    "\t\t\t\t<xs:complexType>\n" +
+                    INNER_SCHEMA_STRING +
+                    "\t\t\t\t</xs:complexType>\n" +
+                    "\t\t\t</xs:element>\n" +
                     "\t\t</xs:sequence>\n" +
                     "\t</xs:complexType>\n";
-
-
+    
     public String getSchemaString() { return SCHEMA; }
 
 
@@ -46,13 +53,16 @@ class YStringListType implements YDataType {
 
         Element complex = addElement(element, "complexType");
         Element sequence = addElement(complex, "sequence");
-        Element item = addElement(sequence, "element");
-        item.setAttribute("name", "item");
-        item.setAttribute("type", "xs:string");
-        item.setAttribute("minOccurs", "0");
-        item.setAttribute("maxOccurs", "unbounded");
+
+        Element p1 = addElement(sequence, "element");
+        p1.setAttribute("name", "top-left");
+        addBaseSchema(p1);
+
+        Element p2 = addElement(sequence, "element");
+        p2.setAttribute("name", "bottom-right");
+        addBaseSchema(p2);
 
         return element;
     }
-
+    
 }
