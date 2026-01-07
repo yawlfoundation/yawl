@@ -38,7 +38,7 @@ public class YawlUiUpdater {
 
     public boolean hasUpdate() {
         int local = StringUtil.strToInt(getLocalBuildNumber(), -1);
-        int remote = StringUtil.strToInt(getRemoteBuildNumber(), -1) +1;
+        int remote = StringUtil.strToInt(getRemoteBuildNumber(), -1) + checkForUpdate();
         return local != -1 && remote != -1 && local < remote;
     }
 
@@ -119,6 +119,11 @@ public class YawlUiUpdater {
         }
     }
 
+    private int checkForUpdate() {
+        File check = new File(getLibDir(), "vcf-leaflet-1.0.1.jar");
+        return check.exists() ? 0 : 1;
+    }
+
 
     private String getClassesDir() {
         return LOCAL_PATH + "classes/";
@@ -194,6 +199,10 @@ public class YawlUiUpdater {
             try {
                 List<String> lines1 = Files.readAllLines(oldPath);
                 List<String> lines2 = Files.readAllLines(newPath);
+                if (lines1.size() == lines2.size()) {
+                    return oldProps;
+                }
+
                 for (int i = lines1.size(); i < lines2.size(); ++i) {
                     lines1.add(lines2.get(i));
                 }

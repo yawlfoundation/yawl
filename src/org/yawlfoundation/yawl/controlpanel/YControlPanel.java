@@ -185,7 +185,7 @@ public class YControlPanel extends JFrame {
                 "Update Completed", JOptionPane.INFORMATION_MESSAGE);
 
         JOptionPane.showMessageDialog(this,
-                "Run the 'update' process again to pickup final UI changes " + getVersion(),
+                "Run the 'update' process again to pickup final UI changes ",
                 "Important: Update again", JOptionPane.WARNING_MESSAGE);
     }
 
