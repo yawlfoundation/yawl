@@ -38,7 +38,11 @@ public enum YInternalType {
     YGeoLatLongType(new YGeoLatLongType()),
     YGeoCircleType(new YGeoCircleType()),
     YGeoRectType(new YGeoRectType()),
-    YGeoPolygonType(new YGeoPolygonType())
+    YGeoPolygonType(new YGeoPolygonType()),
+    YGeoLatLongListType(new YGeoLatLongListType()),
+    YGeoCircleListType(new YGeoCircleListType()),
+    YGeoRectListType(new YGeoRectListType()),
+    YGeoPolygonListType(new YGeoPolygonListType())
     ;
 
     private final YDataType _type;

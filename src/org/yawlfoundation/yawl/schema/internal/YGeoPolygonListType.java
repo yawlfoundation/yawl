@@ -26,14 +26,21 @@ import org.jdom2.Element;
  * @author: Michael Adams
  */
 
-class YGeoPolygonType extends YGeoLatLongType implements YDataType {
+class YGeoPolygonListType extends YGeoLatLongType implements YDataType {
 
     private static final String SCHEMA =
-            "\n\t<xs:complexType name=\"YGeoPolygonType\">\n" +
+            "\n\t<xs:complexType name=\"YGeoPolygonListType\">\n" +
                     "\t\t<xs:sequence>\n" +
-                    "\t\t\t<xs:element name=\"vertex\" minOccurs=\"2\" maxOccurs=\"unbounded\"/>\n" +
+                    "\t\t\t<xs:element name=\"polygon\"" +
+                    " maxOccurs=\"unbounded\">\n" +
                     "\t\t\t\t<xs:complexType>\n" +
+                    "\t\t\t\t\t<xs:sequence>\n" +
+                    "\t\t\t\t\t\t<xs:element name=\"vertex\" minOccurs=\"2\" maxOccurs=\"unbounded\"/>\n" +
+                    "\t\t\t\t\t\t\t<xs:complexType>\n" +
                     INNER_SCHEMA_STRING +
+                    "\t\t\t\t\t\t\t</xs:complexType>\n" +
+                    "\t\t\t\t\t\t</xs:element>\n" +
+                    "\t\t\t\t\t</xs:sequence>\n" +
                     "\t\t\t\t</xs:complexType>\n" +
                     "\t\t\t</xs:element>\n" +
                     "\t\t</xs:sequence>\n" +
@@ -48,7 +55,13 @@ class YGeoPolygonType extends YGeoLatLongType implements YDataType {
 
         Element complex = addElement(element, "complexType");
         Element sequence = addElement(complex, "sequence");
-        Element eVertex = addElement(sequence, "element");
+        Element ePolygon = addElement(sequence, "element");
+        ePolygon.setAttribute("name", "polygon");
+        ePolygon.setAttribute("maxOccurs", "unbounded");
+
+        Element complex2 = addElement(ePolygon, "complexType");
+        Element sequence2 = addElement(complex2, "sequence");
+        Element eVertex = addElement(sequence2, "element");
         eVertex.setAttribute("name", "vertex");
         eVertex.setAttribute("minOccurs", "2");
         eVertex.setAttribute("maxOccurs", "unbounded");

@@ -26,14 +26,26 @@ import org.jdom2.Element;
  * @author: Michael Adams
  */
 
-class YGeoPolygonType extends YGeoLatLongType implements YDataType {
+class YGeoRectListType extends YGeoLatLongType implements YDataType {
 
     private static final String SCHEMA =
-            "\n\t<xs:complexType name=\"YGeoPolygonType\">\n" +
+            "\n\t<xs:complexType name=\"YGeoRectListType\">\n" +
                     "\t\t<xs:sequence>\n" +
-                    "\t\t\t<xs:element name=\"vertex\" minOccurs=\"2\" maxOccurs=\"unbounded\"/>\n" +
+                    "\t\t\t<xs:element name=\"rect\"" +
+                    " maxOccurs=\"unbounded\">\n" +
                     "\t\t\t\t<xs:complexType>\n" +
+                    "\t\t\t\t\t<xs:sequence>\n" +
+                    "\t\t\t\t\t\t<xs:element name=\"top-left\">\n" +
+                    "\t\t\t\t\t\t\t<xs:complexType>\n" +
                     INNER_SCHEMA_STRING +
+                    "\t\t\t\t\t\t\t</xs:complexType>\n" +
+                    "\t\t\t\t\t\t</xs:element>\n" +
+                    "\t\t\t\t\t\t<xs:element name=\"bottom-right\">\n" +
+                    "\t\t\t\t\t\t\t<xs:complexType>\n" +
+                    INNER_SCHEMA_STRING +
+                    "\t\t\t\t\t\t\t</xs:complexType>\n" +
+                    "\t\t\t\t\t\t</xs:element>\n" +
+                    "\t\t\t\t\t</xs:sequence>\n" +
                     "\t\t\t\t</xs:complexType>\n" +
                     "\t\t\t</xs:element>\n" +
                     "\t\t</xs:sequence>\n" +
@@ -48,11 +60,20 @@ class YGeoPolygonType extends YGeoLatLongType implements YDataType {
 
         Element complex = addElement(element, "complexType");
         Element sequence = addElement(complex, "sequence");
-        Element eVertex = addElement(sequence, "element");
-        eVertex.setAttribute("name", "vertex");
-        eVertex.setAttribute("minOccurs", "2");
-        eVertex.setAttribute("maxOccurs", "unbounded");
-        addBaseSchema(eVertex);
+        Element eRect = addElement(sequence, "element");
+        eRect.setAttribute("name", "rect");
+        eRect.setAttribute("maxOccurs", "unbounded");
+
+        Element complex2 = addElement(eRect, "complexType");
+        Element sequence2 = addElement(complex2, "sequence");
+
+        Element p1 = addElement(sequence2, "element");
+        p1.setAttribute("name", "top-left");
+        addBaseSchema(p1);
+
+        Element p2 = addElement(sequence2, "element");
+        p2.setAttribute("name", "bottom-right");
+        addBaseSchema(p2);
 
         return element;
     }
