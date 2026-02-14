@@ -3,5 +3,13 @@
     <dependencies>
         <dependency org="commons-lang" name="commons-lang" rev="2.0"/>
         <dependency org="commons-cli" name="commons-cli" rev="1.0"/>
+
+        <!-- A2A Java SDK dependencies -->
+        <dependency org="org.a2aproject" name="a2a-java-client" rev="0.1.0" conf="default"/>
+        <dependency org="org.a2aproject" name="a2a-java-server" rev="0.1.0" conf="default"/>
+
+        <!-- MCP Java SDK dependencies -->
+        <dependency org="io.modelcontextprotocol.sdk" name="mcp" rev="0.1.0" conf="default"/>
+        <dependency org="io.modelcontextprotocol.sdk" name="mcp-core" rev="0.1.0" conf="default"/>
     </dependencies>
 </ivy-module>
