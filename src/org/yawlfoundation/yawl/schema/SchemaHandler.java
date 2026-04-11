@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.schema;
 
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.schema.internal.YInternalTypeUtil;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -48,11 +49,16 @@ public class SchemaHandler {
     // Raw schema source - can be initiated as a String, InputStream or a URL to the xsd
     private Source schemaSource;
 
+    private Source injectedSource; 
+
     // Object model of the Schema
     private Schema schema;
 
     // String version of the Schema - needed by calling classes
     private String schemaString;
+    
+    // String Schema + any required internal type definitions
+    private String injectedSchema;
 
     // a map of complex-type names to their element definitions
     private Map<String, Element> typeMap;
@@ -102,6 +108,7 @@ public class SchemaHandler {
         this();
         schemaString = streamToString(url);
         schemaSource = new StreamSource(url.toExternalForm());
+ //       setInjectedSchema(schemaString);
     }
 
 
@@ -130,7 +137,14 @@ public class SchemaHandler {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setErrorHandler(errorHandler);
         //    factory.setResourceResolver(ResourceResolver.getInstance());
-            schema = factory.newSchema(schemaSource);
+
+            if (injectedSource != null) {
+                schema = factory.newSchema(injectedSource);
+            }
+            else {
+                schema = factory.newSchema(schemaSource);
+            }
+
             return compiled = errorHandler.isValid();
         }
         catch (Exception e) {
@@ -151,6 +165,9 @@ public class SchemaHandler {
                     "compiled before validation can be performed.");
         }
 
+        if (injectedSource != null) {
+            xml = YInternalTypeUtil.annotateDataNS(injectedSchema, xml);
+        }
         errorHandler.reset();
         exceptionMessage = null;
 
@@ -223,8 +240,21 @@ public class SchemaHandler {
         errorHandler.reset();
         typeMap = null;
         compiled = false;
+        setInjectedSchema(schema);
     }
 
+
+    public void setInjectedSchema(String schema) {
+        injectedSchema = YInternalTypeUtil.injectSchema(schema, true);
+        try {
+            injectedSource = stringToSource(injectedSchema);
+        }
+        catch (UnsupportedEncodingException uee) {
+            injectedSource = new StreamSource(new StringReader(injectedSchema));  // fallback
+        }
+    }
+
+    
     /**
      * @return the set of (first-level) type names defined in this schema
      */

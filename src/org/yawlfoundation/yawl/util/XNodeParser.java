@@ -67,8 +67,18 @@ public class XNodeParser {
         if (s.startsWith("<!DOCTYPE")) s = s.substring(s.indexOf('>') + 2).trim();
 
         // if well-formedness check required use JDOM to check it
-        if (_check && (JDOMUtil.stringToElement(s) == null)) return null;
-        
+        if (_check) {
+            try {
+                JDOMUtil.stringToDocumentUncaught(s);
+            }
+            catch (Exception e) {
+                if (!_suppressMessages) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        }
+
         return parse(s, 0);
     }
 

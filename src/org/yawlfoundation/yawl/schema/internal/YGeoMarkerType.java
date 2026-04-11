@@ -25,21 +25,34 @@ import org.jdom2.Element;
  *
  * @author: Michael Adams
  */
-class YGeoLatLongType extends YGeoType implements YDataType {
-    
+
+class YGeoMarkerType extends YGeoType implements YDataType {
+
     private static final String SCHEMA =
-            "\n\t<xs:complexType" + YDataType.getNameSpaceStrings() + "name=\"YGeoLatLongType\">\n" +
-                    LATLONG_SCHEMA_STRING  +
+            "\n\t<xs:complexType" + YDataType.getNameSpaceStrings() + " name=\"YGeoMarkerType\">\n" +
+                    "\t\t<xs:sequence>\n" +
+                    "\t\t\t<xs:element name=\"label\" type=\"xs:string\" minOccurs=\"0\"/>\n" +
+                    "\t\t\t<xs:element name=\"point\">\n" +
+                    "\t\t\t\t<xs:complexType>\n" +
+                    LATLONG_SCHEMA_STRING +
+                    "\t\t\t\t</xs:complexType>\n" +
+                    "\t\t\t</xs:element>\n" +
+                    "\t\t</xs:sequence>\n" +
                     "\t</xs:complexType>\n";
-
-
+    
     public String getSchemaString() { return SCHEMA; }
 
-    public String getConciseSchemaString() { return SCHEMA; }
 
+    @Override
+    void addInnerSchema(Element parent) {
+        Element complex = addElement(parent, "complexType");
+        Element sequence = addElement(complex, "sequence");
 
-    protected void addInnerSchema(Element parent) {
-        addLatLongSchema(parent);
+        addLabelElement(sequence);
+
+        Element ePoint = addElement(sequence, "element");
+        ePoint.setAttribute("name", "point");
+
+        addLatLongSchema(ePoint);
     }
-
 }

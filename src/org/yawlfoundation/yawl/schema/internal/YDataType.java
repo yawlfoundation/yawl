@@ -30,6 +30,8 @@ interface YDataType {
     Namespace YAWL_NAMESPACE = Namespace.getNamespace("yawl",
             "http://www.yawlfoundation.org/yawlschema");
 
+    String XS_NAMESPACE = "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"";
+
     String getSchemaString();
 
     Element getSchema(String name);
@@ -39,6 +41,12 @@ interface YDataType {
         Element element = new Element(name, YAWL_NAMESPACE);
         parent.addContent(element);
         return element;
+    }
+
+
+    static String getNameSpaceStrings() {
+        return " xmlns:yawl=\"http://www.yawlfoundation.org/yawlschema\"" + " " +
+                "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" ";
     }
 
 }

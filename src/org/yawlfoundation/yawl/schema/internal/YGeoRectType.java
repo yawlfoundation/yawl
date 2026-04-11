@@ -26,19 +26,20 @@ import org.jdom2.Element;
  * @author: Michael Adams
  */
 
-class YGeoRectType extends YGeoLatLongType implements YDataType {
+class YGeoRectType extends YGeoType implements YDataType {
 
     private static final String SCHEMA =
-            "\n\t<xs:complexType name=\"YGeoRectType\">\n" +
+            "\n\t<xs:complexType" + YDataType.getNameSpaceStrings() + "name=\"YGeoRectType\">\n" +
                     "\t\t<xs:sequence>\n" +
+                    "\t\t\t<xs:element name=\"label\" type=\"xs:string\" minOccurs=\"0\"/>\n" +
                     "\t\t\t<xs:element name=\"top-left\">\n" +
                     "\t\t\t\t<xs:complexType>\n" +
-                    INNER_SCHEMA_STRING +
+                    LATLONG_SCHEMA_STRING +
                     "\t\t\t\t</xs:complexType>\n" +
                     "\t\t\t</xs:element>\n" +
                     "\t\t\t<xs:element name=\"bottom-right\">\n" +
                     "\t\t\t\t<xs:complexType>\n" +
-                    INNER_SCHEMA_STRING +
+                    LATLONG_SCHEMA_STRING +
                     "\t\t\t\t</xs:complexType>\n" +
                     "\t\t\t</xs:element>\n" +
                     "\t\t</xs:sequence>\n" +
@@ -46,23 +47,21 @@ class YGeoRectType extends YGeoLatLongType implements YDataType {
     
     public String getSchemaString() { return SCHEMA; }
 
-
-    public Element getSchema(String name) {
-        Element element = new Element("element", YAWL_NAMESPACE);
-        element.setAttribute("name", name);
-
-        Element complex = addElement(element, "complexType");
+    
+    @Override
+    void addInnerSchema(Element parent) {
+        Element complex = addElement(parent, "complexType");
         Element sequence = addElement(complex, "sequence");
+
+        addLabelElement(sequence);
 
         Element p1 = addElement(sequence, "element");
         p1.setAttribute("name", "top-left");
-        addBaseSchema(p1);
+        addLatLongSchema(p1);
 
         Element p2 = addElement(sequence, "element");
         p2.setAttribute("name", "bottom-right");
-        addBaseSchema(p2);
-
-        return element;
+        addLatLongSchema(p2);
     }
-    
+
 }

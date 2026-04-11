@@ -26,14 +26,15 @@ import org.jdom2.Element;
  * @author: Michael Adams
  */
 
-class YGeoCircleType extends YGeoLatLongType implements YDataType {
+class YGeoCircleType extends YGeoType implements YDataType {
 
     private static final String SCHEMA =
-            "\n\t<xs:complexType name=\"YGeoCircleType\">\n" +
+            "\n\t<xs:complexType" + YDataType.getNameSpaceStrings() + "name=\"YGeoCircleType\">\n" +
                     "\t\t<xs:sequence>\n" +
+                    "\t\t\t<xs:element name=\"label\" type=\"xs:string\" minOccurs=\"0\"/>\n" +
                     "\t\t\t<xs:element name=\"center\">\n" +
                     "\t\t\t\t<xs:complexType>\n" +
-                    INNER_SCHEMA_STRING +
+                    LATLONG_SCHEMA_STRING +
                     "\t\t\t\t</xs:complexType>\n" +
                     "\t\t\t</xs:element>\n" +
                     "\t\t\t<xs:element name=\"radius\" type=\"xs:float\"/>\n" +
@@ -42,23 +43,21 @@ class YGeoCircleType extends YGeoLatLongType implements YDataType {
     
     public String getSchemaString() { return SCHEMA; }
 
-
-    public Element getSchema(String name) {
-        Element element = new Element("element", YAWL_NAMESPACE);
-        element.setAttribute("name", name);
-
-        Element complex = addElement(element, "complexType");
+    
+    @Override
+    void addInnerSchema(Element parent) {
+        Element complex = addElement(parent, "complexType");
         Element sequence = addElement(complex, "sequence");
+
+        addLabelElement(sequence);
 
         Element eCentre = addElement(sequence, "element");
         eCentre.setAttribute("name", "center");
-        addBaseSchema(eCentre);
-    
+        addLatLongSchema(eCentre);
+
         Element eRadius = addElement(sequence, "element");
         eRadius.setAttribute("name", "radius");
         eRadius.setAttribute("type", "xs:float");
-
-        return element;
     }
-    
+
 }

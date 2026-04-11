@@ -7,15 +7,15 @@ import org.jdom2.Element;
  * @author Michael Adams
  * @date 8/1/2026
  */
-public class YGeoLatLongListType extends YGeoLatLongType implements YDataType{
+public class YGeoLatLongListType extends YGeoLatLongType implements YDataType {
 
     private static final String SCHEMA =
-            "\n\t<xs:complexType name=\"YGeoLatLongListType\">\n" +
+            "\n\t<xs:complexType" + YDataType.getNameSpaceStrings() + "name=\"YGeoLatLongListType\">\n" +
                     "\t\t<xs:sequence>\n" +
                     "\t\t\t<xs:element name=\"point\"" +
                     " maxOccurs=\"unbounded\">\n" +
                     "\t\t\t\t<xs:complexType>\n" +
-                    INNER_SCHEMA_STRING +
+                    LATLONG_SCHEMA_STRING +
                     "\t\t\t\t</xs:complexType>\n" +
                     "\t\t\t</xs:element>\n" +
                     "\t\t</xs:sequence>\n" +
@@ -35,7 +35,7 @@ public class YGeoLatLongListType extends YGeoLatLongType implements YDataType{
         Element ePoint = addElement(sequence, "element");
         ePoint.setAttribute("name", "point");
         ePoint.setAttribute("maxOccurs", "unbounded");
-        addBaseSchema(ePoint);
+        addInnerSchema(ePoint);
         
         return element;
     }

@@ -26,18 +26,19 @@ import org.jdom2.Element;
  * @author: Michael Adams
  */
 
-class YGeoPolygonListType extends YGeoLatLongType implements YDataType {
+class YGeoPolygonListType extends YGeoPolygonType implements YDataType {
 
     private static final String SCHEMA =
-            "\n\t<xs:complexType name=\"YGeoPolygonListType\">\n" +
+            "\n\t<xs:complexType" + YDataType.getNameSpaceStrings() + "name=\"YGeoPolygonListType\">\n" +
                     "\t\t<xs:sequence>\n" +
                     "\t\t\t<xs:element name=\"polygon\"" +
                     " maxOccurs=\"unbounded\">\n" +
                     "\t\t\t\t<xs:complexType>\n" +
                     "\t\t\t\t\t<xs:sequence>\n" +
-                    "\t\t\t\t\t\t<xs:element name=\"vertex\" minOccurs=\"2\" maxOccurs=\"unbounded\"/>\n" +
+                    "\t\t\t\t\t\t<xs:element name=\"label\" type=\"xs:string\" minOccurs=\"0\"/>\n" +
+                    "\t\t\t\t\t\t<xs:element name=\"vertex\" minOccurs=\"2\" maxOccurs=\"unbounded\">\n" +
                     "\t\t\t\t\t\t\t<xs:complexType>\n" +
-                    INNER_SCHEMA_STRING +
+                    LATLONG_SCHEMA_STRING +
                     "\t\t\t\t\t\t\t</xs:complexType>\n" +
                     "\t\t\t\t\t\t</xs:element>\n" +
                     "\t\t\t\t\t</xs:sequence>\n" +
@@ -59,13 +60,7 @@ class YGeoPolygonListType extends YGeoLatLongType implements YDataType {
         ePolygon.setAttribute("name", "polygon");
         ePolygon.setAttribute("maxOccurs", "unbounded");
 
-        Element complex2 = addElement(ePolygon, "complexType");
-        Element sequence2 = addElement(complex2, "sequence");
-        Element eVertex = addElement(sequence2, "element");
-        eVertex.setAttribute("name", "vertex");
-        eVertex.setAttribute("minOccurs", "2");
-        eVertex.setAttribute("maxOccurs", "unbounded");
-        addBaseSchema(eVertex);
+        addInnerSchema(ePolygon);
 
         return element;
     }

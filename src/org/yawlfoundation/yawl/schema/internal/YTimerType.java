@@ -29,7 +29,7 @@ import org.jdom2.Element;
 class YTimerType implements YDataType {
 
     private static final String SCHEMA =
-            "\n\t<xs:complexType name=\"YTimerType\">\n" +
+            "\n\t<xs:complexType" + YDataType.getNameSpaceStrings() + "name=\"YTimerType\">\n" +
                     "\t\t<xs:sequence>\n" +
                     "\t\t\t<xs:element name=\"trigger\">\n" +
                     "\t\t\t\t<xs:simpleType>\n" +

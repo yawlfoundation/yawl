@@ -269,13 +269,18 @@ public class DataSchemaBuilder {
             String type = getTypeNameUnprefixed(child);
             if (type != null) {
 
-                // if there's a type attribute and its a simple type, set it for the clone
+                // if there's a type attribute and it's a simple type, set it for the clone
                 if (isXSDType(type)) {
                     newChild = cloneElement(child, defNS);
                     newChild.setAttribute("type", prefix(type, defNS));
                 }
 
-                // if its a udt, recurse to define the udt subtype
+                // else if it's an internal type, the element is already available
+                else if (YInternalType.isType(type)) {
+                    newChild = YInternalType.getSchemaFor(type, child.getAttributeValue("name"));
+                }
+
+                // if it's a udt, recurse to define the udt subtype
                 else {
                     newChild = cloneUserDefinedType(child, type, defNS);
                 }

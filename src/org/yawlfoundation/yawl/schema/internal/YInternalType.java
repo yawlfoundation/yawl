@@ -36,10 +36,12 @@ public enum YInternalType {
     YStringListType(new YStringListType()),
     YTimerType(new YTimerType()),
     YGeoLatLongType(new YGeoLatLongType()),
+    YGeoMarkerType(new YGeoMarkerType()),
     YGeoCircleType(new YGeoCircleType()),
     YGeoRectType(new YGeoRectType()),
     YGeoPolygonType(new YGeoPolygonType()),
     YGeoLatLongListType(new YGeoLatLongListType()),
+    YGeoMarkerListType(new YGeoMarkerListType()),
     YGeoCircleListType(new YGeoCircleListType()),
     YGeoRectListType(new YGeoRectListType()),
     YGeoPolygonListType(new YGeoPolygonListType())
@@ -74,7 +76,7 @@ public enum YInternalType {
     // Static methods for entire YInternalType
 
     public static boolean isType(String name) {
-        return _fromStringMap.containsKey(name);
+        return name != null && _fromStringMap.containsKey(name);
     }
 
     public static Element getSchemaFor(String type, String varName) {

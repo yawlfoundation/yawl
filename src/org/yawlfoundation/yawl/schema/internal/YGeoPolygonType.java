@@ -26,14 +26,15 @@ import org.jdom2.Element;
  * @author: Michael Adams
  */
 
-class YGeoPolygonType extends YGeoLatLongType implements YDataType {
+class YGeoPolygonType extends YGeoType implements YDataType {
 
     private static final String SCHEMA =
-            "\n\t<xs:complexType name=\"YGeoPolygonType\">\n" +
+            "\n\t<xs:complexType" + YDataType.getNameSpaceStrings() + "name=\"YGeoPolygonType\">\n" +
                     "\t\t<xs:sequence>\n" +
-                    "\t\t\t<xs:element name=\"vertex\" minOccurs=\"2\" maxOccurs=\"unbounded\"/>\n" +
+                    "\t\t\t<xs:element name=\"label\" type=\"xs:string\" minOccurs=\"0\"/>\n" +
+                    "\t\t\t<xs:element name=\"vertex\" minOccurs=\"2\" maxOccurs=\"unbounded\">\n" +
                     "\t\t\t\t<xs:complexType>\n" +
-                    INNER_SCHEMA_STRING +
+                    LATLONG_SCHEMA_STRING +
                     "\t\t\t\t</xs:complexType>\n" +
                     "\t\t\t</xs:element>\n" +
                     "\t\t</xs:sequence>\n" +
@@ -42,19 +43,17 @@ class YGeoPolygonType extends YGeoLatLongType implements YDataType {
     public String getSchemaString() { return SCHEMA; }
 
 
-    public Element getSchema(String name) {
-        Element element = new Element("element", YAWL_NAMESPACE);
-        element.setAttribute("name", name);
-
-        Element complex = addElement(element, "complexType");
+    @Override
+    void addInnerSchema(Element parent) {
+        Element complex = addElement(parent, "complexType");
         Element sequence = addElement(complex, "sequence");
+
+        addLabelElement(sequence);
+
         Element eVertex = addElement(sequence, "element");
         eVertex.setAttribute("name", "vertex");
         eVertex.setAttribute("minOccurs", "2");
         eVertex.setAttribute("maxOccurs", "unbounded");
-        addBaseSchema(eVertex);
-
-        return element;
+        addLatLongSchema(eVertex);
     }
-    
 }
