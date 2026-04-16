@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>5.2</version>
-  <timestamp>2026-04-11 15.15.24</timestamp>
+  <timestamp>2026-04-16 10.06.23</timestamp>
   <lib hash="ecef24c7487f68d42ee7933056f936d6">
     <file name="java-sdk-1.0.1.jar" md5="b9aa0aed59e34be1259c7444cc3558bb" size="159271" timestamp="2025-01-06T07:53:05" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -95,7 +95,6 @@
     <file name="log4j-api-2.18.0.jar" md5="38d29af13312d716f8d1d8fd79736f05" size="315115" timestamp="2022-07-28T16:14:58" path="A"/>
     <file name="jung-api-2.0.jar" md5="1e4ce4f98a5327227ccb51443e8c6186" size="40952" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="microsoft-kiota-authentication-azure-1.8.10.jar" md5="5fc0f0a8d71e7dc166ae018f5b581758" size="6148" timestamp="2025-10-27T16:34:05" path="A"/>
-    <file name="microsoft-graph-6.55.0.jar" md5="c28a4d04927a9553c271070978423505" size="56689381" timestamp="2025-10-27T16:32:21" path="A"/>
     <file name="commons-math3-3.6.1.jar" md5="5b730d97e4e6368069de1983937c508e" size="2213560" timestamp="2016-03-17T13:34:20" path="A"/>
     <file name="postgresql-42.2.8.jar" md5="e6dcc1898639407bf530b7a34e870b55" size="900064" timestamp="2019-11-07T16:04:17" path="A"/>
     <file name="jakarta.annotation-api-3.0.0.jar" md5="7faffaab962918da4cf5ddfd76609dd2" size="26378" timestamp="2025-10-27T16:35:53" path="A"/>
@@ -873,11 +872,11 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-5.2.jar" md5="cdc25581f797640df59c4d23eea186ef" size="3074334" timestamp="2026-04-11T15:14:58" path="AM"/>
+    <file name="yawl-lib-5.2.jar" md5="28bc4346253ea3c9a34690b107acff01" size="3074334" timestamp="2026-04-16T10:06:22" path="AM"/>
   </yawllib>
   <controlpanel>
-    <build>458</build>
-    <file name="YawlControlPanel-5.2.jar" md5="eb3359895db22f336391b1acb69c4f26" size="430035" timestamp="2026-01-07T11:19:15" path="AM"/>
+    <build>459</build>
+    <file name="YawlControlPanel-5.2.jar" md5="7e10e4a571c9e84dd5660589036428ef" size="430101" timestamp="2026-04-16T10:06:23" path="AM"/>
   </controlpanel>
   <paths>
     <path id="host">https://raw.githubusercontent.com/</path>
