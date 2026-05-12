@@ -18,7 +18,11 @@
   ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<web-app version="2.4">
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
 
     <display-name>YAWL Reporter Service</display-name>
     <description>
@@ -29,13 +33,13 @@
     </description>
 
     <servlet>
-		<servlet-name>ReporterServlet</servlet-name>
-		<description>
+        <description>
             Sends a Report.
         </description>
-		<servlet-class>org.yawlfoundation.yawl.reporter.Reporter</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
+        <servlet-name>ReporterServlet</servlet-name>
+        <servlet-class>org.yawlfoundation.yawl.reporter.Reporter</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>ReporterServlet</servlet-name>

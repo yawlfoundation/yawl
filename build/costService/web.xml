@@ -19,7 +19,11 @@
   -->
 
 
-<web-app version="2.4">
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
 
     <display-name>CostService</display-name>
     <description>
@@ -27,59 +31,59 @@
     </description>
 
     <context-param>
-        <param-name>InterfaceX_Service</param-name>
-        <param-value>org.yawlfoundation.yawl.cost.CostService</param-value>
         <description>
             The class name of the Interface X Service implementation.
         </description>
+        <param-name>InterfaceX_Service</param-name>
+        <param-value>org.yawlfoundation.yawl.cost.CostService</param-value>
     </context-param>
 
     <context-param>
-        <param-name>InterfaceX_BackEnd</param-name>
-        <param-value>http://localhost:8080/yawl/ix</param-value>
         <description>
             The URL of the engine's interface X.
         </description>
+        <param-name>InterfaceX_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ix</param-value>
     </context-param>
 
     <context-param>
-        <param-name>EngineLogGateway</param-name>
-        <param-value>http://localhost:8080/yawl/logGateway</param-value>
         <description>
             The URL of the engine's log interface.
         </description>
+        <param-name>EngineLogGateway</param-name>
+        <param-value>http://localhost:8080/yawl/logGateway</param-value>
     </context-param>
 
     <context-param>
-        <param-name>ResourceServiceLogGateway</param-name>
-        <param-value>http://localhost:8080/resourceService/logGateway</param-value>
         <description>
             The URL of the resource service's log interface.
         </description>
+        <param-name>ResourceServiceLogGateway</param-name>
+        <param-value>http://localhost:8080/resourceService/logGateway</param-value>
     </context-param>
 
     <context-param>
-        <param-name>ResourceServiceOrgDataGateway</param-name>
-        <param-value>http://localhost:8080/resourceService/gateway</param-value>
         <description>
             The URL of the resource service's org data interface.
         </description>
+        <param-name>ResourceServiceOrgDataGateway</param-name>
+        <param-value>http://localhost:8080/resourceService/gateway</param-value>
     </context-param>
 
     <context-param>
+        <description>
+             The name of the logon used by the service to connect with the engine.
+        </description>
         <param-name>EngineLogonUserName</param-name>
         <param-value>costService</param-value>
-        <description>
-            The name of the logon used by the service to connect with the engine.
-        </description>
-    </context-param>
+     </context-param>
 
     <context-param>
-        <param-name>EngineLogonPassword</param-name>
-        <param-value>yCost</param-value>
         <description>
             The password for the logon used by the service to connect with the engine.
         </description>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yCost</param-value>
     </context-param>
 
     <!--CharsetFilter -->
@@ -108,14 +112,14 @@
     </servlet>
 
     <servlet>
-          <servlet-name>InterfaceX_Servlet</servlet-name>
-          <description>
-              Listens to notification of exceptions from the engine.
-          </description>
-          <servlet-class>
-              org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideServer
-          </servlet-class>
-          <load-on-startup>1</load-on-startup>
+        <description>
+            Listens to notification of exceptions from the engine.
+        </description>
+        <servlet-name>InterfaceX_Servlet</servlet-name>
+        <servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideServer
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>

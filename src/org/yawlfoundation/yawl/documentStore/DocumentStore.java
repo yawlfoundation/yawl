@@ -18,20 +18,21 @@
 
 package org.yawlfoundation.yawl.documentStore;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.ObjectNotFoundException;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.util.Sessions;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.sql.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -52,7 +53,7 @@ public class DocumentStore extends YHttpServlet {
         ServletContext context = getServletContext();
 
         // check size-fix for H2 databases
-        fixH2BinarySize(context);
+        //fixH2BinarySize(context);
 
         // setup database connection
         Set<Class> persistedClasses = new HashSet<Class>();
@@ -74,7 +75,6 @@ public class DocumentStore extends YHttpServlet {
 
 
     public void destroy() {
-        if (_db != null) _db.closeFactory();
         if (_sessions != null) _sessions.shutdown();
         super.destroy();
     }
@@ -129,7 +129,12 @@ public class DocumentStore extends YHttpServlet {
                 }
             } else writeString(res, "Invalid or disconnected session handle", "failure");
 
-            if (result != null) writeString(res, result, "response");
+            if (result != null) {
+                writeString(res, result, "response");
+            }
+            else {
+                writeString(res, "Document not found", "failure");
+            }
         } catch (EOFException eofe) {              // occurs when the inputStream is null
             writeString(res, "Welcome to the YAWL Document Store Service", "response");
         } catch (IOException ioe) {
@@ -186,7 +191,7 @@ public class DocumentStore extends YHttpServlet {
      */
     private YDocument getDocument(long id) throws IOException {
         try {
-            return (YDocument) _db.load(YDocument.class, id);
+            return loadDocument(id);
         } catch (ObjectNotFoundException onfe) {
             throw new IOException("No stored document found with id: " + id);
         }
@@ -224,9 +229,9 @@ public class DocumentStore extends YHttpServlet {
      */
     private boolean removeDocument(long id) {
         try {
-            YDocument doc = (YDocument) _db.load(YDocument.class, id);
+            YDocument doc = loadDocument(id);
             return (doc != null) && _db.exec(doc, HibernateEngine.DB_DELETE, true);
-        } catch (ObjectNotFoundException onfe) {
+        } catch (ObjectNotFoundException | IOException onfe) {
             return false;
         }
     }
@@ -234,7 +239,7 @@ public class DocumentStore extends YHttpServlet {
 
     private String addCaseID(long id, String caseID) throws IOException {
         try {
-            YDocument doc = (YDocument) _db.load(YDocument.class, id);
+            YDocument doc = (YDocument) loadDocument(id);
             if (doc != null) {
                 doc.setCaseId(caseID);
                 if (_db.exec(doc, HibernateEngine.DB_UPDATE, true)) {
@@ -268,6 +273,12 @@ public class DocumentStore extends YHttpServlet {
             sb.append("Error removing documents for case: ").append(id);
         }
         return sb.toString();
+    }
+
+
+    private YDocument loadDocument(long id) throws IOException {
+        List result = _db.execQuery("from YDocument as yd where yd.id=" + id);
+        return ! (result == null || result.isEmpty()) ? (YDocument) result.getFirst() : null;
     }
 
 

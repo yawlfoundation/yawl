@@ -642,6 +642,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * @param sessionHandle
      * @return either "<success/>" or "<failure><reason>...</...>"
      */
+    @Deprecated
     public String checkConnectionForAdmin(String sessionHandle) {
         return checkSession(sessionHandle);
    }
@@ -1281,6 +1282,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return a success or failure message
      * @throws RemoteException
      */
+    @Deprecated
     public String deleteAccount(String client, String sessionHandle) throws RemoteException {
         YSession session = _sessionCache.getSession(sessionHandle);
         if (session != null) {

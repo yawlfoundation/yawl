@@ -42,8 +42,8 @@
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"/>
 
         <property name="condition" column="ruleCondition"/>
-        <property name="description" type="text"/>
-        <property name="cornerstoneString" type="text"/>
+        <property name="description" type="text" length="2147483647"/>
+        <property name="cornerstoneString" type="text" length="2147483647"/>
 
 	</class>
 	

@@ -79,15 +79,21 @@ public class HibernateStatistics {
         node.addChild("total_misses", stats.getSecondLevelCacheMissCount());
         node.addChild("total_puts", stats.getSecondLevelCachePutCount());
         for (String name : stats.getSecondLevelCacheRegionNames()) {
-            SecondLevelCacheStatistics cacheStats = stats.getSecondLevelCacheStatistics(name);
+            CacheRegionStatistics cacheStats =
+                stats.getCacheRegionStatistics(name);
             XNode cacheNode = node.addChild("cache");
             cacheNode.addChild("name", name);
-            cacheNode.addChild("hits", cacheStats.getHitCount());
-            cacheNode.addChild("misses", cacheStats.getMissCount());
-            cacheNode.addChild("puts", cacheStats.getPutCount());
-            cacheNode.addChild("memory_elements", cacheStats.getElementCountInMemory());
-            cacheNode.addChild("disk_elements", cacheStats.getElementCountOnDisk());
-            cacheNode.addChild("memory_size", cacheStats.getSizeInMemory());
+            if (cacheStats != null) {
+                cacheNode.addChild("hits", cacheStats.getHitCount());
+                cacheNode.addChild("misses", cacheStats.getMissCount());
+                cacheNode.addChild("puts", cacheStats.getPutCount());
+                cacheNode.addChild("memory_elements", cacheStats.getElementCountInMemory());
+                cacheNode.addChild("disk_elements", cacheStats.getElementCountOnDisk());
+                cacheNode.addChild("memory_size", cacheStats.getSizeInMemory());
+            }
+            else {
+                cacheNode.addChild("stats", "not available");
+            }
         }
         return node;
     }
@@ -164,6 +170,11 @@ public class HibernateStatistics {
 
     private String getTimeString(long time) {
         return new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.SSS").format(new Date(time));
+    }
+
+    
+    private long defaultLong(Long value) {
+        return value != null ? value : -1;
     }
 
 

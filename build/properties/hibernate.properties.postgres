@@ -1,0 +1,33 @@
+## PostgreSQL
+
+# --- Core ---
+hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+hibernate.connection.driver_class=org.postgresql.Driver
+hibernate.connection.url=jdbc:postgresql:@DB_Path@
+hibernate.connection.username=@DB_User@
+hibernate.connection.password=@DB_Password@
+
+hibernate.hbm2ddl.auto=update
+hibernate.current_session_context_class=thread
+hibernate.generate_statistics=true
+
+# --- SQL ---
+hibernate.show_sql=false
+hibernate.format_sql=true
+
+# --- JDBC ---
+hibernate.jdbc.batch_size=20
+hibernate.jdbc.fetch_size=100
+
+# --- Cache (JCache + Ehcache 3) ---
+hibernate.cache.use_second_level_cache=false
+hibernate.cache.use_query_cache=false
+
+# --- Hikari (pooling) ---
+hibernate.hikari.maximumPoolSize=10
+hibernate.hikari.minimumIdle=2
+hibernate.hikari.idleTimeout=30000
+
+# --- Optional ---
+hibernate.cache.region_prefix=hibernate.test
+

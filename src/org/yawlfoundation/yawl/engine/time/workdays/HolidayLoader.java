@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.engine.time.workdays;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.util.SoapClient;
 import org.yawlfoundation.yawl.util.XNode;
@@ -196,11 +197,16 @@ public class HolidayLoader {
 
 
     private HolidayRegion getLocation(HibernateEngine persister) {
+        HolidayRegion region = null;
         List rawList = persister.getObjectsForClass("HolidayRegion");
-        if (rawList == null || rawList.isEmpty()) {
-            return null;
+        if (! (rawList == null || rawList.isEmpty())) {
+            region = (HolidayRegion) rawList.getFirst();
+            if (region != null) {
+                Hibernate.initialize(region);
+            }
         }
-        return (HolidayRegion) rawList.get(0);
+        persister.commit();
+        return region;
     }
 
 

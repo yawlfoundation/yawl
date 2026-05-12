@@ -24,6 +24,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * @author Michael Adams
@@ -116,7 +117,7 @@ public class ProgressPanel extends JPanel {
 
 
     private BigDecimal getScaledSize(double size, int scale) {
-        return BigDecimal.valueOf(size).setScale(scale, BigDecimal.ROUND_HALF_UP);
+        return BigDecimal.valueOf(size).setScale(scale, RoundingMode.HALF_UP);
     }
 
 }

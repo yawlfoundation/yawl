@@ -31,18 +31,18 @@ public enum AppEnum {
     yawl("The core YAWL Engine", 0, false),
     yawlui("The YAWL User Interface", 1, false),
     resourceService("Handles the resource perspective", 2, false),
-    documentStore("Stores files-as-data for processes", 3, false),
-    costService("Adds cost-awareness to processes and tasks", 4, true),
-    digitalSignature("Adds secure digital signatures to tasks", 5, true),
-    mailService("Send emails from tasks", 6, true),
-    monitorService("Provides basic process monitoring", 7, true),
-    orderfulfillment("Custom forms for orderfulfillment example", 8, true),
-    procletService("Handles inter-process communications", 9, true),
-    schedulingService("Schedules resources for future tasks", 10, true),
-    twitterService("Sends Twitter status messages from tasks", 11, true),
-    workletService("Handles flexibility and exception handling", 12, true),
-    yawlSMSInvoker("Sends text messages from tasks", 13, true),
-    yawlWSInvoker("Invokes external web services from tasks", 14, true);
+    workletService("Handles flexibility and exception handling", 3, false),
+    mailService("Send emails from tasks", 4, false),
+    documentStore("Stores files-as-data for processes", 5, false),
+    schedulingService("Schedules resources for future tasks", 6, true),
+    costService("Adds cost-awareness to processes and tasks", 7, true);
+//    digitalSignature("Adds secure digital signatures to tasks", 5, true),
+//    monitorService("Provides basic process monitoring", 7, true),
+//    orderfulfillment("Custom forms for orderfulfillment example", 8, true),
+//    procletService("Handles inter-process communications", 9, true),
+//    twitterService("Sends Twitter status messages from tasks", 11, true),
+//    yawlSMSInvoker("Sends text messages from tasks", 13, true),
+//    yawlWSInvoker("Invokes external web services from tasks", 14, true);
 
 
     private final String _description;

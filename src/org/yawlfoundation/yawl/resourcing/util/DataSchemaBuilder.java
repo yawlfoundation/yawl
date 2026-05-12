@@ -278,6 +278,18 @@ public class DataSchemaBuilder {
                 // else if it's an internal type, the element is already available
                 else if (YInternalType.isType(type)) {
                     newChild = YInternalType.getSchemaFor(type, child.getAttributeValue("name"));
+
+                    // clone and add any additional attributes
+                    if (newChild != null) {                     // should always be
+                        for (Attribute attr : cloneAttributes(child, defNS)) {
+                            String name = attr.getName();
+
+                            // name and type attributes already applied above
+                            if (!(name.equals("name") || name.equals("type"))) {
+                                newChild.setAttribute(name, attr.getValue());
+                            }
+                        }
+                    }
                 }
 
                 // if it's a udt, recurse to define the udt subtype

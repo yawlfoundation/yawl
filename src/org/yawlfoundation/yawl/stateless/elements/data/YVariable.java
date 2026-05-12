@@ -442,28 +442,6 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         } else {
             handler.error(this, "A Name or element name for this variable must be set.");
         }
-
-//        // check doc store service is available for YDocument vars
-//        if (_dataTypeName.endsWith("YDocumentType")) {
-//            try {
-//                if (YEngine.isRunning()) {
-//                    YEngine engine = YEngine.getInstance();
-//                    YExternalClient service = engine.getExternalClient("documentStore");
-//                    if (service == null) {
-//                        handler.warn(this,
-//                                "Variable [" + getPreferredName() + "] in decomposition [" +
-//                                        _parentDecomposition + "] is of type 'YDocument', " +
-//                                        "but the required 'DocumentStore' client service is not " +
-//                                        "registered with the YAWL engine. Please ensure the " +
-//                                        "service is registered prior to executing the specification.");
-//                    }
-//                }
-//            } catch (NoClassDefFoundError e) {
-//                // may occur if called in standalone mode (eg. from the editor), caused by
-//                // the call to a static YEngine which attempts to create a
-//                // YPersistenceManager object - ok to ignore the verify check in these instances
-//            }
-//        }
     }
 
 

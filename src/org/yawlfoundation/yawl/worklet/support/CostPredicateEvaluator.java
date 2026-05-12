@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.apache.logging.log4j.LogManager;
+import org.hibernate.Hibernate;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.cost.interfce.CostGatewayClient;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -165,16 +166,20 @@ public class CostPredicateEvaluator {
                 "w._event='WorkletLaunched'";
 
         List parentList = Persister.getInstance().createQuery(parentQuery)
-                        .setString("uri", wir.getSpecURI())
-                        .setString("taskid", wir.getTaskID()).list();
+                        .setParameter("uri", wir.getSpecURI())
+                        .setParameter("taskid", wir.getTaskID()).list();
         for (Object o : parentList) {
+            Hibernate.initialize(o);
             WorkletEvent parentEvent = (WorkletEvent) o;
             List workletList = Persister.getInstance().createQuery(workletQuery)
-                            .setString("caseid", parentEvent.get_caseId()).list();
+                            .setParameter("caseid", parentEvent.get_caseId()).list();
             for (Object ow : workletList) {
+                Hibernate.initialize(ow);
                 variants.add(((WorkletEvent) ow).get_specId());
             }
         }
+        Persister.getInstance().commit();
+
         return variants;
     }
 

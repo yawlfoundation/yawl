@@ -219,9 +219,6 @@ public class YAnnouncer {
      * @param item the work item that has had its timer expire
      */
     public void announceTimerExpiryEvent(YWorkItem item) {
-//        if (! _workItemListeners.isEmpty()) {
-//            announceWorkItemEvent(new YWorkItemEvent(YEventType.TIMER_EXPIRED, item));
-//        }
         if (! _timerListeners.isEmpty()) {
             announceTimerEvent(new YTimerEvent(YEventType.TIMER_EXPIRED, item));
         }
@@ -232,9 +229,6 @@ public class YAnnouncer {
 
 
     public void announceTimerStartedEvent(YWorkItem item) {
-//        if (! _workItemListeners.isEmpty()) {
-//             announceWorkItemEvent(new YWorkItemEvent(YEventType.TIMER_STARTED, item));
-//         }
          if (! _timerListeners.isEmpty()) {
              announceTimerEvent(new YTimerEvent(YEventType.TIMER_STARTED, item));
          }
@@ -242,9 +236,6 @@ public class YAnnouncer {
 
 
     public void announceTimerCancelledEvent(YWorkItem item) {
-//        if (! _workItemListeners.isEmpty()) {
-//             announceWorkItemEvent(new YWorkItemEvent(YEventType.TIMER_CANCELLED, item));
-//         }
          if (! _timerListeners.isEmpty()) {
              announceTimerEvent(new YTimerEvent(YEventType.TIMER_CANCELLED, item));
          }

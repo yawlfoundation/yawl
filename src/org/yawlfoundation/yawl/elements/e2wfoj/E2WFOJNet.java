@@ -678,13 +678,13 @@ public final class E2WFOJNet {
        netElementName = netElement.getID();
        if (premarkedPlaces.containsKey(netElementName))
        { countString = (Integer) premarkedPlaces.get(netElementName);
-    	 int count = countString.intValue();
+    	 int count = countString;
     	 if (count == 1)
     	 { premarkedPlaces.remove(netElementName);
     	 }
          else if(count > 1) 
     	 { count = count - 1;
-    	   tokenCount = new Integer(count);
+    	   tokenCount = count;
     	   premarkedPlaces.put(netElementName,tokenCount);
     	  } 
        }
@@ -693,7 +693,7 @@ public final class E2WFOJNet {
        
        preSet.removeAll(removeSet);
      //Add one token to preSet
-       tokenCount = new Integer(1);
+       tokenCount = 1;
        for (Iterator iterator = preSet.iterator(); iterator.hasNext();) {
     		netElement = (RElement) iterator.next();
     		netElementName = netElement.getID();
@@ -701,7 +701,7 @@ public final class E2WFOJNet {
     		{ countString = (Integer)premarkedPlaces.get(netElementName);
     		  int count = countString.intValue();
     		  count ++;
-    		  tokenCount = new Integer(count); 
+    		  tokenCount = count;
     		}
     	    premarkedPlaces.put(netElementName,tokenCount);
       	}
@@ -709,7 +709,7 @@ public final class E2WFOJNet {
       //Add one token to R(t) if it is an input place
       // F(p,t) if p in R(t)
        removeSet.retainAll(t.getPresetElements());
-       tokenCount = new Integer(1);
+       tokenCount = 1;
        for (Iterator iterator = removeSet.iterator(); iterator.hasNext();) {
     		netElement = (RElement) iterator.next();
     		netElementName = netElement.getID();
@@ -738,13 +738,13 @@ public final class E2WFOJNet {
     	  	RPlace place = (RPlace) _Places.get(condition.getID());
        	    if (place != null){
        	    String placename = place.getID();
-       	    Integer tokenCount = new Integer(1);
+       	    Integer tokenCount = 1;
     		if (RMap.containsKey(placename))
     		{ Object value = RMap.get(placename);
-    		  Integer countString = new Integer(value.toString());
-    		  int count = countString.intValue();
+    		  Integer countString = Integer.valueOf(value.toString());
+    		  int count = countString;
     		  count ++;
-    		  tokenCount = new Integer(count); 
+    		  tokenCount = count;
     		}
     	    RMap.put(placename,tokenCount);
     	    }
@@ -764,7 +764,7 @@ public final class E2WFOJNet {
          RPlace place = (RPlace) _Places.get(internalPlace);
          if (place != null) {
 	       String placename = place.getID();
-	       Integer tokenCount = new Integer(1);
+	       Integer tokenCount = 1;
        	   RMap.put(placename,tokenCount);
 	           
     	 }
@@ -778,7 +778,7 @@ public final class E2WFOJNet {
    	Set X = orJoin.getPresetElements();
    	Map newMap = new HashMap();
    	Set emptyPreSetPlaces = new HashSet(); 
-   	Integer tokenCount = new Integer(1);
+   	Integer tokenCount = 1;
    	for (Iterator x = X.iterator(); x.hasNext();)    
     {   YCondition preSetCondition = (YCondition) x.next();
     	RPlace preSetPlace = (RPlace) _Places.get(preSetCondition.getID());
@@ -800,7 +800,7 @@ public final class E2WFOJNet {
     for (Iterator i = emptyPreSetPlaces.iterator(); i.hasNext();)    
     {   RPlace q = (RPlace) i.next();
         // Add one token for exactly one empty place
-        tokenCount = new Integer(1);
+        tokenCount = 1;
     	String qname = q.getID();
     	newMap.put(qname,tokenCount);
         RMarking M_w = new RMarking(new HashMap(newMap)); 

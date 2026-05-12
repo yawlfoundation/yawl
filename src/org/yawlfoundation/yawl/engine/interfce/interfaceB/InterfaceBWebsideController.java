@@ -29,9 +29,9 @@ import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -342,6 +342,7 @@ public abstract class InterfaceBWebsideController {
      * @throws IOException if there is a problem contacting the engine.
      * @throws JDOMException if there is a problem parsing XML of input or output data
      */
+    @Deprecated(since = "2.1")
     public String checkInWorkItem(String workItemID, String inputData, String outputData,
                                   String sessionHandle) throws IOException, JDOMException {
         Element inputDataEl = JDOMUtil.stringToElement(inputData);
@@ -361,6 +362,7 @@ public abstract class InterfaceBWebsideController {
      * @throws IOException if there is a problem contacting the engine.
      * @throws JDOMException if there is a problem parsing XML of input or output data
      */
+    @Deprecated(since = "2.1")
     public String checkInWorkItem(String workItemID, Element inputData,
                                   Element outputData, String sessionHandle)
             throws IOException, JDOMException {
@@ -456,6 +458,7 @@ public abstract class InterfaceBWebsideController {
      * @return a task metadata description
      * @throws IOException if there is a problem contacting the engine.
      */
+    @Deprecated
     public TaskInformation getTaskInformation(String specID, String taskID,
                                               String sessionHandle) throws IOException {
        return getTaskInformation(new YSpecificationID(specID), taskID, sessionHandle);
@@ -488,6 +491,7 @@ public abstract class InterfaceBWebsideController {
      * @return a reference to the cache
      * @deprecated use getIBCache() instead
      */
+    @Deprecated
     public IBControllerCache getModel() {
         return _ibCache;
     }
@@ -568,6 +572,7 @@ public abstract class InterfaceBWebsideController {
      * @return a specification data object
      * @throws IOException if there is a problem contacting the engine.
      */
+    @Deprecated
     public SpecificationData getSpecificationData(String specID, String sessionHandle)
             throws IOException {
         return getSpecificationData(new YSpecificationID(specID), sessionHandle);

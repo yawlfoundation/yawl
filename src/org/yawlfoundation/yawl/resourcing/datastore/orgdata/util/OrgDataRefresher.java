@@ -23,9 +23,10 @@ import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
 
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -63,6 +64,8 @@ public class OrgDataRefresher {
      */
     public OrgDataRefresher(ResourceManager rm, long period) {
         _scheduler = Executors.newScheduledThreadPool(1);
+        ShutdownTaskHandler.register(() -> ShutdownUtil.shutdownExecutor(
+                _scheduler, "OrgDataRefresher"));
         _rm = rm;
         refresh(period);
     }
@@ -80,12 +83,10 @@ public class OrgDataRefresher {
      * Stop the refresher timer (if it was started)
      * @return a list of the cancelled, scheduled refresh commands (if any)
      */
-    public List<Runnable> cancel() {
+    public void cancel() {
         if (_refresherTask != null) {
             _refresherTask.cancel(true);
-            return _scheduler.shutdownNow();
         }
-        return null;
     }
 
     /*********************************************************************************/
@@ -97,6 +98,8 @@ public class OrgDataRefresher {
     private void refresh(long period) {
         _refresherTask = _scheduler.scheduleAtFixedRate(new RefreshRunnable(),
                 period, period, TimeUnit.MINUTES);
+        ShutdownTaskHandler.register(() ->
+                ShutdownUtil.shutdownExecutor(_scheduler, "OrgDataRefresher"));
     }
 
 

@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.mailService;
 
-import org.apache.commons.lang.StringUtils;
 import org.jdom2.Element;
 import org.simplejavamail.email.Email;
 import org.simplejavamail.email.EmailBuilder;
@@ -201,7 +200,7 @@ public class MailService extends InterfaceBWebsideController {
         _logger.debug(
                 "Sending mail with host={}, port={}, user={}, password={}, strategy={}",
                 settings.host, settings.port, settings.user,
-                StringUtils.isNotEmpty(settings.password) ? "***SECRET***" : "",
+                StringUtil.isNullOrEmpty(settings.password) ? "" : "***SECRET***",
                 settings.strategy);
 
         try {
@@ -250,7 +249,7 @@ public class MailService extends InterfaceBWebsideController {
 
         String fromName = settings.fromName;
         String fromAddress = settings.fromAddress;
-        String toName = StringUtils.defaultString(settings.toName);
+        String toName = StringUtil.defaultString(settings.toName);
         List<String> toAddresses = new ArrayList<>(Arrays.asList(
                 settings.toAddress.split(";")));
         List<Recipient> ccRecipients = asRecipientList(settings.ccAddress,
@@ -266,7 +265,7 @@ public class MailService extends InterfaceBWebsideController {
                         Collectors.joining(",")) + ">",
                 "<" + bccRecipients.stream().map(Recipient::getAddress).collect(
                         Collectors.joining(",")) + ">",
-                StringUtils.defaultString(settings.subject)));
+                StringUtil.defaultString(settings.subject)));
 
         EmailPopulatingBuilder emailBuilder = EmailBuilder.startingBlank()
                 .from(fromName, fromAddress)
@@ -275,7 +274,7 @@ public class MailService extends InterfaceBWebsideController {
                 .bcc(bccRecipients)
                 .withSubject(settings.subject);
 
-        String body = StringUtils.defaultString(settings.content);
+        String body = StringUtil.defaultString(settings.content);
         if (body.contains("<")) {
             emailBuilder = emailBuilder.withHTMLText(body);
         }

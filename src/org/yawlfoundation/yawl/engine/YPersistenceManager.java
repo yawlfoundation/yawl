@@ -21,13 +21,15 @@ package org.yawlfoundation.yawl.engine;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.*;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.tool.hbm2ddl.SchemaUpdate;
-import org.hibernate.tool.schema.TargetType;
+import org.hibernate.query.Query;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.GroupedMIOutputData;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -37,10 +39,9 @@ import org.yawlfoundation.yawl.engine.time.YLaunchDelayer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.Problem;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.util.HibernateRegistry;
 import org.yawlfoundation.yawl.util.HibernateStatistics;
 
-import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -89,18 +90,18 @@ public class YPersistenceManager {
         if (journalising) {
             try {
                 StandardServiceRegistry standardRegistry =
-                        new StandardServiceRegistryBuilder().configure().build();
+                        new StandardServiceRegistryBuilder().build();
 
                 MetadataSources metadataSources = new MetadataSources(standardRegistry);
-                for (Class clazz : persistedClasses) {
-                    metadataSources.addClass(clazz);
+                for (Class<?> clazz : persistedClasses) {
+                    String resource = clazz.getName().replace('.', '/') + ".hbm.xml";
+                        metadataSources.addResource(resource);
                 }
 
                 Metadata metadata = metadataSources.buildMetadata();
                 factory = metadata.buildSessionFactory();
-
-                EnumSet<TargetType> targetTypes = EnumSet.of(TargetType.DATABASE);
-                new SchemaUpdate().execute(targetTypes, metadata);
+                
+                HibernateRegistry.registerFactory("yawl", factory);
                 setEnabled(true);
             }
             catch (Exception e) {
@@ -132,6 +133,7 @@ public class YPersistenceManager {
     }
 
     public Session getSession() {
+        logger.debug("Getting session for thread " + Thread.currentThread().getName());
         return (factory != null) ? factory.getCurrentSession() : null;
     }
 
@@ -316,7 +318,6 @@ public class YPersistenceManager {
             } else {
                 getSession().save(obj);
             }
-   //         getSession().flush();
         } catch (Exception e) {
             logger.error("Failure detected whilst persisting instance of " +
                     obj.getClass().getName(), e);
@@ -329,11 +330,6 @@ public class YPersistenceManager {
                     obj.getClass().getName(), e);
         }
 
-//        try {
-//            getSession().evict(obj);
-//        } catch (HibernateException e) {
-//            logger.warn("Failure whilst evicting object from Hibernate session cache", e);
-//        }
         logger.debug("<-- doPersistAction");
     }
 
@@ -346,6 +342,12 @@ public class YPersistenceManager {
             logger.fatal("Failure to commit transactional session - Rolling Back Transaction", e1);
             rollbackTransaction();
             throw new YPersistenceException("Failure to commit transactional session", e1);
+        }
+        finally {
+            Session session = getSession();
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
         }
         logger.debug("<-- end commit");
     }
@@ -446,11 +448,14 @@ public class YPersistenceManager {
      */
     public Object selectScalar(String className, String field, String value)
             throws YPersistenceException {
-        String qryStr = String.format("select distinct t from %s as t where t.%s=%s",
-                className, field, value);
-        Iterator itr = createQuery(qryStr).iterate();
-        if (itr.hasNext()) return itr.next();
-        else return null;
+        String qryStr = String.format(
+                "select distinct t from %s as t where t.%s = :value",
+                className, field);
+
+        return createQuery(qryStr)
+                .setParameter("value", value)
+                .setMaxResults(1)
+                .uniqueResult();
     }
 
 

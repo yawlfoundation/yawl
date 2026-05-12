@@ -30,7 +30,7 @@
         </id>
 		
     	<property name="caseId" column="caseId"/>
-        <property name="document" column="yDoc" type="binary"/>
+        <property name="document" column="yDoc" type="materialized_blob"/>
 
 	</class>
 	

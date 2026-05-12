@@ -20,9 +20,9 @@ package org.yawlfoundation.yawl.monitor.jsf;
 
 import org.apache.logging.log4j.LogManager;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
 
 /**
  * Takes the necessary steps when a session times out

@@ -60,10 +60,10 @@ import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.*;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.datatype.Duration;
 import java.awt.*;
 import java.io.File;
@@ -280,11 +280,6 @@ public final class ResourceManager extends InterfaceBWebsideController {
     public boolean isVisualiserEnabled() { return _visualiserEnabled; }
 
     public WorkItemCache getWorkItemCache() { return _workItemCache; }
-
-
-//    public void registerJSFApplicationReference(ApplicationBean app) {
-//        _jsfApplicationReference = app;
-//    }
 
     public boolean hasOrgDataSource() {
         return (_orgdb != null);
@@ -2225,9 +2220,9 @@ public final class ResourceManager extends InterfaceBWebsideController {
     public void shutdown() {
         try {
             _cache.shutdown();
-            _persister.closeDB();
+
             if (_orgDataRefresher != null) _orgDataRefresher.cancel();
-            _workItemCache.stopCleanserThread();
+       //     _workItemCache.stopCleanserThread();
         } catch (Exception e) {
             _log.error("Unsuccessful audit log update on shutdown.");
         }
@@ -2515,9 +2510,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
 
     public void announceModifiedQueue(String pid) {
-//        if (_jsfApplicationReference != null) {
-//            _jsfApplicationReference.refreshUserWorkQueues(pid);
-//        }
+
     }
 
 

@@ -141,7 +141,7 @@ public class TomcatProcess {
 
 
     private void monitorStartup(final boolean isWindows, final Set<String> preTasks) {
-        final StartMonitor startMonitor = new StartMonitor(10);
+        final StartMonitor startMonitor = new StartMonitor(40);
         startMonitor.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent event) {

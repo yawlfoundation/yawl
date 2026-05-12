@@ -50,7 +50,7 @@
         <property name="itemId"/>
         <property name="parentCaseId"/>
         <property name="launchedCaseId"/>
-        <property name="data" type="text"/>
+        <property name="data" type="text" length="2147483647"/>
 
 	</class>
 	

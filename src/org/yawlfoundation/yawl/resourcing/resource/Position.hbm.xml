@@ -43,7 +43,7 @@
 
         <property name="_description"
                   column="Description"
-                  type="text"
+                  type="text" length="2147483647"
                   access="field"/>
 
         <many-to-one name="_orgGroup"

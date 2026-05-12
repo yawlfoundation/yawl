@@ -28,8 +28,8 @@
    		    <generator class="assigned"/>
     	</id>
 
- 		<property name="dataDocString" column="datadoc" type="text"/>
-		<property name="completedItemsString" column="completeditems" type="text"/>
+ 		<property name="dataDocString" column="datadoc" type="text" length="2147483647"/>
+		<property name="completedItemsString" column="completeditems" type="text" length="2147483647"/>
 	</class>
 	
 </hibernate-mapping>

@@ -140,7 +140,10 @@ public abstract class AbstractCheckSumTask extends Task {
 
 
     protected boolean shouldBeExcluded(File file) {
-        return file.getName().startsWith(".") || file.getAbsolutePath().contains(".svn") ||
+        return file.getName().startsWith(".") ||
+                file.getAbsolutePath().contains(".svn") ||
+                file.getAbsolutePath().contains("obsolete") ||
+                file.getAbsolutePath().contains("mail/graph") ||
                 containsMatch(file, _antExcludes);
     }
 

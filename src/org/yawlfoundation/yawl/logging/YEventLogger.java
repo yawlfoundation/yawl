@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.logging;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Query;
+import org.hibernate.Hibernate;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.authentication.YSession;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -32,6 +32,8 @@ import org.yawlfoundation.yawl.logging.table.*;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.internal.YInternalType;
 import org.yawlfoundation.yawl.util.HibernateEngine;
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -95,6 +97,12 @@ public class YEventLogger {
     private static final ExecutorService _executor =
                 Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+
+    static {
+        ShutdownTaskHandler.register(() ->
+                ShutdownUtil.shutdownExecutor(_executor, "YEventLogger"));
+    }
+    
     // PUBLIC INTERFACE METHODS //
 
     /**
@@ -355,19 +363,21 @@ public class YEventLogger {
      * @return the last allocated case number
      */
     public int getMaxCaseNbr() {
-        Query query = getDb().createQuery(
-                "select max(engineInstanceID) from YLogNetInstance");
-        if (query != null && !query.list().isEmpty()) {
-            String engineID = (String) query.iterate().next();
-            try {
-                // only want integral case numbers
-                return new Double(engineID).intValue();
-            }
-            catch (Exception e) {
-                // ignore - fallthrough
-            }
+        Object result = getDb()
+                .createQuery("select max(engineInstanceID) from YLogNetInstance")
+                .uniqueResult();
+        getDb().commit();
+
+        if (result == null) {
+            return 0;
         }
-        return 0;    // will increment to one on first case start
+
+        try {
+            return Double.valueOf(result.toString()).intValue();
+        }
+        catch (Exception e) {
+            return 0;
+        }
     }
 
 
@@ -627,9 +637,12 @@ public class YEventLogger {
         String def = item.getDataTypeDefinition();
         long dataTypeID = _keyCache.getDataTypeID(name, def);
         if (dataTypeID == -1) {
-            List list = getDb().createQuery(
-                    "from YLogDataType where dataTypeName=:name")
-                            .setString("name", name).list();
+
+            List list = getDb()
+                    .createQuery("from YLogDataType where name = :name")
+                    .setParameter("name", name)
+                    .getResultList();
+            
             if (! list.isEmpty()) {
                 for (Object o : list) {
                     YLogDataType logDataType = (YLogDataType) o;
@@ -643,6 +656,7 @@ public class YEventLogger {
                 dataTypeID = insertDataType(item);
             }
             _keyCache.putDataTypeID(name, def, dataTypeID);
+            getDb().commit();
         }
         return dataTypeID;
     }
@@ -875,7 +889,11 @@ public class YEventLogger {
      */
     private Object selectScalarWhere(String objName, String whereClause) {
         List list = getDb().getObjectsForClassWhere(objName, whereClause);
-        return (! list.isEmpty()) ? list.get(0) : null;
+        Object object = (! list.isEmpty()) ? list.getFirst() : null;
+        if (object != null) {
+            Hibernate.initialize(object);
+        }
+        return object;
     }
 
 

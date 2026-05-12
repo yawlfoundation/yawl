@@ -285,8 +285,8 @@ public class ResourceCalendar {
                 "AND ce.startTime < :end AND ce.endTime > :start " +
                 "ORDER BY ce.startTime")
                 .setParameterList("idlist", createIDListForQuery(resourceID, isParticipant))
-                .setLong("start", from)
-                .setLong("end", to)
+                .setParameter("start", from)
+                .setParameter("end", to)
                 .list();
     }
 
@@ -307,8 +307,8 @@ public class ResourceCalendar {
                 "FROM CalendarEntry AS ce " +
                 "WHERE ce.startTime < :end AND ce.endTime > :start " +
                 "ORDER BY ce.startTime")
-                .setLong("start", from)
-                .setLong("end", to)
+                .setParameter("start", from)
+                .setParameter("end", to)
                 .list();
     }
 
@@ -717,7 +717,7 @@ public class ResourceCalendar {
      */
     public List getEntries(String id) {
         return _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.resourceID=:id")
-                    .setString("id", id)
+                    .setParameter("id", id)
                     .list();
     }
 
@@ -735,9 +735,9 @@ public class ResourceCalendar {
         return _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.resourceID=:id" +
                 " AND ce.startTime < :end AND ce.endTime > :start " +
                 " ORDER BY ce.startTime")
-                .setString("id", id)
-                .setLong("start", from)
-                .setLong("end", to)
+                .setParameter("id", id)
+                .setParameter("start", from)
+                .setParameter("end", to)
                 .list();
     }
 

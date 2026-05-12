@@ -331,7 +331,7 @@ public class WorkQueue {
 
     public void fromXML(Element element) {
         if (element != null) {
-            _queueType = new Integer(element.getChildText("queuetype"));
+            _queueType = Integer.parseInt(element.getChildText("queuetype"));
             _ownerID = element.getChildText("ownerid");
             Element items = element.getChild("workitems");
             if (items != null) {

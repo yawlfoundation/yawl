@@ -23,9 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.util.HttpURLValidator;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.*;
 import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
@@ -68,6 +66,8 @@ public class WorkletEventServer extends Interface_Client {
      */
     public WorkletEventServer() {
         _log = LogManager.getLogger(WorkletEventServer.class);
+        ShutdownTaskHandler.register(() ->
+                ShutdownUtil.shutdownExecutor(_executor, "WorkletEventServer"));
     }
 
 

@@ -1098,6 +1098,7 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /** @deprecated */
+    @Deprecated
     public String addParticipant(String userid, String password, boolean encrypt,
                                      String lastname, String firstname, boolean admin,
                                      String description, String notes, String handle)
@@ -1376,7 +1377,7 @@ public class ResourceGatewayClient extends Interface_Client {
     }
 
 
-    /** @deprecated */
+    @Deprecated
     public String updateParticipant(String participantID, String userid, String password,
                                     boolean encrypt, String lastname,String firstname,
                                     boolean admin, String description, String notes,

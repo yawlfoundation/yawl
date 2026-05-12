@@ -36,19 +36,10 @@ import java.awt.event.ActionListener;
 public class MacIcon implements ActionListener, EngineStatusListener {
 
     private final EngineMonitor _engineMonitor;
-//    private DefaultApplication _macApp;
-
     private int _waitIndex;
 
 
     public MacIcon(EngineMonitor monitor) {
-//        try {
-//            _macApp = new DefaultApplication();
-//        }
-//        catch (Throwable e) {
-//            // forget it, must be running Java 9 or later on OS 11 or later
-//        }
-
         _engineMonitor = monitor;
         Publisher.addEngineStatusListener(this);
     }
@@ -73,10 +64,6 @@ public class MacIcon implements ActionListener, EngineStatusListener {
 
     private void setIcon(String name) {
         ImageIcon icon = IconLoader.get("Yawl" + name);
-//        if (_macApp != null) {
-//            _macApp.setApplicationIconImage((BufferedImage) icon.getImage());
-//        }
-//        else {    // running java 9 or later
         try {
             Taskbar.getTaskbar().setIconImage(icon.getImage());
         }

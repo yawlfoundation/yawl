@@ -20,6 +20,8 @@ package org.yawlfoundation.yawl.resourcing.datastore;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
 
 import java.util.HashSet;
 import java.util.List;
@@ -147,7 +149,9 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
         Cleanser() {
             _scheduler = Executors.newScheduledThreadPool(1);
             _cleanseTask = _scheduler.scheduleAtFixedRate(new CleanseRunnable(),
-                    INTERVAL, INTERVAL, TimeUnit.MINUTES);
+                    1, INTERVAL, TimeUnit.MINUTES);
+            ShutdownTaskHandler.register(() ->
+                    ShutdownUtil.shutdownExecutor(_scheduler, "WorkItemCacheCleanser"));
         }
 
         public void cancel() {

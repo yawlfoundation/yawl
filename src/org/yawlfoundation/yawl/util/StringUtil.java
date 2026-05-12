@@ -18,9 +18,6 @@
 
 package org.yawlfoundation.yawl.util;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
@@ -120,6 +117,12 @@ public class StringUtil {
 
         return new String(outputChars);
     }
+
+
+    public static String defaultString(String s) {
+        return s == null ?  "" : s.trim();
+    }
+
 
     /**
      * Removes all white space from a string.
@@ -253,21 +256,7 @@ public class StringUtil {
         return baos.toString();
     }
 
-    /**
-     * Esacpes all HTML entities and "funky accents" into the HTML 4.0 encodings, replacing
-     * new lines with "&lt;br&gt;", tabs with four "&amp;nbsp;" and single spaces with "&amp;nbsp;".
-     *
-     * @param string to escape
-     * @return escaped string
-     */
-    public static String formatForHTML(String string) {
-        string = StringEscapeUtils.escapeHtml(string);
-        string = string.replaceAll("\n", "<br>");
-        string = string.replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
-        string = string.replaceAll(" ", "&nbsp;");
-        return string;
-    }
-
+    
     /**
      * encases a string with a pair of xml tags
      *
@@ -405,7 +394,7 @@ public class StringUtil {
         try {
             return stringToFile(
                     File.createTempFile(
-                            RandomStringUtils.randomAlphanumeric(12), null), contents);
+                            randomAlphanumeric(12), null), contents);
         } catch (IOException e) {
             return null;
         }
@@ -502,10 +491,6 @@ public class StringUtil {
         return extracted;
     }
 
-
-    public static String getRandomString(int length) {
-        return RandomStringUtils.random(length);
-    }
 
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.isEmpty();
@@ -702,10 +687,10 @@ public class StringUtil {
 
     public static String join(List<?> list, char separator) {
         if (list == null || list.isEmpty()) return "";
-        if (list.size() == 1) return list.get(0).toString();
+        if (list.size() == 1) return list.getFirst().toString();
         StringBuilder sb = new StringBuilder();
         for (Object s : list) {
-            if (sb.length() > 0) sb.append(separator);     
+            if (!sb.isEmpty()) sb.append(separator);
             sb.append(s);
         }
         return sb.toString();
@@ -769,6 +754,19 @@ public class StringUtil {
             }
         }
         return set;
+    }
+
+
+    public static String randomAlphanumeric(int length) {
+        int leftLimit = 48; // numeral '0'
+        int rightLimit = 122; // letter 'z'
+        Random random = new Random();
+
+        return random.ints(leftLimit, rightLimit + 1)
+          .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97)) // filter for alphanumeric
+          .limit(length)
+          .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+          .toString();
     }
 
 }

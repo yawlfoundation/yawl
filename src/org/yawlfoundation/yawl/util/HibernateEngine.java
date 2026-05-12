@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.util;
 
+import jakarta.persistence.criteria.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
@@ -25,13 +26,14 @@ import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.criterion.Criterion;
 import org.hibernate.exception.JDBCConnectionException;
-import org.hibernate.tool.hbm2ddl.SchemaUpdate;
-import org.hibernate.tool.schema.TargetType;
+import org.hibernate.query.Query;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaRoot;
 
 import java.io.Serializable;
-import java.util.EnumSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -65,38 +67,42 @@ public class HibernateEngine {
     // Constructors and Initialisation //
     /***********************************/
 
-    /** The constuctor - called from getInstance() */
+    /** The constructor - called from the proclet service */
     public HibernateEngine(boolean persistenceOn, Set<Class> classes, Properties props)
             throws HibernateException {
         _persistOn = persistenceOn;
         initialise(classes, props);
+
     }
 
-
+    /** Constructor used by all other services **/
     public HibernateEngine(boolean persistenceOn, Set<Class> classes) {
         this(persistenceOn, classes, null);
+
+        // register the calling service with its factory
+        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+                .getCallerClass();
+        HibernateRegistry.registerFactory(caller.getSimpleName(), _factory);
     }
 
 
     /** initialises hibernate and the required tables */
     private void initialise(Set<Class> classes, Properties props) {
-        StandardServiceRegistryBuilder standardRegistryBuilder = new StandardServiceRegistryBuilder()
-            .configure();
+        StandardServiceRegistryBuilder standardRegistryBuilder =
+                new StandardServiceRegistryBuilder();
         if (props != null) {
             standardRegistryBuilder.applySettings(props);
         }
         StandardServiceRegistry standardRegistry = standardRegistryBuilder.build();
 
         MetadataSources metadataSources = new MetadataSources(standardRegistry);
-        for (Class clazz : classes) {
-            metadataSources.addClass(clazz);
+        for (Class<?> clazz : classes) {
+            String resource = clazz.getName().replace('.', '/') + ".hbm.xml";
+                metadataSources.addResource(resource);
         }
 
         Metadata metadata = metadataSources.buildMetadata();
         _factory = metadata.buildSessionFactory();
-
-        EnumSet<TargetType> targetTypes = EnumSet.of(TargetType.DATABASE);
-        new SchemaUpdate().execute(targetTypes, metadata);
     }
 
 
@@ -249,8 +255,8 @@ public class HibernateEngine {
         Transaction tx = null;
         try {
             tx = getOrBeginTransaction();
-            Query query = getSession().createSQLQuery(queryString);
-            if (query != null) result = query.list();
+            Query query = getSession().createNativeQuery(queryString);
+            if (query != null) result = query.getResultList();
             commit();
         }
         catch (JDBCConnectionException jce) {
@@ -260,7 +266,7 @@ public class HibernateEngine {
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error executing query: " + queryString, he);
-            rollback();
+            if (tx != null) tx.rollback();
         }
 
         return result;
@@ -283,6 +289,7 @@ public class HibernateEngine {
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +
                     "starting with an empty dataset");
+            if (tx != null) tx.rollback();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error executing query: " + queryString, he);
@@ -317,11 +324,19 @@ public class HibernateEngine {
     }
 
     public Object load(Class claz, Serializable key, boolean doCommit) {
-        getOrBeginTransaction();
-        Object result = getSession().load(claz, key);
-        Hibernate.initialize(result);
-        if (doCommit) commit();
-        return result;
+        try {
+            getOrBeginTransaction();
+            Object result = getSession().load(claz, key);
+            Hibernate.initialize(result);
+            if (doCommit) commit();
+            return result;
+        }
+        catch (Throwable t) {
+            _log.error("Load failed for {} id {}. Rolling back transaction.",
+                    claz.getName(), key, t);
+            rollback();
+            throw t; // Re-throw so the caller knows it failed
+        }
     }
 
 
@@ -338,25 +353,38 @@ public class HibernateEngine {
     }
 
 
-    public List getByCriteria(Class claz, Criterion... criteria) {
-        return getByCriteria(claz, true, criteria);
+    public <T> List<T> getByCriteria(Class<T> clazz, YCriterion... criteria) {
+        return getByCriteria(clazz, true, criteria);
     }
 
-    public List getByCriteria(Class claz, boolean commit, Criterion... criteria) {
+    public <T> List<T> getByCriteria(Class<T> clazz, boolean commit, YCriterion... criteria) {
         getOrBeginTransaction();
-        Criteria c = getSession().createCriteria(claz);
-        for (Criterion criterion : criteria) {
-            c.add(criterion);
+        Session session = getSession();
+        
+        HibernateCriteriaBuilder cb = session.getCriteriaBuilder();
+        JpaCriteriaQuery<T> query = cb.createQuery(clazz);
+        JpaRoot<T> root = query.from(clazz);
+
+        if (criteria != null && criteria.length > 0) {
+            Predicate[] predicates = Arrays.stream(criteria)
+                    .map(c -> c.toPredicate(root, cb))
+                    .toArray(jakarta.persistence.criteria.Predicate[]::new);
+
+            query.where(cb.and(predicates));
         }
-        List result = c.list();
+        List<T> result = session.createQuery(query).getResultList();
+
         if (commit) commit();
+
         return result;
     }
 
 
     public void commit() {
+        Session session = getSession();
+        debug("Commit-start", session);
         try {
-            Transaction tx = getSession().getTransaction();
+            Transaction tx = session.getTransaction();
             if ((tx != null) && tx.isActive()) {
                 _log.debug("Transaction COMMIT tx: " + tx);
                 tx.commit();
@@ -365,16 +393,30 @@ public class HibernateEngine {
         catch (HibernateException he) {
             _log.error("Caught Exception: Error committing transaction", he);
         }
+        finally {
+            debug("Commit-Finally", session);
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
     }
 
 
     public void rollback() {
+        Session session = getSession();
+        debug("Rollback-start", session);
         try {
-            Transaction tx = getSession().getTransaction();
+            Transaction tx = session.getTransaction();
             if ((tx != null) && tx.isActive()) tx.rollback();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error rolling back transaction", he);
+        }
+        finally {
+            debug("Rollback-Finally", session);
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
@@ -470,7 +512,24 @@ public class HibernateEngine {
     
     
     private Session getSession() {
+        _log.debug("DEBUG: Getting session for thread " + Thread.currentThread().getName());
         return _factory.getCurrentSession();
+    }
+
+    private void debug(String phase, Session session) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(phase);
+        builder.append(": Closing session for thread ");
+        builder.append(Thread.currentThread().getName());
+        builder.append(", session is ");
+        if (session == null) {
+            builder.append("null");
+        }
+        else {
+            builder.append("not null; session is ");
+            builder.append(session.isOpen() ? "open" : "closed");
+        }
+        _log.debug(builder.toString());
     }
 
     /****************************************************************************/

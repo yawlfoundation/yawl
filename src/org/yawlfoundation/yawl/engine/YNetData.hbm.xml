@@ -29,7 +29,7 @@
    		<generator class="assigned"/>
     	</id>
 		
-    	<property name="_data" column="casedata" type="text" access="field"/>
+    	<property name="_data" column="casedata" type="text" length="2147483647" access="field"/>
 
 	</class>
 	

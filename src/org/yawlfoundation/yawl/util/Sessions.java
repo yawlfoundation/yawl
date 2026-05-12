@@ -46,6 +46,11 @@ public class Sessions {
 
     private static final String INVALID_CREDENTIALS = "Invalid credentials";
 
+    static {
+        ShutdownTaskHandler.register(() ->
+                ShutdownUtil.shutdownExecutor(scheduler, "Sessions"));
+    }
+
     /**
      * Constructs a new Sessions object
      */

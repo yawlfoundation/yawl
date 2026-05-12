@@ -19,8 +19,6 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.authentication.ISessionCache;
-import org.yawlfoundation.yawl.authentication.YSession;
-import org.yawlfoundation.yawl.logging.table.YAuditEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 
 import java.util.Collection;

@@ -21,7 +21,7 @@ package org.yawlfoundation.yawl.worklet.support;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive;
@@ -144,17 +144,20 @@ public class WorkletLoader {
     private Set<String> getTargettedWorkletKeys() {
         Set<String> keys = new HashSet<String>();
         Query query = Persister.getInstance().createQuery("from RdrConclusion");
-        Iterator it = query.iterate();
-        while (it.hasNext()) {
-            RdrConclusion conclusion = (RdrConclusion) it.next();
-             for (RdrPrimitive primitive : conclusion.getPrimitives()) {
-                if (primitive.getExletAction().isWorkletAction()) {
-                    String target = primitive.getTarget();
-                    if (target.contains(";")) {
-                        keys.addAll(extractKeysFromTarget(target));
-                    }
-                    else {
-                        keys.add(target);
+        List<?> instances = query.getResultList();
+
+        if (instances != null && !instances.isEmpty()) {
+            for (Object instance : instances) {
+                RdrConclusion conclusion = (RdrConclusion) instance;
+                for (RdrPrimitive primitive : conclusion.getPrimitives()) {
+                    if (primitive.getExletAction().isWorkletAction()) {
+                        String target = primitive.getTarget();
+                        if (target.contains(";")) {
+                            keys.addAll(extractKeysFromTarget(target));
+                        }
+                        else {
+                            keys.add(target);
+                        }
                     }
                 }
             }
@@ -172,11 +175,13 @@ public class WorkletLoader {
     private Set<WorkletSpecification> loadAllPersistedWorkletSpecifications() {
         Set<WorkletSpecification> worklets = new HashSet<WorkletSpecification>();
         Query query = Persister.getInstance().createQuery("from WorkletSpecification");
-        Iterator it = query.iterate();
-        while (it.hasNext()) {
-            WorkletSpecification spec = (WorkletSpecification) it.next();
-            Hibernate.initialize(spec);
-            worklets.add(spec);
+        List<?> instances = query.getResultList();
+        if (instances != null && !instances.isEmpty()) {
+            for (Object instance : instances) {
+                WorkletSpecification spec = (WorkletSpecification) instance;
+                Hibernate.initialize(spec);
+                worklets.add(spec);
+            }
         }
         Persister.getInstance().commit();
         return worklets;

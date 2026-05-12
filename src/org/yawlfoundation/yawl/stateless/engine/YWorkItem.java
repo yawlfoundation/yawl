@@ -356,41 +356,6 @@ public class YWorkItem {
         return result;        
     }
 
-//    public void restoreDataToNet(Set<YAWLServiceReference> services) throws YPersistenceException {
-//        if (getDataString() != null) {
-//            YNet net;
-//            try {
-//                net = _task.getNetRunner(getCaseID().getParent()).getNet();
-//            }
-//            catch (Exception e) {
-//                return;
-//            }
-//            YAtomicTask task = (YAtomicTask) net.getNetElement(getTaskID());
-//            if (task != null) {
-//                try {
-//                    task.prepareDataForInstanceStarting(getCaseID());
-//                    net.addNetElement(task);
-//                }
-//                catch (Exception e) {
-//                    throw new YPersistenceException(e);
-//                }
-//            }
-//            if (_externalClientStr != null) {
-//                if (_externalClientStr.equals("DefaultWorklist")) {
-//                    _externalClient = _engine.getDefaultWorklist();
-//                }
-//                else {
-//                    for (YAWLServiceReference service : services) {
-//                        if (service.getServiceName().equals(_externalClientStr)) {
-//                            _externalClient = service;
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-
 
     /** removes workitems from persistence when cancelled **/
     public void cancel() {

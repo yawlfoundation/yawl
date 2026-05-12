@@ -36,12 +36,12 @@
 
     	<property name="_description"
                   column="Description"
-                  type="text"
+                  type="text" length="2147483647"
                   access="field"/>
 
         <property name="_notes"
                   column="Notes"
-                  type="text"
+                  type="text" length="2147483647"
                   access="field"/>
 
         <property name="_isAvailable"

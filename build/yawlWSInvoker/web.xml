@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<web-app version="2.4">
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
 
     <!-- General description of your web application -->
 
@@ -23,110 +27,76 @@
     </description>
 
     <context-param>
-        <param-name>InterfaceB_BackEnd</param-name>
-        <param-value>http://localhost:8080/yawl/ib</param-value>
         <description>
             The URL of the engine's interface B.
         </description>
+        <param-name>InterfaceB_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ib</param-value>
     </context-param>
 
     <context-param>
+        <description>
+             The class name of the Interface B Server implementation.
+         </description>
         <param-name>InterfaceBWebSideController</param-name>
         <param-value>org.yawlfoundation.yawl.wsif.WSIFController</param-value>
-        <description>
-            The class name of the Interface B Server implementation.
-        </description>
-    </context-param>
+     </context-param>
 
     <context-param>
-        <param-name>EngineLogonUserName</param-name>
-        <param-value>wsInvokerService</param-value>
         <description>
             The name of the logon used by the service to connect with the engine.
         </description>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>wsInvokerService</param-value>
     </context-param>
 
     <context-param>
-        <param-name>EngineLogonPassword</param-name>
-        <param-value>yWSInvoker</param-value>
         <description>
             The password for the logon used by the service to connect with the engine.
         </description>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yWSInvoker</param-value>
     </context-param>
 
     <context-param>
+        <description>
+            If you need to invoke a web service and this is deployed behind
+            an authenticating proxy server then you ought to set this variable
+            appropriately.
+        </description>
         <param-name>UserName</param-name>
         <param-value></param-value>
+    </context-param>
+
+    <context-param>
         <description>
             If you need to invoke a web service and this is deployed behind
             an authenticating proxy server then you ought to set this variable
             appropriately.
         </description>
-    </context-param>
-
-    <context-param>
         <param-name>Password</param-name>
         <param-value></param-value>
+    </context-param>
+
+    <context-param>
         <description>
             If you need to invoke a web service and this is deployed behind
             an authenticating proxy server then you ought to set this variable
             appropriately.
         </description>
-    </context-param>
-
-    <context-param>
         <param-name>ProxyHost</param-name>
         <param-value></param-value>
-        <description>
-            If you need to invoke a web service and this is deployed behind
-            an authenticating proxy server then you ought to set this variable
-            appropriately.
-        </description>
     </context-param>
 
     <context-param>
+        <description>
+             If you need to invoke a web service and this is deployed behind
+             an authenticating proxy server then you ought to set this variable
+             appropriately.
+         </description>
         <param-name>ProxyPort</param-name>
         <param-value></param-value>
-        <description>
-            If you need to invoke a web service and this is deployed behind
-            an authenticating proxy server then you ought to set this variable
-            appropriately.
-        </description>
-    </context-param>
-
-    <!-- Servlet definitions for the servlets that make up
-         your web application, including initialization
-         parameters.  With Tomcat, you can also send requests
-         to servlets not listed here with a request like this:
-
-           http://localhost:8080/{context-path}/servlet/{classname}
-
-         but this usage is not guaranteed to be portable.  It also
-         makes relative references to images and other resources
-         required by your servlet more complicated, so defining
-         all of your servlets (and defining a mapping to them with
-         a servlet-mapping element) is recommended.
-
-         Servlet initialization parameters can be retrieved in a
-         servlet or JSP page by calling:
-
-             String value =
-               getServletConfig().getInitParameter("name");
-
-         where "name" matches the <param-name> element of
-         one of these initialization parameters.
-
-         You can define any number of servlets, including zero.
-    -->
-
-    <!--servlet>
-        <servlet-name>ErrorServlet</servlet-name>
-        <description>
-            Reports that the URI request found nothing, hence the error report.
-        </description>
-        <servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet-->
+     </context-param>
 
     <!--CharsetFilter -->
 
@@ -146,10 +116,10 @@
 
     
     <servlet>
-        <servlet-name>InterfaceB_Servlet</servlet-name>
         <description>
             Listens to notification of work items from the engine.  Shouldn't need to change this.
         </description>
+        <servlet-name>InterfaceB_Servlet</servlet-name>
         <servlet-class>
             org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedServer
         </servlet-class>
@@ -157,10 +127,10 @@
     </servlet>
 
     <servlet>
-        <servlet-name>AuthServlet</servlet-name>
         <description>
             Handles proxy server authentication.  Shouldn't need to change this.
         </description>
+        <servlet-name>AuthServlet</servlet-name>
         <servlet-class>
             org.yawlfoundation.yawl.engine.interfce.AuthenticationResponseServlet
         </servlet-class>
@@ -168,23 +138,6 @@
     </servlet>
 
 
-    <!-- Define mappings that are used by the servlet container to
-         translate a particular request URI (context-relative) to a
-         particular servlet.  The examples below correspond to the
-         servlet descriptions above.  Thus, a request URI like:
-
-           http://localhost:8080/{contextpath}/graph
-
-         will be mapped to the "graph" servlet, while a request like:
-
-           http://localhost:8080/{contextpath}/saveCustomer.do
-
-         will be mapped to the "controller" servlet.
-
-         You may define any number of servlet mappings, including zero.
-         It is also legal to define more than one mapping for the same
-         servlet, if you wish to.
-    -->
 
     <servlet-mapping>
         <servlet-name>InterfaceB_Servlet</servlet-name>
@@ -202,32 +155,8 @@
         <url-pattern>/ErrorPage</url-pattern>
     </servlet-mapping-->
 
-    <!--
-        Define the default session timeout for your application,
-        in minutes.  From a servlet or JSP page, you can modify
-        the timeout for a particular session dynamically by using
-        HttpSession.getMaxInactiveInterval().
-    -->
-
     <session-config>
         <session-timeout>30</session-timeout><!-- 30 minutes -->
     </session-config>
-
-    <!--
-        Define welcome file list.
-    -->
-
-    <!--error-page>
-        <error-code>404</error-code>
-        <location>/errorPage</location>
-    </error-page-->
-
-    <!--login-config>
-        <auth-method>FORM</auth-method>
-        <form-login-config>
-            <form-login-page>/_Login.jsp</form-login-page>
-            <form-error-page>/fail_login.html</form-error-page>
-        </form-login-config>
-    </login-config-->
 
 </web-app>

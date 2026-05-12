@@ -76,6 +76,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
      * version number of the specification itself).
      * @return the version of the engine that this specification was first designed for.
      */
+    @Deprecated(since = "2.0")
     public String getBetaVersion() {
         return getSchemaVersion().toString();
     }
@@ -105,6 +106,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
      * @param version
      * @deprecated since v2.0: use setVersion() instead.
      */
+    @Deprecated(since = "2.0")
     public void setBetaVersion(String version) { setVersion(version) ; }
 
     public void setVersion(String version) {

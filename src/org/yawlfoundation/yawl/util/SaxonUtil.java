@@ -29,6 +29,8 @@ import org.jdom2.output.DOMOutputter;
 
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Michael Adams
@@ -38,9 +40,9 @@ import java.util.List;
 public class SaxonUtil {
 
     private static final Processor _processor = new Processor(false);
-    private static final Serializer _output = new Serializer();
     private static final XQueryCompiler _compiler = _processor.newXQueryCompiler();
     private static final DOMOutputter _domOutputter = new DOMOutputter();
+    private static final Map<String, XQueryExecutable> _cache = new ConcurrentHashMap<>();
 
     private static final Logger _log = LogManager.getLogger(SaxonUtil.class);
 
@@ -65,13 +67,15 @@ public class SaxonUtil {
 
         // create a StringWriter to receive the output of the evaluation
         StringWriter writer = new StringWriter();
-        _output.setOutputWriter(writer);
 
         // evaluate the query & return the result as a string
-        evaluator.run(_output);
+        Serializer serializer = _processor.newSerializer(writer);
+        serializer.setOutputProperty(Serializer.Property.OMIT_XML_DECLARATION, "yes");
+        evaluator.run(serializer);
+        
         String result = writer.toString();
         if (_log.isDebugEnabled()) log(result, null);
-        return removeHeader(result);
+        return result;
     }
 
 
@@ -116,9 +120,26 @@ public class SaxonUtil {
      */
     public static XQueryExecutable compileXQuery(String query)
             throws SaxonApiException {
+
         ((SaxonErrorListener) _compiler.getErrorListener()).reset();
-        return _compiler.compile(query);
+
+        try {
+            return _cache.computeIfAbsent(query, q -> {
+                try {
+                    return _compiler.compile(q);
+                } catch (SaxonApiException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+        catch (RuntimeException e) {
+            if (e.getCause() instanceof SaxonApiException) {
+                throw (SaxonApiException) e.getCause();
+            }
+            throw e;
+        }
     }
+
 
     public static List<String> getCompilerMessages() {
         return ((SaxonErrorListener) _compiler.getErrorListener()).getAllMessages();

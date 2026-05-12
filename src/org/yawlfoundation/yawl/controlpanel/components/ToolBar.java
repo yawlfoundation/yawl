@@ -46,7 +46,7 @@ import java.io.IOException;
 public class ToolBar extends JToolBar implements ActionListener, EngineStatusListener {
 
     private static final String WEBPAGE_URL = "https://yawlfoundation.github.io";
-    private static final String MANUAL_URL = "https://yawlfoundation.github.io/assets/files/YAWLUserManual5.2.pdf";
+    private static final String MANUAL_URL = "https://yawlfoundation.github.io/assets/files/YAWLUserManual6.0.pdf";
 
     private static final Dimension spacer = new Dimension(11,16);
 

@@ -22,12 +22,12 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
@@ -77,7 +77,7 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
                 _controller = (InterfaceX_Service) instMethod.invoke(null);
             }
             catch (NoSuchMethodException nsme) {
-                _controller = (InterfaceX_Service) controllerClass.newInstance();
+                _controller = (InterfaceX_Service) controllerClass.getDeclaredConstructor().newInstance();
             }
         }
         catch (Exception e) {

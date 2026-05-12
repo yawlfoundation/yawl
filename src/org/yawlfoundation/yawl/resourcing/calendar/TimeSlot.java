@@ -99,7 +99,7 @@ public class TimeSlot {
             _start = StringUtil.xmlDateToLong(node.getChildText("start"));
             _end = StringUtil.xmlDateToLong(node.getChildText("end"));
             _status = node.getChildText("status");
-            _percentAvailable = new Integer(node.getChildText("availability"));
+            _percentAvailable = Integer.parseInt(node.getChildText("availability"));
         }
     }
 

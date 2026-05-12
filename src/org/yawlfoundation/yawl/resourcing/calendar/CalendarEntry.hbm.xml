@@ -34,7 +34,7 @@
         <property name="endTime"    type="long"/>
         <property name="agent"      type="string"/>
         <property name="status"     type="string" column="entryStatus"/>
-        <property name="comment"    type="text"   column="entryComment"/>
+        <property name="comment"    type="text" length="2147483647"   column="entryComment"/>
         <property name="workload"   type="int"/>
         <property name="chainID"    type="long"/>
 	</class>

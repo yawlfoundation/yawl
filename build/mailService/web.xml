@@ -18,11 +18,14 @@
   ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<web-app version="2.4">
-
-    <!-- General description of your web application -->
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
 
     <display-name>YAWL Simple Mail Service</display-name>
+    
     <description>
         This custom YAWL Service allows a process to send an email.
         Copyright © 2011 The YAWL Foundation. All rights reserved.
@@ -33,112 +36,112 @@
 
 
     <context-param>
+        <description>
+            The URL of the engine's interface A.
+        </description>
          <param-name>InterfaceA_Backend</param-name>
          <param-value>http://localhost:8080/yawl/ia</param-value>
-         <description>
-             The URL of the engine's interface A.
-         </description>
      </context-param>
 
     <context-param>
-        <param-name>InterfaceB_BackEnd</param-name>
-        <param-value>http://localhost:8080/yawl/ib</param-value>
         <description>
             The URL of the engine's interface B.
         </description>
+        <param-name>InterfaceB_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ib</param-value>
     </context-param>
 
     <context-param>
-        <param-name>InterfaceBWebSideController</param-name>
-        <param-value>org.yawlfoundation.yawl.mailService.MailService</param-value>
         <description>
             The class name of the Interface B Server implementation.
         </description>
+        <param-name>InterfaceBWebSideController</param-name>
+        <param-value>org.yawlfoundation.yawl.mailService.MailService</param-value>
     </context-param>
 
     <context-param>
-        <param-name>EngineLogonUserName</param-name>
-        <param-value>mailService</param-value>
         <description>
             The name of the logon used by the service to connect with the engine.
         </description>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>mailService</param-value>
     </context-param>
 
     <context-param>
-        <param-name>EngineLogonPassword</param-name>
-        <param-value>yMail</param-value>
         <description>
             The password for the logon used by the service to connect with the engine.
         </description>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yMail</param-value>
     </context-param>
 
     <context-param>
-        <param-name>host</param-name>
-        <param-value>smtp.gmail.com</param-value>
         <description>
            The mail host. Can be left empty, to be provided at runtime.
         </description>
-    </context-param>
+        <param-name>host</param-name>
+        <param-value>smtp.gmail.com</param-value>
+   </context-param>
 
     <context-param>
-        <param-name>port</param-name>
-        <param-value>465</param-value>
         <description>
            The port number for smtp on the specified host. Can be left empty, to be
             provided at runtime.
         </description>
+        <param-name>port</param-name>
+        <param-value>465</param-value>
     </context-param>
 
     <context-param>
+        <description>
+           The transport encryption used for connecting to the host. Choose between
+            PLAIN, SSL (default) and TLS.
+        </description>
          <param-name>transportStrategy</param-name>
          <param-value>SSL</param-value>
-         <description>
-            The transport encryption used for connecting to the host. Choose between
-             PLAIN, SSL (default) and TLS.
-         </description>
      </context-param>
 
     <context-param>
-        <param-name>mailUserName</param-name>
-        <param-value></param-value>
         <description>
            A user name registered on the specified host. Can be left empty, to be
             provided at runtime.
         </description>
+        <param-name>mailUserName</param-name>
+        <param-value></param-value>
     </context-param>
 
     <context-param>
-        <param-name>mailPassword</param-name>
-        <param-value></param-value>
         <description>
            The password of the user name specified above. Can be left empty, to be
             provided at runtime.
         </description>
+        <param-name>mailPassword</param-name>
+        <param-value></param-value>
     </context-param>
 
     <context-param>
-        <param-name>senderName</param-name>
-        <param-value>YAWL Admin</param-value>
         <description>
            The name of the sender. Can be left empty, to be provided at runtime (optional).
         </description>
+        <param-name>senderName</param-name>
+        <param-value>YAWL Admin</param-value>
     </context-param>
 
     <context-param>
-        <param-name>senderAddress</param-name>
-        <param-value></param-value>
         <description>
            A email address of the sender. Can be left empty, to be provided at runtime.
         </description>
+        <param-name>senderAddress</param-name>
+        <param-value></param-value>
     </context-param>
 
 
     <servlet>
-        <servlet-name>InterfaceB_Servlet</servlet-name>
         <description>
             Listens to notification of work items from the engine.
             Shouldn't need to change this.
         </description>
+        <servlet-name>InterfaceB_Servlet</servlet-name>
         <servlet-class>
             org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedServer
         </servlet-class>
@@ -146,13 +149,13 @@
     </servlet>
 
     <servlet>
-		<servlet-name>ErrorServlet</servlet-name>
-		<description>
+        <description>
             Reports that the URI request found nothing, hence the error report.
         </description>
-		<servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
+        <servlet-name>ErrorServlet</servlet-name>
+        <servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
 
     <servlet-mapping>
@@ -167,10 +170,10 @@
 
 
     <servlet>
-        <servlet-name>simpleMailGateway</servlet-name>
         <description>
             Initialises the defaults set in this file.
         </description>
+        <servlet-name>simpleMailGateway</servlet-name>
         <servlet-class>org.yawlfoundation.yawl.mailService.MailServiceGateway</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet> 
@@ -180,7 +183,6 @@
         <url-pattern>/gateway</url-pattern>
     </servlet-mapping>
 
-    
 
     <!--
         Define the default session timeout for your application,
@@ -188,11 +190,9 @@
         the timeout for a particular session dynamically by using
         HttpSession.getMaxInactiveInterval().
     -->
-
     <session-config>
         <session-timeout>60</session-timeout>    <!-- 60 minutes -->
     </session-config>
-
 
     <error-page>
         <error-code>404</error-code>

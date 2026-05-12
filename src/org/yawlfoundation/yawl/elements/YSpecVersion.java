@@ -78,7 +78,7 @@ public class YSpecVersion implements Comparable<YSpecVersion> {
 
     public double toDouble() {                                         // legacy method
         try {
-            return new Double(toString());
+            return Double.parseDouble(toString());
         } catch (Exception e) {
             return 0.1;                                               // default
         }

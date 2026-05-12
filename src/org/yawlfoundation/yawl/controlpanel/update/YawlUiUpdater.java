@@ -11,6 +11,7 @@ import org.yawlfoundation.yawl.util.XNode;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -105,7 +106,7 @@ public class YawlUiUpdater {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File latest = new File(tmpDir, "pom.xml");
         try {
-            URL url = new URL(path);
+            URL url = URI.create(path).toURL();
             HttpUtil.download(url, latest);
             String content = StringUtil.fileToString(latest);
 

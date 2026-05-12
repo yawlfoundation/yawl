@@ -195,7 +195,7 @@ public class CaseInstance implements YInstance {
         if (instance != null) {
             caseID = instance.getChildText("caseid");
             String startStr = instance.getChildText("starttime");
-            if (startStr != null) startTime = new Long(startStr);
+            if (startStr != null) startTime = Long.parseLong(startStr);
             String params = instance.getChildText("caseparams");
             if (params != null) caseParams = JDOMUtil.decodeEscapes(params);
             String specIdentifier = instance.getChildText("specidentifier");

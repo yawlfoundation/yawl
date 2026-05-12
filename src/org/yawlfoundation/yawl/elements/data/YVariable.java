@@ -69,6 +69,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
      * @param namespaceURI
      * @deprecated see new constructor and setter methods
      */
+    @Deprecated
     public YVariable(YDecomposition dec, String dataType, String name,
                      String initialValue, String namespaceURI) {
         this._parentDecomposition = dec;

@@ -29,11 +29,11 @@ import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.UnavailableException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
@@ -158,7 +158,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
 
             // no getInstance(), so just create a plain new instance
             catch (NoSuchMethodException nsme) {
-                gateway = (ObserverGateway) gatewayClass.newInstance();
+                gateway = (ObserverGateway) gatewayClass.getDeclaredConstructor().newInstance();
             }
 
             if (gateway != null)

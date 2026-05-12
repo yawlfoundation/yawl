@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.worklet.selection;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.support.Persister;
@@ -182,10 +182,11 @@ public class RunnerMap {
                 "!=" + selectionType + " and wr._parentCaseID='" + caseID + "'");
         Query query = Persister.getInstance().createQuery(
                 "from WorkletRunner as wr where " + clause);
-        Iterator it = query.iterate();
-        if (it.hasNext()) {
-            while (it.hasNext()) {
-                WorkletRunner runner = (WorkletRunner) it.next();
+        List<?> instances = query.getResultList();
+
+        if (instances != null && !instances.isEmpty()) {
+            for (Object instance : instances) {
+                WorkletRunner runner = (WorkletRunner) instance;
                 _runners.put(runner.getCaseID(), runner);
             }
         }

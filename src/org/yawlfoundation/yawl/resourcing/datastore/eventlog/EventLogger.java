@@ -24,6 +24,8 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
 
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +62,10 @@ public class EventLogger {
         gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired }
 
 
+    static {
+        ShutdownTaskHandler.register(() ->
+                ShutdownUtil.shutdownExecutor(_executor, "EventLogger"));
+    }
 
     public EventLogger() { }
 

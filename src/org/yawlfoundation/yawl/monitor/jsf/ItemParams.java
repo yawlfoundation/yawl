@@ -502,7 +502,7 @@ public class ItemParams extends AbstractPageBean {
 
 
     public String btnDetails_action() {
-        Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue()) - 1;
+        Integer selectedRowIndex = Integer.parseInt((String) hdnRowIndex.getValue()) - 1;
         return null;
     }
 

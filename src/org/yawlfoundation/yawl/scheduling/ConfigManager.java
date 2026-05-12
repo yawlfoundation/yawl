@@ -25,7 +25,7 @@ import org.json.JSONObject;
 import org.yawlfoundation.yawl.scheduling.util.Utils;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;

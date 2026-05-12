@@ -34,8 +34,8 @@
        <property name="_itemID"   column="itemID"/>
        <property name="_taskType" column="taskType"    type="integer"/>
        <property name="_title"    column="title"/>
-       <property name="_scenario" column="scenario"    type="text"/>
-       <property name="_process"  column="processDesc" type="text"/>
+       <property name="_scenario" column="scenario"    type="text" length="2147483647"/>
+       <property name="_process"  column="processDesc" type="text" length="2147483647"/>
 
     </class>
 	

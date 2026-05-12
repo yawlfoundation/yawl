@@ -20,17 +20,18 @@ package org.yawlfoundation.yawl.elements.data.external;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.*;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.JDBCConnectionException;
-import org.hibernate.tool.hbm2ddl.SchemaUpdate;
-import org.hibernate.tool.schema.TargetType;
+import org.hibernate.query.Query;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 
@@ -109,10 +110,10 @@ public class HibernateEngine {
         props.setProperty("hibernate.cache.use_query_cache", "true");
         props.setProperty("hibernate.cache.use_second_level_cache", "true");
         props.setProperty("hibernate.cache.region.factory_class",
-                          "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+                "org.hibernate.cache.ehcache.EhCacheRegionFactory");
 
         props.setProperty("hibernate.connection.provider_class",
-                          "org.hibernate.connection.C3P0ConnectionProvider");
+                "org.hibernate.connection.C3P0ConnectionProvider");
         props.setProperty("hibernate.c3p0.max_size", "20");
         props.setProperty("hibernate.c3p0.min_size", "2");
         props.setProperty("hibernate.c3p0.timeout", "5000");
@@ -124,8 +125,8 @@ public class HibernateEngine {
 
 
     public void configureSession(Properties props, List<Class> classes) {
-        StandardServiceRegistryBuilder standardRegistryBuilder = new StandardServiceRegistryBuilder()
-            .configure();
+        StandardServiceRegistryBuilder standardRegistryBuilder =
+                new StandardServiceRegistryBuilder();
         if (props != null) {
             standardRegistryBuilder.applySettings(props);
         }
@@ -133,16 +134,14 @@ public class HibernateEngine {
 
         MetadataSources metadataSources = new MetadataSources(standardRegistry);
         if (classes != null) {
-            for (Class clazz : classes) {
-                metadataSources.addClass(clazz);
+            for (Class<?> clazz : classes) {
+                String resource = clazz.getName().replace('.', '/') + ".hbm.xml";
+                metadataSources.addResource(resource);
             }
         }
 
         Metadata metadata = metadataSources.buildMetadata();
         _factory = metadata.buildSessionFactory();
-
-        EnumSet<TargetType> targetTypes = EnumSet.of(TargetType.DATABASE);
-        new SchemaUpdate().execute(targetTypes, metadata);
     }
 
     /******************************************************************************/
@@ -156,8 +155,8 @@ public class HibernateEngine {
         List result = null;
         Session session = _factory.getCurrentSession();
         session.beginTransaction();
-        SQLQuery query = session.createSQLQuery(queryString);
-        if (query != null) result = query.list();
+        Query query = session.createNativeQuery(queryString);
+        if (query != null) result = query.getResultList();
         return result;
     }
 
@@ -181,13 +180,15 @@ public class HibernateEngine {
         }
 
         return result;
-     }
-    
+    }
 
 
     public List execNamedQuery(String namedQuery, String key) throws HibernateException {
         Session session = _factory.getCurrentSession();
-        return session.getNamedQuery(namedQuery).setString("key", key).list();       
+
+        return session.createNamedQuery(namedQuery)
+                .setParameter("key", key)
+                .getResultList();
     }
 
 
@@ -205,7 +206,7 @@ public class HibernateEngine {
         }
 
         return result;
-     }
+    }
 
 
     /****************************************************************************/

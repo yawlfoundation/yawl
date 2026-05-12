@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 /**
@@ -66,7 +67,7 @@ public class FileNode {
         try {
             String simpleName = urlFilePath.contains("/") ?
                     urlFilePath.substring(urlFilePath.lastIndexOf('/') + 1) : urlFilePath;
-            return new URL(urlBase + simpleName);
+            return URI.create(urlBase + simpleName).toURL();
         }
         catch (MalformedURLException mue) {
             return null;

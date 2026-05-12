@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<web-app version="2.4">
-
-    <!-- General description of your web application -->
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
 
     <display-name>YAWL Monitor Service</display-name>
     <description>
@@ -14,35 +16,35 @@
     </description>
 
     <context-param>
-        <param-name>EngineGateway</param-name>
-        <param-value>http://localhost:8080/yawl/ib</param-value>
         <description>
             The URL of the engine interface B.
         </description>
+        <param-name>EngineGateway</param-name>
+        <param-value>http://localhost:8080/yawl/ib</param-value>
     </context-param>
 
     <context-param>
-        <param-name>EngineLogGateway</param-name>
-        <param-value>http://localhost:8080/yawl/logGateway</param-value>
         <description>
             The URL of the engine's log gateway.
         </description>
+        <param-name>EngineLogGateway</param-name>
+        <param-value>http://localhost:8080/yawl/logGateway</param-value>
     </context-param>
 
     <context-param>
-        <param-name>ResourceGateway</param-name>
-        <param-value>http://localhost:8080/resourceService/gateway</param-value>
         <description>
             The URL of the resource service's gateway.
         </description>
+        <param-name>ResourceGateway</param-name>
+        <param-value>http://localhost:8080/resourceService/gateway</param-value>
     </context-param>
 
     <context-param>
-        <param-name>ResourceLogGateway</param-name>
-        <param-value>http://localhost:8080/resourceService/logGateway</param-value>
         <description>
             The URL of the resource service's log gateway.
         </description>
+        <param-name>ResourceLogGateway</param-name>
+        <param-value>http://localhost:8080/resourceService/logGateway</param-value>
     </context-param>
 
 
@@ -74,13 +76,13 @@
     </servlet>
 
     <servlet>
-		<servlet-name>ErrorServlet</servlet-name>
-		<description>
+        <description>
             Reports that the URI request found nothing, hence the error report.
         </description>
-		<servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
+        <servlet-name>ErrorServlet</servlet-name>
+        <servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>Monitor_Servlet</servlet-name>

@@ -92,7 +92,7 @@ public class MonitorClient {
             }
             String startTime = cases.getAttributeValue("startuptime");
             if (startTime != null) {
-                _startupTime = new Long(startTime);
+                _startupTime = Long.parseLong(startTime);
             }
         }
         return caseList;

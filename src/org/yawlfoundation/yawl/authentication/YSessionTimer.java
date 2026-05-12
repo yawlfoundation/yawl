@@ -18,6 +18,9 @@
 
 package org.yawlfoundation.yawl.authentication;
 
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -33,6 +36,11 @@ public class YSessionTimer {
 
     private Map<YAbstractSession, TimerTask> _sessionMap;
     private ISessionCache _cache;
+
+    static {
+        ShutdownTaskHandler.register(() ->
+                ShutdownUtil.shutdownTimer(TIMER, "YSessionTimer"));
+    }
 
 
     public YSessionTimer(ISessionCache cache) {
@@ -73,10 +81,7 @@ public class YSessionTimer {
         return false;
     }
 
-    public void shutdown() {
-        TIMER.cancel();
-        TIMER.purge();
-    }
+    public void shutdown() { }
 
     // starts a timertask to timeout a session after the specified period of
     // inactivity - iff the timer interval set is +ve (a -ve interval means never timeout)

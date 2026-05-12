@@ -34,6 +34,8 @@ import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -270,9 +272,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void shutdown() {
         HttpURLValidator.cancelAll();
-        for (ExecutorService executor : _executorMap.values()) {
-            executor.shutdownNow();
-        }
+//        for (ExecutorService executor : _executorMap.values()) {
+//            executor.shutdownNow();
+//        }
 
     	// Nothing else to do - Interface B Clients handle shutdown within their own servlet.
     }
@@ -326,6 +328,11 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         ExecutorService executor = _executorMap.get(service);
         if (executor == null) {
             executor = Executors.newFixedThreadPool(2);
+            ExecutorService finalExecutor = executor;
+            ShutdownTaskHandler.register(() ->
+                    ShutdownUtil.shutdownExecutor(finalExecutor,
+                            "IBEngine_" + service.getServiceName()));
+
             _executorMap.put(service, executor);
         }
         return executor;

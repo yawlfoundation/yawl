@@ -18,7 +18,11 @@
   ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<web-app version="2.4">
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
 
     <display-name>TwitterService</display-name>
     <description>
@@ -36,19 +40,19 @@
     </context-param>
 
     <context-param>
-        <param-name>EngineLogonUserName</param-name>
-        <param-value>twitterService</param-value>
         <description>
             The name of the logon used by the service to connect with the engine.
         </description>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>twitterService</param-value>
     </context-param>
 
     <context-param>
-        <param-name>EngineLogonPassword</param-name>
-        <param-value>yTwitter</param-value>
         <description>
             The password for the logon used by the service to connect with the engine.
         </description>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yTwitter</param-value>
     </context-param>
 
     <!--CharsetFilter -->

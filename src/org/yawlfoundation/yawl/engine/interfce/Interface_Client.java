@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine.interfce;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -144,7 +145,7 @@ public class Interface_Client {
      * @throws IOException when there's some kind of communication problem
      */
     protected HttpURLConnection initPostConnection(String urlStr) throws IOException {
-        URL url = new URL(urlStr);
+        URL url = URI.create(urlStr).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
         connection.setRequestProperty("Accept-Charset", "UTF-8");

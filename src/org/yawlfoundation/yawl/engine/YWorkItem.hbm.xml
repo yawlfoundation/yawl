@@ -47,7 +47,7 @@
         <property name="_externalClient" column="ownerService" type="string"/>
         <property name="_allowsDynamicCreation" column="allows_dynamic_creation" type="boolean" access="field"/>
         <property name="_requiresManualResourcing" column="requires_manual_resourcing" type="boolean" access="field"/>
-        <property name="_dataString" column="data_string" type="text" access="field"/>
+        <property name="_dataString" column="data_string" type="text" length="2147483647" access="field"/>
         <property name="_timerStarted" column="timerstarted" type="boolean" access="field"/>
         <property name="_timerExpiry" column="timerexpiry" type="long" access="field"/>
         <property name="_deferredChoiceGroupID" column="deferredgroupid" access="field"/>

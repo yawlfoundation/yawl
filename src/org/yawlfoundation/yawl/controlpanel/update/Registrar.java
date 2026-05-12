@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -169,7 +170,7 @@ public class Registrar {
 
 
     private HttpURLConnection initPostConnection() throws IOException {
-        URL url = new URL(URL_STR);
+        URL url = URI.create(URL_STR).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
         connection.setRequestProperty("Accept-Charset", "UTF-8");

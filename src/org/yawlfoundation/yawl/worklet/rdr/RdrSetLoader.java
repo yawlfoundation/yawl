@@ -18,8 +18,7 @@
 
 package org.yawlfoundation.yawl.worklet.rdr;
 
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.Hibernate;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
@@ -89,9 +88,19 @@ public class RdrSetLoader {
 
 
     private RdrSet loadSet(String column, String value) {
-        Criterion criterion = Restrictions.eq(column, value);
-        List list = Persister.getInstance().getByCriteria(RdrSet.class, criterion);
-        return ! (list == null || list.isEmpty()) ? (RdrSet) list.get(0) : null;
+        String hql = String.format("from RdrSet r where r.%s = :value", column);
+        RdrSet rdrSet = null;
+        List list = Persister.getInstance()
+                .createQuery(hql)
+                .setParameter("value", value)
+                .getResultList();
+        if (!list.isEmpty()) {
+            rdrSet = (RdrSet) list.getFirst();
+            Hibernate.initialize(rdrSet);
+        }
+        Persister.getInstance().commit();
+
+        return rdrSet;
     }
 
 }

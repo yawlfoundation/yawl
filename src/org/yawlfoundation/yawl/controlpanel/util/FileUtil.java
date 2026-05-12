@@ -279,7 +279,7 @@ public class FileUtil {
         
         if (FileUtils.isFileNewer(yawlLibJar, uiLibJar)) {
             try {
-                FileUtils.copyFile(yawlLibJar, uiLibJar);
+                Files.copy(yawlLibJar.toPath(), uiLibJar.toPath());
             }
             catch (IOException e) {
                 // proceed as normal

@@ -190,7 +190,7 @@ public class WorkItemRecord implements Cloneable {
     
     public void setResourceStatus(String status) {_resourceStatus = status; }
 
-    /** @deprecated */
+    @Deprecated
     public void setAssignedTo(String whoStartedMe) { setStartedBy(whoStartedMe) ; }
 
     public void setStartedBy(String resource) { _startedBy = resource; }
@@ -285,9 +285,11 @@ public class WorkItemRecord implements Cloneable {
 
 
     /** @deprecated - use getStartedBy() */
+    @Deprecated
     public String getAssignedTo() { return getStartedBy(); }
 
     /** @deprecated - use getStartedBy() */
+    @Deprecated
     public String getWhoStartedMe() { return getStartedBy(); }
 
     public String getStartedBy() { return _startedBy; }
@@ -296,6 +298,7 @@ public class WorkItemRecord implements Cloneable {
 
 
     /** @deprecated - use getDataList() */
+    @Deprecated
     public Element getWorkItemData() { return getDataList(); }
 
     public Element getDataList() { return _dataList; }

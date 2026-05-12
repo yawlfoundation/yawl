@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.persistence;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Transaction;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;

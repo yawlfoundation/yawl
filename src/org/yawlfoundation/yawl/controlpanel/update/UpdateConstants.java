@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.util.XNode;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 
 import static org.yawlfoundation.yawl.util.HttpUtil.resolveURL;
@@ -32,10 +33,6 @@ import static org.yawlfoundation.yawl.util.HttpUtil.resolveURL;
  * @date 17/02/2016
  */
 public class UpdateConstants {
-
-//    private static final String BASE_1 = "http://sourceforge.net";
-//    private static final String PATH_1 = "/projects/yawl/files/updatecache4/engine/";
-//    private static final String SUFFIX_1 = "/download";
 
     private static final String BASE_1 = "https://raw.githubusercontent.com";
     private static final String PATH_1 = "/yawlfoundation/yawl/master/";
@@ -70,7 +67,7 @@ public class UpdateConstants {
 
     public static URL getCheckUrl() throws IOException {
         checkInitSuccess();
-        return new URL(URL_BASE + URL_PATH + CHECK_PATH + CHECK_FILE + URL_SUFFIX);
+        return URI.create(URL_BASE + URL_PATH + CHECK_PATH + CHECK_FILE + URL_SUFFIX).toURL();
     }
 
 

@@ -74,7 +74,7 @@ public class SpecHistory {
 
 
     private List get(HibernateEngine logDb, long specKey, String query) {
-        return logDb.createQuery(query).setLong("id", specKey).list();
+        return logDb.createQuery(query).setParameter("id", specKey).list();
     }
 
 

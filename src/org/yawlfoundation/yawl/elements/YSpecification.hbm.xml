@@ -24,11 +24,13 @@
 <hibernate-mapping>
 
 	<class name="org.yawlfoundation.yawl.elements.YSpecification" table="specifications">
+        <cache usage="nonstrict-read-write"/>
+        
         <id name="rowKey" type="long">
             <generator class="native"/>
         </id>
 
-        <property name="persistedXML" column="specXML" type="text"/>
+        <property name="persistedXML" column="specXML" type="text" length="2147483647"/>
 	</class>
 	
 </hibernate-mapping>

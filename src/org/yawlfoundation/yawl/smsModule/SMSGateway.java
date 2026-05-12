@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.smsModule;
 
-import javax.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServlet;
 
 /**
  * The sole use of this servlet is to load the sms server's url from web.xml

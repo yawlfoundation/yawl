@@ -22,8 +22,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 
-import static antlr.build.ANTLR.root;
-
 /**
  * @author Michael Adams
  * @date 11/11/2015

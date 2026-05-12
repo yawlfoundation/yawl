@@ -27,6 +27,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -40,7 +41,7 @@ public class TomcatUtil {
 
     private static int SERVER_PORT = -1;
     private static URL ENGINE_URL;
-    private static final String TOMCAT_VERSION = "9.0.70";
+    private static final String TOMCAT_VERSION = "10.1.54";
     private static final String CATALINA_HOME = deriveCatalinaHome();
 
     private static final TomcatProcess _process = new TomcatProcess(CATALINA_HOME);
@@ -130,10 +131,11 @@ public class TomcatUtil {
     public static boolean isEngineRunning() {
         if (ENGINE_URL == null) {
             try {
-                ENGINE_URL = new URL("http", "localhost", getTomcatServerPort(),
-                        "/yawl/ib");
+                ENGINE_URL = new URI("http", null, "localhost",
+                        getTomcatServerPort(), "/yawl/ib",
+                        null, null).toURL();
             }
-            catch (MalformedURLException mue) {
+            catch (MalformedURLException | URISyntaxException mue) {
                 return false;
             }
         }

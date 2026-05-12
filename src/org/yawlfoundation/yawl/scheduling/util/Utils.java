@@ -39,7 +39,7 @@ import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.scheduling.Constants;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
@@ -589,17 +589,17 @@ public class Utils implements Constants {
 		}
 	}
 
-	public static String getLogRequestParameters(Map<String, Object> parameterMap)
+	public static String getLogRequestParameters(Map<String, String[]> parameterMap)
 	{
 		ArrayList<String> keys = new ArrayList<String>(parameterMap.keySet());
-		String log = "request parameters, size = " + keys.size();
+		StringBuilder log = new StringBuilder("request parameters, size = " + keys.size());
 		Collections.sort(keys);
 		for (String key : keys)
 		{
-			Object[] values = ((Object[]) parameterMap.get(key));
-			log += "\r\n\tkey: " + key + " = " + Utils.toString(values);
+			String[] values = parameterMap.get(key);
+			log.append("\r\n\tkey: ").append(key).append(" = ").append(Utils.toString(values));
 		}
-		return log;
+		return log.toString();
 	}
 
 	public static String getLogSessionAttributes(HttpSession session)

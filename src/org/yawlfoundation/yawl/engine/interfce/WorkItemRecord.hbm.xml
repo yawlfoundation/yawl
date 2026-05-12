@@ -37,9 +37,9 @@
         <property name="_taskID" column="taskID" access="field"/>
         <property name="_uniqueID" column="uniqueID" access="field"/>
         <property name="_taskName" column="taskName" access="field"/>
-        <property name="_documentation" column="documentation" access="field" type="text"/>
+        <property name="_documentation" column="documentation" access="field" type="text" length="2147483647"/>
         <property name="_docoChanged" column="documentationChanged" access="field" type="boolean"/>
-        <property name="_extendedAttributes" column="ExtendedAttributes" type="text"/>
+        <property name="_extendedAttributes" column="ExtendedAttributes" type="text" length="2147483647"/>
         <property name="_allowsDynamicCreation" column="canCreate" access="field"/>
         <property name="_codelet" column="codelet" access="field"/>
         <property name="_deferredChoiceGroupID" column="deferredID" access="field"/>
@@ -47,8 +47,8 @@
         <property name="_resourceStatus" column="resourceStatus" access="field"/>
         <property name="_startedBy" column="startedBy" access="field"/>
         <property name="_completedBy" column="completedBy" access="field"/>
-        <property name="_dataList" column="dataList" type="text"/>
-        <property name="_dataListUpdated" column="dataListUpdated" type="text"/>
+        <property name="_dataList" column="dataList" type="text" length="2147483647"/>
+        <property name="_dataListUpdated" column="dataListUpdated" type="text" length="2147483647"/>
         <property name="_enablementTimeMs" column="enabledTimeMS" access="field"/>
         <property name="_firingTimeMs" column="firingTimeMS" access="field"/>
         <property name="_startTimeMs" column="startTimeMS" access="field"/>
@@ -56,8 +56,8 @@
         <property name="_timerTrigger" column="timertrigger" access="field"/>
         <property name="_timerExpiry" column="timerexpiry" access="field"/>
         <property name="_customFormURL" column="customformurl" access="field"/>
-        <property name="_logPredicateStarted" column="logPredicateStarted" access="field" type="text"/>
-        <property name="_logPredicateCompletion" column="logPredicateCompletion" access="field" type="text"/>
+        <property name="_logPredicateStarted" column="logPredicateStarted" access="field" type="text" length="2147483647"/>
+        <property name="_logPredicateCompletion" column="logPredicateCompletion" access="field" type="text" length="2147483647"/>
         <property name="_tag" column="tag" access="field"/>
 
      </class>

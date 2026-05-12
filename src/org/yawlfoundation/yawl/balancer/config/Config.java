@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.balancer.OperatingMode;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;

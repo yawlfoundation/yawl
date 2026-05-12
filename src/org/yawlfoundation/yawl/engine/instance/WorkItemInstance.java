@@ -52,7 +52,7 @@ public class WorkItemInstance implements YInstance {
     private long startTime;
     private long completionTime;
     private long timerExpiry;
-    private SimpleDateFormat dateFormatter;
+    private final SimpleDateFormat dateFormatter;
     private Map<String, ParameterInstance> parameters;
 
     public WorkItemInstance() {
@@ -363,7 +363,7 @@ public class WorkItemInstance implements YInstance {
         long result = 0;
         if (s != null) {
             try {
-                result = new Long(s);
+                result = Long.parseLong(s);
             } catch (NumberFormatException ignore) {
             }
         }

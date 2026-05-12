@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
@@ -40,6 +39,7 @@ import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.net.URL;
 import java.util.*;
@@ -453,10 +453,7 @@ public class YNetRunner {
             }
             kick(pmgr);
         }
-//        else if (busyCompositeTask.isMultiInstance()) {
-//            YNetRunner subNetRunner = _engine.getNetRunnerRepository().remove(caseIDForSubnet);
-//            if (subNetRunner != null) pmgr.deleteObject(subNetRunner);
-//        }
+
         _logger.debug("<-- processCompletedSubnet");
     }
 
@@ -1022,7 +1019,7 @@ public class YNetRunner {
                .append("] has successfully completed, there were one or more ")
                .append("tokens remaining in the net, within these elements: [");
 
-            msg.append(StringUtils.join(haveTokens, ", "));
+            msg.append(StringUtil.join(haveTokens, ','));
             msg.append("], which usually indicates that the net is unsound. Those ")
                .append("tokens were removed when the net completed.");
             _logger.warn(msg.toString());

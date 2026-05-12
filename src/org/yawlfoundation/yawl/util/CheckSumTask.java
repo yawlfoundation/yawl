@@ -61,10 +61,21 @@ public class CheckSumTask extends AbstractCheckSumTask {
         libNode.removeChildren();
         for (File file : getFileList(getLibDir(baseDir))) {
             if (shouldBeIncluded(file)) {
-                md5s.append(addFile(libNode, file, summer, null));
+                String md5 = addFile(libNode, file, summer, null);
+                if (! StringUtil.isNullOrEmpty(md5)) {
+                    md5s.append(md5);
+                }
             }
         }
+        addGlobalProperties(libNode, baseDir, summer);
         libNode.addAttribute("hash", getMD5Hex(md5s.toString(), summer));
+    }
+
+
+    private void addGlobalProperties(XNode libNode, File baseDir, CheckSummer summer) {
+        for (File file : getFileList(new File(getPropertiesDir(baseDir), "controlpanel"))) {
+            addFile(libNode, file, summer, null);
+        }
     }
 
 
@@ -133,13 +144,19 @@ public class CheckSumTask extends AbstractCheckSumTask {
         String fileName = dir == null ? file.getName() :
                 getRelativePath(dir, file.getAbsolutePath());
 
+        // don't add if not listed in locations
+        String location = _locations.get(getLocationGroup(node), fileName);
+        if (StringUtil.isNullOrEmpty(location)) {
+            return "";
+        }
+
         XNode fileNode = node.addChild("file");
         fileNode.addAttribute("name", fileName);
         String md5 = getMD5Hex(file, summer);
         fileNode.addAttribute("md5", md5);
         fileNode.addAttribute("size", file.length());
         fileNode.addAttribute("timestamp", formatTimestamp(file.lastModified()));
-        fileNode.addAttribute("path", _locations.get(getLocationGroup(node), fileName));
+        fileNode.addAttribute("path", location);
         return md5;
     }
 
@@ -203,6 +220,8 @@ public class CheckSumTask extends AbstractCheckSumTask {
     private File getOutputDir(File baseDir) { return getDir(baseDir, "output.dir"); }
 
     private File getChecksumsDir(File baseDir) { return getDir(baseDir, "checksums.dir"); }
+
+    private File getPropertiesDir(File baseDir) { return getDir(baseDir, "properties.dir"); }
 
 
     private File getAppDir(File baseDir, String appName) {

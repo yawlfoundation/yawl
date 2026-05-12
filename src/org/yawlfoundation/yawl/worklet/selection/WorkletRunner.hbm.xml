@@ -63,7 +63,7 @@
             </type>
         </property>
 
-        <property name="wirString"     type="text"/>
+        <property name="wirString"     type="text" length="2147483647"/>
 
     </class>
 	

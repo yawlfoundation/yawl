@@ -6,6 +6,8 @@ import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
 import org.yawlfoundation.yawl.stateless.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.stateless.listener.event.YCaseEvent;
 import org.yawlfoundation.yawl.stateless.listener.event.YEventType;
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,6 +25,10 @@ public class YCase {
     private TimerTask _idleTimerTask;
 
     private final YNetRunner _runner;
+
+    static {
+        ShutdownTaskHandler.register(() -> ShutdownUtil.shutdownTimer(IDLE_TIMER, "YCase"));
+    }
 
 
     protected YCase(YNetRunner runner) {

@@ -47,7 +47,7 @@
         <property name="actionIndex"   column="actionIndex"     type="integer"/>
         <property name="itemSuspended" column="isItemSuspended" type="boolean"/>
         <property name="caseSuspended" column="isCaseSuspended" type="boolean"/>
-        <property name="wirString"     type="text"/>
+        <property name="wirString"     type="text" length="2147483647"/>
 
         <set name="_suspendedItems" table="ws_suspitems" access="field" lazy="false">
             <key column="rowid"/>

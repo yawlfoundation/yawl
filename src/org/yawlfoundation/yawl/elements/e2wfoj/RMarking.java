@@ -35,12 +35,11 @@ public class RMarking {
         for (Iterator iterator = locations.iterator(); iterator.hasNext();) {
             RElement netElement = (RElement) iterator.next();
             String netElementName = netElement.getID();
-            Integer tokenCount = new Integer(1);
+            Integer tokenCount = 1;
             if (_markedPlaces.containsKey(netElementName)) {
-                Integer countString = (Integer) _markedPlaces.get(netElementName);
-                int count = countString.intValue();
+                int count = (Integer) _markedPlaces.get(netElementName);
                 count++;
-                tokenCount = new Integer(count);
+                tokenCount = count;
 
             }
             _markedPlaces.put(netElementName, tokenCount);

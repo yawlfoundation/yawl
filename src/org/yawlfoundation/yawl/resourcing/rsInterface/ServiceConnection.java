@@ -19,11 +19,7 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.authentication.YAbstractSession;
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
 
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
 
 /**
  * Author: Michael Adams

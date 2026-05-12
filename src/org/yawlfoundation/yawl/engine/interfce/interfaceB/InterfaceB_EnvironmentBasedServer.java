@@ -25,14 +25,16 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
@@ -79,7 +81,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
                 _controller = (InterfaceBWebsideController) instMethod.invoke(null);
             }
             catch (NoSuchMethodException nsme) {
-                _controller = controllerClass.newInstance();
+                _controller = controllerClass.getDeclaredConstructor().newInstance();
             }
             
             // retrieve the URL of the YAWL Engine from the web.xml file.
@@ -102,6 +104,10 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             if (logonPassword != null) _controller.setEngineLogonPassword(logonPassword);
 
             context.setAttribute("controller", _controller);
+
+            ShutdownTaskHandler.register(() ->
+                    ShutdownUtil.shutdownExecutor(_executor,
+                            "IBEnvironmentBasedServer"));
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -41,16 +41,8 @@ import java.util.List;
 public class SaxonUtil {
 
     private static final Processor _processor = new Processor(false);
-//    private static final Serializer _output = new Serializer();
- //   private static final XQueryCompiler _compiler = _processor.newXQueryCompiler();
-//    private static final DOMOutputter _domOutputter = new DOMOutputter();
-
     private static final Logger _log = LogManager.getLogger(SaxonUtil.class);
-
-//    static {
-//        _compiler.setErrorListener(new SaxonErrorListener());
-//    }
-
+    
 
     /**
      * Evaluates an XQuery against a data document
@@ -68,14 +60,15 @@ public class SaxonUtil {
 
         // create a StringWriter to receive the output of the evaluation
         StringWriter writer = new StringWriter();
-        Serializer output = new Serializer();
-        output.setOutputWriter(writer);
 
         // evaluate the query & return the result as a string
-        evaluator.run(output);
+        Serializer serializer = _processor.newSerializer(writer);
+        serializer.setOutputProperty(Serializer.Property.OMIT_XML_DECLARATION, "yes");
+        evaluator.run(serializer);
+
         String result = writer.toString();
         if (_log.isDebugEnabled()) log(result, null);
-        return removeHeader(result);
+        return result;
     }
 
 
@@ -126,10 +119,6 @@ public class SaxonUtil {
         return compiler.compile(query);
     }
 
-//    public static List<String> getCompilerMessages() {
-//        return ((SaxonErrorListener) _compiler.getErrorListener()).getAllMessages();
-//    }
-
 
     /******************************************************************************/
 
@@ -156,17 +145,6 @@ public class SaxonUtil {
         catch (JDOMException jde) {
             throw new SaxonApiException("Failed to translate JDOM Document for processing.");
         }
-    }
-
-
-    private static String removeHeader(String xml) {
-        if ((xml != null) && xml.trim().startsWith("<?xml")) {
-            int closingPos = xml.indexOf("?>");
-            if (closingPos > -1) {
-                xml = xml.substring(closingPos + 2);
-            }
-        }
-        return xml;
     }
 
 

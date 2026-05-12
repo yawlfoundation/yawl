@@ -51,7 +51,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * Constructor.
      * @param backEndURIStr the back end uri of where to find
      * the engine.  A default deployment of this value is
-     * http://localhost:8080/yawl/ib
+     * <a href="http://localhost:8080/yawl/ib">...</a>
      */
     public InterfaceB_EnvironmentBasedClient(String backEndURIStr) {
         _backEndURIStr = backEndURIStr;
@@ -284,6 +284,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return the XML representation, or an XML diagnostic error message.
      * @throws IOException if the engine can't be found.
      */
+    @Deprecated
     public String getSpecification(String specID, String sessionHandle) throws IOException {
         return getSpecification(new YSpecificationID(specID), sessionHandle);
     }
@@ -359,6 +360,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return an XML representation, or an XML diagnostic error message.
      * @throws IOException if the engine can't be found.
      */
+    @Deprecated
     public String getSpecificationDataSchema(String specID, String sessionHandle)
                                                                  throws IOException {
         return getSpecificationDataSchema(new YSpecificationID(specID), sessionHandle);
@@ -449,6 +451,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return an XML Representation of the task information
      * @throws IOException if the engine can't be found.
      */
+    @Deprecated
     public String getTaskInformationStr(String specID, String taskID,
                                         String sessionHandle) throws IOException {
         return getTaskInformationStr(new YSpecificationID(specID), taskID, sessionHandle);
@@ -518,6 +521,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * returns the reason for failure.
      * @throws IOException if engine cannot be found.
      */
+    @Deprecated(since = "2.1")
     public String checkInWorkItem(String workItemID, String data, String sessionHandle)
             throws IOException {
         Map<String, String> params = prepareParamMap("checkin", sessionHandle);
@@ -644,6 +648,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return the case identifier, or a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
+    @Deprecated
     public String launchCase(String specID, String caseParams, String sessionHandle)
             throws IOException {
         return launchCase(new YSpecificationID(specID), caseParams,
@@ -703,6 +708,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return the case identifier, or a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
+    @Deprecated
     public String launchCase(String specID, String caseParams, 
                              String sessionHandle, String completionObserverURI)
                                      throws IOException {
@@ -924,6 +930,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * with specid.
      * @throws IOException if engine cannot be found
      */
+    @Deprecated
     public String getCases(String specID, String sessionHandle) throws IOException {
         return getCases(new YSpecificationID(specID), sessionHandle);
     }
@@ -1076,6 +1083,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return an XML Representation of the task information
      * @throws IOException if the engine cannot be found.
      */
+    @Deprecated
     public String getMITaskAttributes(String specID, String taskID,
                                       String sessionHandle) throws IOException {
         return getMITaskAttributes(new YSpecificationID(specID), taskID, sessionHandle);

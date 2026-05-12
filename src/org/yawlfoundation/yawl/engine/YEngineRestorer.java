@@ -21,7 +21,8 @@ package org.yawlfoundation.yawl.engine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
+import org.hibernate.HibernateException;
+import org.hibernate.query.Query;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.*;
@@ -155,7 +156,7 @@ public class YEngineRestorer {
         YCaseNbrStore caseNbrStore = YCaseNbrStore.getInstance();
         Query query = _pmgr.createQuery("from YCaseNbrStore");
         if ((query != null) && (!query.list().isEmpty())) {
-            caseNbrStore = (YCaseNbrStore) query.iterate().next();
+            caseNbrStore = (YCaseNbrStore) query.uniqueResult();
             caseNbrStore.setPersisted(true);               // flag to update only
         } else {
 
@@ -176,7 +177,7 @@ public class YEngineRestorer {
     protected void restoreProcessInstances() throws YPersistenceException {
         _log.debug("Restoring process instances - Starts");
         List<YNetRunner> runners = restoreObjects(YNetRunner.class,
-                "from YNetRunner order by case_id");
+                "from YNetRunner order by _caseID");
         runners = removeDeadRunners(runners);
         restoreProcessInstances(runners);
     }
@@ -775,22 +776,30 @@ public class YEngineRestorer {
     private <T> List<T> restoreObjects(Class<T> clazz) throws YPersistenceException {
         return restoreObjects(clazz, "from " + clazz.getSimpleName());
     }
-    
 
-    private <T> List<T> restoreObjects(Class<T> clazz, String queryString) throws YPersistenceException {
-        List<T> list = new ArrayList<T>();
-        Query query = _pmgr.createQuery(queryString);
-        for (Iterator it = query.iterate(); it.hasNext(); ) {
-            try {
-                T item = clazz.cast(it.next());
-                if (item != null) list.add(item);
+
+    private <T> List<T> restoreObjects(Class<T> clazz, String queryString)
+            throws YPersistenceException {
+
+        try {
+            List<T> list = new ArrayList<>();
+            List<?> rawList = _pmgr.createQuery(queryString).getResultList();
+
+            for (Object obj : rawList) {
+                try {
+                    T item = clazz.cast(obj);
+                    list.add(item);
+                }
+                catch (ClassCastException cce) {
+                    _log.warn("Ignored object while restoring: " + cce.getMessage());
+                }
             }
-            catch (ClassCastException cce) {
-                // ignore this object
-                _log.warn("Ignored object while restoring: " + cce.getMessage());
-            }
+
+            return list;
         }
-        return list;
+        catch (HibernateException e) {
+            throw new YPersistenceException("Failed to restore objects", e);
+        }
     }
 
 

@@ -139,7 +139,7 @@ public class DemoService extends InterfaceBWebsideController {
             Element varElem = data.getChild(varName);
             if (varElem != null) {
                 String strVal = StringUtil.unwrap(JDOMUtil.elementToString(varElem));
-                return new Integer(strVal);
+                return Integer.parseInt(strVal);
             }
         }
         return MAX_WAIT_DEFAULT;

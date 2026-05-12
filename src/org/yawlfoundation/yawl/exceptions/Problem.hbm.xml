@@ -31,7 +31,7 @@
         </composite-id>
 
         <property name="messageType" />
-        <property name="message" type="text"/>
+        <property name="message" type="text" length="2147483647"/>
 
     </class>
 

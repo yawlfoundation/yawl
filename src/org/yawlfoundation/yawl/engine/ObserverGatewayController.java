@@ -24,6 +24,8 @@ import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -52,6 +54,9 @@ public class ObserverGatewayController {
     public ObserverGatewayController() {
         _gateways = new HashMap<String, Set<ObserverGateway>>();
         _executor = Executors.newFixedThreadPool(THREADPOOL_SIZE);
+        ShutdownTaskHandler.register(() ->
+                ShutdownUtil.shutdownExecutor(_executor,
+                        "ObserverGatewayController"));
     }
 
 
@@ -369,7 +374,7 @@ public class ObserverGatewayController {
                 gateway.shutdown();
             }
         }
-        _executor.shutdown();
+//        _executor.shutdown();
     }
 
 

@@ -60,7 +60,7 @@ public class StartMenuUpdater {
 
 
     public boolean update() {
-        String script = MessageFormat.format(VB_SCRIPT_TEMPLATE, _settings.list());
+        String script = MessageFormat.format(VB_SCRIPT_TEMPLATE, (Object[]) _settings.list());
         try {
             File scriptFile = File.createTempFile("script", ".vbs");
             StringUtil.stringToFile(scriptFile, script);

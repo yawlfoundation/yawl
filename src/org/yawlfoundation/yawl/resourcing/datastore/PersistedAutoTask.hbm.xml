@@ -32,7 +32,7 @@
         </id>
 
         <property name="_wirID" column="wirID"/>
-        <property name="_wirStr" column="wir" type="text"/>
+        <property name="_wirStr" column="wir" type="text" length="2147483647"/>
 
     </class>
 	

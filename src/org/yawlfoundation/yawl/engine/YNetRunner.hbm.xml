@@ -24,6 +24,7 @@
 <hibernate-mapping>
 
     <class name="org.yawlfoundation.yawl.engine.YNetRunner" table="RUNNER_STATES">
+        <cache usage="nonstrict-read-write"/>
 
         <id name="_caseID" column="case_id" type="string" access="field">
             <generator class="assigned"/>

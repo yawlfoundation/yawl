@@ -160,32 +160,8 @@ public class YWorkItemRepository {
 
 
     public Set<YWorkItem> getWorkItems() {
-//        cleanseRepository();
         return new HashSet<YWorkItem>(_itemMap.values());
     }
-
-
-//    // check that the items in the repository are in synch with the engine
-//    public void cleanseRepository() {
-//        Set<String> itemsToRemove = new HashSet<String>();
-//        for (YWorkItem workitem : _itemMap.values()) {
-//            YNetRunner runner = YEngine.getInstance().getNetRunnerRepository().get(workitem);
-//
-//            if (runner != null) {                                      //MLF can be null
-//                boolean foundOne = false;
-//                for (YTask task : runner.getActiveTasks()) {
-//                    if (task.getID().equals(workitem.getTaskID())) {
-//                        foundOne = true;
-//                        break;
-//                    }
-//                }
-//
-//                //clean up all the work items that are out of synch with the engine.
-//                if (! foundOne) itemsToRemove.add(workitem.getIDString());
-//            }
-//        }
-//        if (! itemsToRemove.isEmpty()) removeItems(itemsToRemove);
-//    }
 
 
     public Set<YWorkItem> getChildrenOf(String workItemID) {
@@ -252,26 +228,6 @@ public class YWorkItemRepository {
         return matches ;
     }
     
-
-//    public Set<YWorkItem> getWorkItemsForService(String serviceURI) {
-//        Set<YWorkItem> matches = new HashSet<YWorkItem>();
-//        YAWLServiceReference defWorklist = YEngine.getInstance().getDefaultWorklist();
-//
-//        // find out which items belong to the specified service
-//        for (YWorkItem item : getWorkItems()) {
-//            YAWLServiceGateway gateway =
-//                     ((YAWLServiceGateway) item.getTask().getDecompositionPrototype());
-//            if (gateway != null) {
-//                YAWLServiceReference service = gateway.getYawlService();
-//                if (service == null) service = defWorklist;
-//                if ((service != null) && (service.getURI().equals(serviceURI))) {
-//                    matches.add(item);
-//                }
-//            }
-//        }
-//        return matches;
-//    }
-
 
     // called from YEngine#dump, logger isDebugEnabled
     public void dump(Logger logger) {

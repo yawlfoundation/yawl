@@ -164,7 +164,7 @@ public class YWorklistModel {
                     _formatter.format(item.getFiringTime()),
                     _formatter.format(item.getStartTime()),
                                   inSequence ? "Y" : "N",
-                                  new Boolean(allowsDynamicInstanceCreation),
+                        allowsDynamicInstanceCreation,
                     item.getDataString(),
                     getOutputSkeletonXML(caseIDStr, taskID)
                 });

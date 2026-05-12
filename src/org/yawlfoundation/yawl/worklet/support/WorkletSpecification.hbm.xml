@@ -40,7 +40,7 @@
             <property name="uri" column="specURI"/>
         </component>
 
-       <property name="XML"  type="text"/>
+       <property name="XML"  type="text" length="2147483647"/>
 
     </class>
 	

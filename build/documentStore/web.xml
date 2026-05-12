@@ -18,7 +18,11 @@
   ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<web-app version="2.4">
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
 
     <!-- General description of your web application -->
 
@@ -30,37 +34,39 @@
     </description>
 
     <context-param>
-        <param-name>InterfaceA_Backend</param-name>
-        <param-value>http://localhost:8080/yawl/ia</param-value>
         <description>
             The URL of the engine's interface A.
         </description>
+        <param-name>InterfaceA_Backend</param-name>
+        <param-value>http://localhost:8080/yawl/ia</param-value>
+
     </context-param>
 
     <context-param>
-        <param-name>EngineLogonUserName</param-name>
-        <param-value>documentStore</param-value>
         <description>
             The name of the logon used by the service to connect with the engine.
         </description>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>documentStore</param-value>
+
     </context-param>
 
     <context-param>
-        <param-name>EngineLogonPassword</param-name>
-        <param-value>yDocStore</param-value>
         <description>
             The password for the logon used by the service to connect with the engine.
         </description>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yDocStore</param-value>
     </context-param>
 
     <context-param>
-        <param-name>RetainStoredDocsOnCaseCompletion</param-name>
-        <param-value>false</param-value>
         <description>
             Setting this value to true will retain any documents uploaded during a case
             when the case completes (or is cancelled). A setting of false (the default)
             will clear all case documents from the store on case completion.
         </description>
+        <param-name>RetainStoredDocsOnCaseCompletion</param-name>
+        <param-value>false</param-value>
     </context-param>
 
 
@@ -84,10 +90,10 @@
 <!-- this servlet provides a gateway from the doc store -->
 
     <servlet>
-        <servlet-name>store</servlet-name>
         <description>
             servlet interface
         </description>
+        <servlet-name>store</servlet-name>
         <servlet-class>org.yawlfoundation.yawl.documentStore.DocumentStore</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet> 

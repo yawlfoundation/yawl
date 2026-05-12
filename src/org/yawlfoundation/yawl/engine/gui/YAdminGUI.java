@@ -289,11 +289,11 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
          * AJH: Changed to force display onto primary screen in a dual-head X environment
          */
         Dimension guiSize = getPreferredSize();
-        Double screenWidth = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth());
-        Double screenHeight = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight());
+        double screenWidth = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth();
+        double screenHeight = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight();
 
-        setLocation(screenWidth.intValue() / 2 - (guiSize.width / 2),
-                    screenHeight.intValue() / 2 - (guiSize.height / 2));
+        setLocation((int) screenWidth / 2 - (guiSize.width / 2),
+                    (int) screenHeight / 2 - (guiSize.height / 2));
         setVisible(true);
 
         /**

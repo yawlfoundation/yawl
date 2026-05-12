@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 
 /**
@@ -269,7 +270,7 @@ public class DocumentStoreClient extends Interface_Client {
     
     
     private ByteArrayOutputStream executePost(byte[] bytes) throws IOException {
-        URL url = new URL(_storeURI);
+        URL url = URI.create(_storeURI).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "multipart/form-data");

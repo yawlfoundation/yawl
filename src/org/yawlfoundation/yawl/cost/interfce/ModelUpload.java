@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.cost.interfce;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Hashtable;
@@ -142,7 +143,7 @@ public class ModelUpload {
      * @throws IOException when there's some kind of communication problem
      */
     private HttpURLConnection initPostConnection(String urlStr) throws IOException {
-        URL url = new URL(urlStr);
+        URL url = URI.create(urlStr).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
         connection.setRequestProperty("Accept-Charset", "UTF-8");

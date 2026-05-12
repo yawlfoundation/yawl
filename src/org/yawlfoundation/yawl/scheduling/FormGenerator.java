@@ -30,9 +30,9 @@ import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
 import org.yawlfoundation.yawl.scheduling.util.Utils;
 import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
 import java.text.ParseException;

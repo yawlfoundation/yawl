@@ -110,13 +110,14 @@ public class TextAreaOutputStream extends OutputStream {
     }
 
 
-    // eh cache waring are for info only and can be ignored
     // on shutdown, memory leak warning can be ignored
     private boolean mayIgnore(String text) {
+        boolean shuttingDown = Publisher.getCurrentStatus().ordinal() < 2;
         return text.contains("ehcache") || text.contains("CacheManager") ||
-                text.contains("memory leak") || text.contains("java.base@16/") ||
-                text.contains("com.mchange.v2.async.ThreadPoolAsynchronousRunner$") ||
-                text.contains("org.h2");
+                text.contains("java.base@16/") ||
+                text.contains("org.h2") ||
+                ((text.contains("memory leak") || text.contains("java.base/")) &&
+                shuttingDown);
     }
 
 }

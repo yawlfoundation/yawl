@@ -24,7 +24,7 @@ import com.sun.rave.web.ui.component.Listbox;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.Script;
 import com.sun.rave.web.ui.model.Option;
-import org.apache.commons.lang.time.DateUtils;
+import jakarta.servlet.http.HttpSession;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -54,7 +54,6 @@ import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.servlet.http.HttpSession;
 import javax.xml.datatype.Duration;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -2488,7 +2487,8 @@ public class SessionBean extends AbstractSessionBean {
 
 
     // the currently selected date on the page - default to today midnight
-    private Date selectedCalMgtDate = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
+//    private Date selectedCalMgtDate = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
+    private Date selectedCalMgtDate = new Date();
 
     public Date getSelectedCalMgtDate() { return selectedCalMgtDate; }
 

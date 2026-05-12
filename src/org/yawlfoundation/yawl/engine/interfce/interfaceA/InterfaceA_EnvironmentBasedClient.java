@@ -212,6 +212,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @return a diagnostic XML result message.
      * @throws IOException if bad connection.
      */
+    @Deprecated
     public String uploadSpecification(String specification, String filename,
                                       String sessionHandle) throws IOException {
         return uploadSpecification(specification, sessionHandle);
@@ -242,6 +243,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @return a diagnostic XML result message.
      * @throws IOException if bad connection.
      */
+    @Deprecated
     public String unloadSpecification(String specID, String sessionHandle) throws IOException {
         return unloadSpecification(new YSpecificationID(specID), sessionHandle);
     }

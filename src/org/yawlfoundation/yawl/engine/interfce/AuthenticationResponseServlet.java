@@ -18,14 +18,14 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -42,7 +42,7 @@ public class AuthenticationResponseServlet extends HttpServlet {
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         ServletContext context = servletConfig.getServletContext();
-        String controllerClassName =
+        String controllerClassName = 
                 context.getInitParameter("InterfaceBWebSideController");
         //If you need to get through an auth proxy firewall and have configured it in the
         //web.xml file they will be retrieved for use.
@@ -52,7 +52,7 @@ public class AuthenticationResponseServlet extends HttpServlet {
         String proxyPort = context.getInitParameter("ProxyPort");
         try {
             Class controllerClass = Class.forName(controllerClassName);
-            _controller = (InterfaceBWebsideController) controllerClass.newInstance();
+            _controller = (InterfaceBWebsideController) controllerClass.getDeclaredConstructor().newInstance();
             //here the URL of the YAWL Engine get retrieved from the web.xml file.
             _controller.setUpInterfaceBClient(context.getInitParameter("InterfaceB_BackEnd"));
             _controller.setRemoteAuthenticationDetails(

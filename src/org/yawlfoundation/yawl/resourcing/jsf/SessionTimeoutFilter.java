@@ -18,12 +18,11 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf;
 
-import org.apache.commons.lang.StringUtils;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -71,11 +70,13 @@ public class SessionTimeoutFilter implements Filter {
 
 
     private boolean isLoginPageRequest(HttpServletRequest request) {
-        return StringUtils.contains(request.getRequestURI(), "Login");
+        String uri = request.getRequestURI();
+        return uri != null && uri.contains("Login");
     }
 
     private boolean isRSSFormRequest(HttpServletRequest request) {
-        return StringUtils.contains(request.getRequestURI(), "rssFormViewer");
+        String uri = request.getRequestURI();
+        return uri != null && uri.contains("rssFormViewer");
     }
 
     private boolean isInvalidSession(HttpServletRequest httpServletRequest) {

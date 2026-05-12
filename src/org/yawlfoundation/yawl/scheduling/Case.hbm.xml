@@ -33,7 +33,7 @@
         <property name="description"/>
         <property name="timestamp" type="long"/>
         <property name="savedBy"/>
-        <property name="rupAsString" type="text"/>
+        <property name="rupAsString" type="text" length="2147483647"/>
         <property name="active" type="boolean"/>
 
 	</class>

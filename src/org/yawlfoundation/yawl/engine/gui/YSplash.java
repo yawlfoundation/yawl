@@ -51,11 +51,11 @@ public class YSplash extends JWindow {
          * AJH: Changed to support dual-head graphics environments better
          */
         Dimension labelSize = l.getPreferredSize();
-        Double screenWidth = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth());
-        Double screenHeight = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight());
+        double screenWidth = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth();
+        double screenHeight = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight();
 
-        setLocation(screenWidth.intValue() / 2 - (labelSize.width / 2),
-                    screenHeight.intValue() / 2 - (labelSize.height / 2));
+        setLocation((int) screenWidth / 2 - (labelSize.width / 2),
+                    (int) screenHeight / 2 - (labelSize.height / 2));
 
 
         addMouseListener(new MouseAdapter() {

@@ -56,7 +56,7 @@ public class UpdateTable extends JTable {
         setCellSelectionEnabled(true);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setSelectionBackground(new Color(202,202,202));
-        setRowHeight(getRowHeight() + 8);
+        setRowHeight(getRowHeight() + 12);
         setColumnWidths();
         setDefaultRenderer(String.class, new UpdateRowRenderer());
         setDefaultRenderer(Boolean.class, new UpdateRowRenderer());

@@ -24,8 +24,9 @@
 <hibernate-mapping>
 
 	<class name="org.yawlfoundation.yawl.elements.YAWLServiceReference" table="yservices">
+		<cache usage="nonstrict-read-write"/>
 
-        <id name="_yawlServiceID" column="serviceid" type="string">
+		<id name="_yawlServiceID" column="serviceid" type="string">
    		    <generator class="assigned"/>
     	</id>
 

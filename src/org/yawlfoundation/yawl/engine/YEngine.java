@@ -361,7 +361,6 @@ public class YEngine implements InterfaceADesign,
         _sessionCache.shutdown();
         YTimer.getInstance().shutdown();              // stop timer threads
         YTimer.getInstance().cancel();                // stop the timer
-        if (_pmgr != null) _pmgr.closeFactory();
     }
 
 
@@ -877,6 +876,7 @@ public class YEngine implements InterfaceADesign,
      * @throws YPersistenceException
      * @throws YEngineStateException
      */
+    @Deprecated
     public void cancelCase(YIdentifier id) throws YPersistenceException, YEngineStateException {
         cancelCase(id, null);
     }
@@ -2201,11 +2201,6 @@ public class YEngine implements InterfaceADesign,
                     String query = "delete from GroupedMIOutputData as m where m.uniqueIdentifier like '" +
                             id.get_idString() + ":%'";
                     _pmgr.getSession().createQuery(query).executeUpdate();
-                }
-                
-                List<YIdentifier> list = id.get_children();
-                for (YIdentifier child : list) {
-                    if (child != null) clearCaseFromPersistence(child);
                 }
 
                 synchronized(_pmgr) {

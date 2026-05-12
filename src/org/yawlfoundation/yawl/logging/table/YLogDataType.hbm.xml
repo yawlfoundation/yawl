@@ -30,7 +30,7 @@
         </id>
 
         <property name="name"       type="string" column="dataTypeName"/>
-    	<property name="definition" type="text"/>
+    	<property name="definition" type="text" length="2147483647"/>
 	</class>
 
 </hibernate-mapping>

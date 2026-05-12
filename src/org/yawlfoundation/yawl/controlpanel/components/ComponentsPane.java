@@ -124,8 +124,8 @@ public class ComponentsPane extends JLayeredPane
         _progressPanel.setBounds(150, 190, 300, 70);
         _progressPanel.setVisible(false);
 
-        add(_tablePanel, new Integer(0));
-        add(_progressPanel, new Integer(1));
+        add(_tablePanel, Integer.valueOf(0));
+        add(_progressPanel, Integer.valueOf(1));
         moveToFront(_progressPanel);
     }
 

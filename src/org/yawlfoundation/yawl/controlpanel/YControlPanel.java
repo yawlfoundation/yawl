@@ -51,7 +51,7 @@ public class YControlPanel extends JFrame {
     private ComponentsPane _componentsPane;
     private OutputPanel _outputPanel;
 
-    public static final String VERSION = "5.2";
+    public static final String VERSION = "6.0";
 
 
     public YControlPanel() {

@@ -24,6 +24,8 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.ShutdownTaskHandler;
+import org.yawlfoundation.yawl.util.ShutdownUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -73,6 +75,12 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
     protected static final int NOTIFY_CANCELLED_CASE = 6;
 
     private String _observerURI ;
+
+    static {
+        ShutdownTaskHandler.register(() ->
+                ShutdownUtil.shutdownExecutor(executor,
+                        "InterfaceX_EngineSideClient "));
+    }
 
     // the constructor //
     public InterfaceX_EngineSideClient(String observerURI) {
@@ -149,7 +157,7 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
      * to do its own finalisation processing
      */
     public void shutdown() {
-        executor.shutdownNow();
+    //    executor.shutdownNow();
     }
 
 

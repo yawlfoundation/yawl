@@ -21,17 +21,18 @@ package org.yawlfoundation.yawl.stateless.elements;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.engine.time.YTimer;
-import org.yawlfoundation.yawl.stateless.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.engine.time.workdays.WorkDayAdjuster;
+import org.yawlfoundation.yawl.stateless.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
-import jakarta.xml.bind.DatatypeConverter;
 import javax.xml.datatype.Duration;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.statusEnabled;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.statusExecuting;
@@ -196,7 +197,8 @@ public class YTimerParameters {
         }
 
         try {                                 // test for xsd datetime
-            Calendar calendar = DatatypeConverter.parseDateTime(expiry);
+            OffsetDateTime odt = OffsetDateTime.parse(expiry);
+            Calendar calendar = GregorianCalendar.from(odt.toZonedDateTime());
             set(trigger, calendar.getTime());
             return true;
         }

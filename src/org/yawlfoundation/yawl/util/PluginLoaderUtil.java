@@ -51,7 +51,7 @@ public class PluginLoaderUtil {
 
     public <T> T newInstance(Class<T> clazz) {
         try {
-            return clazz.newInstance();
+            return clazz.getDeclaredConstructor().newInstance();
         }
         catch (Throwable t) {
             return null;
@@ -63,7 +63,7 @@ public class PluginLoaderUtil {
         Set<T> instanceSet = new HashSet<T>();
         for (Class<T> clazz : clazzSet) {
             try {
-                instanceSet.add(clazz.newInstance());
+                instanceSet.add(clazz.getDeclaredConstructor().newInstance());
             }
             catch (Throwable t) {
                 // do nothing

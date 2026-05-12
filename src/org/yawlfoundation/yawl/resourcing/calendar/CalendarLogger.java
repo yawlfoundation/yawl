@@ -72,7 +72,7 @@ public class CalendarLogger {
         List list = _persister.createQuery("FROM CalendarLogEntry AS cle " +
                                            "WHERE cle.calendarKey=:key " +
                                            "ORDER BY cle.entryID DESC")
-                .setLong("key", calEntryID)
+                .setParameter("key", calEntryID)
                 .list();
         return (list == null) || list.isEmpty() ? null : list;
     }
@@ -84,9 +84,9 @@ public class CalendarLogger {
                                            "WHERE cle.caseID=:caseID " +
                                            "AND cle.activityName=:activityName " +
                                            "AND cle.resourceRec=:resourceRec")
-                .setString("caseID", caseID)
-                .setString("activityName", activityName)
-                .setString("resourceRec", resourceRec)
+                .setParameter("caseID", caseID)
+                .setParameter("activityName", activityName)
+                .setParameter("resourceRec", resourceRec)
                 .list();
     }
 
@@ -95,8 +95,8 @@ public class CalendarLogger {
         return _persister.createQuery("FROM CalendarLogEntry AS cle " +
                                            "WHERE cle.caseID=:caseID " +
                                            "AND cle.activityName=:activityName")
-                .setString("caseID", caseID)
-                .setString("activityName", activityName)
+                .setParameter("caseID", caseID)
+                .setParameter("activityName", activityName)
                 .list();
     }
 
@@ -104,7 +104,7 @@ public class CalendarLogger {
     public List getLogEntriesForCase(String caseID) {
         return _persister.createQuery("FROM CalendarLogEntry AS cle " +
                                            "WHERE cle.caseID=:caseID ")
-                .setString("caseID", caseID)
+                .setParameter("caseID", caseID)
                 .list();
     }
 
