@@ -144,15 +144,24 @@ public class YInternalTypeUtil {
         }
     }
 
+    
     public static void addPrefixToElement(XNode schema) {
+        addPrefixes(schema, getSimpleTypeNames(schema));
+    }
+
+
+    private static void addPrefixes(XNode schema, Set<String> simpleTypeNames) {
         for (XNode child : schema.getChildren()) {
             if (child.getName().endsWith("element")) {
                 Map<String, String> attrMap = child.getAttributes();
                 String type = attrMap.get("type");
-                if (! (type == null || type.contains(":"))) {
-                    attrMap.put("type", YAWL_PREFIX + ":" + type);
+                if (type != null) {
+                    if (simpleTypeNames.contains(type) || ! type.contains(":")) {
+                        attrMap.put("type", YAWL_PREFIX + ":" + type);
+                    }
                 }
             }
+            addPrefixes(child, simpleTypeNames);
         }
     }
 
@@ -180,6 +189,20 @@ public class YInternalTypeUtil {
         catch (Exception e) {    // ok to safely ignore parsing exceptions
             return null;
         }
+    }
+
+
+    private static Set<String> getSimpleTypeNames(XNode schema) {
+        Set<String> simpleTypeNames = new HashSet<>();
+        for (XNode child : schema.getChildren()) {
+            if (child.getName().endsWith("simpleType")) {
+                String name = child.getAttributeValue("name");
+                if (name != null) {
+                    simpleTypeNames.add(name);
+                }
+            }
+        }
+        return simpleTypeNames;
     }
 
 }
