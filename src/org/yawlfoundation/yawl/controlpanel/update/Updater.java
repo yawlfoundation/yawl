@@ -176,8 +176,8 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void stopEngine() {
         if (Publisher.getCurrentStatus() == EngineStatus.Running) {
             _cycled = true;
-            getProgressPanel().setIndeterminate(true);
             getProgressPanel().setText("Stopping Engine...");
+            getProgressPanel().startTimedProgress(5, 500);
             if (! TomcatUtil.stop()) {
                 showError("Failed to stop Engine. Update could not complete.");
                 setState(State.Finalise);
@@ -201,10 +201,12 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     private void startEngine() {
         showProgress((_cycled ? "Res" : "S") + "tarting Engine...");
+        getProgressPanel().startTimedProgress(3, 500);
         try {
             TomcatUtil.start();
         }
         catch (Exception e) {
+            getProgressPanel().stopTimedProgress();
             showError("Problem starting Engine: " + e.getMessage());
             setState(State.Finalise);
         }
@@ -228,7 +230,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     protected void finalise() {
         Publisher.removeEngineStatusListener(this);
-        getProgressPanel().setVisible(false);
+        getProgressPanel().close();
         resetCursor();
     }
 
@@ -394,9 +396,13 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     protected File doUpdates(File tomcatDir)  {
         File tmpDir = FileUtil.getTmpDir();
         int port = TomcatUtil.getTomcatServerPort();
+        boolean uiUpdated = false;                   // only have to update ui once
         for (FileNode fileNode : _downloads) {
             if (fileNode instanceof YawlUiUpdater.UIFileNode) {
-                ((YawlUiUpdater.UIFileNode) fileNode).doUpdate(tmpDir);
+                if (! uiUpdated) {
+                    ((YawlUiUpdater.UIFileNode) fileNode).doUpdate(tmpDir);
+                    uiUpdated = true;
+                }
             }
             else {
                 String fileName = fileNode.getDiskFilePath();
@@ -540,7 +546,8 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     protected void consolidateLibDir(File tomcatRoot) {
         Set<String> requiredLibs = _differ.getRequiredLibNames();
         for (String lib : _differ.getInstalledLibNames()) {
-            if (lib.startsWith("h2-")) continue;          // h2 db driver is also needed
+            if (lib.startsWith("h2-"))
+                continue;          // h2 db driver is also needed
             if (!requiredLibs.contains(lib)) {
                 FileUtil.delete(tomcatRoot, FileUtil.buildPath("yawllib", lib));
             }

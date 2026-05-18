@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.controlpanel.util;
 
-import org.apache.commons.io.FileUtils;
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateConstants;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -28,10 +27,15 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -133,6 +137,56 @@ public class FileUtil {
         finally {
             if (sourceChannel != null) closeQuietly(sourceChannel);
             if (targetChannel != null) closeQuietly(targetChannel);
+        }
+    }
+
+
+    public static void copyFileToDirectory(File sourceFile, File targetDir) throws IOException {
+        Path targetPath = targetDir.toPath().resolve(sourceFile.toPath().getFileName());
+        Files.copy(sourceFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+
+    public static void moveDirectory(File sourceDir, File targetDir) throws IOException {
+        Files.move(sourceDir.toPath(), targetDir.toPath(), StandardCopyOption.ATOMIC_MOVE);
+    }
+
+    public static void deleteDirectory(File dir) throws IOException {
+        if (!Files.exists(dir.toPath())) return;
+
+        // Walk the tree, sort in reverse order, and delete each path
+        try (Stream<Path> walk = Files.walk(dir.toPath())) {
+            walk.sorted(Comparator.reverseOrder())
+                .forEach(p -> {
+                    try {
+                        Files.delete(p);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to delete: " + p, e);
+                    }
+                });
+        }
+    }
+
+    // creates a dir, or if it exists, deletes it content
+    public static void resetDirectory(File targetDir) {
+        Path targetPath = targetDir.toPath();
+        if (Files.exists(targetPath)) {
+            try (Stream<Path> walk = Files.walk(targetPath)) {
+                walk.sorted(Comparator.reverseOrder())
+                        // Avoid deleting the root target directory itself
+                        .filter(path -> !path.equals(targetPath))
+                        .forEach(path -> {
+                            try {
+                                Files.delete(path);
+                            }
+                            catch (IOException e) {
+                                throw new RuntimeException("Failed to delete: " + path, e);
+                            }
+                        });
+            }
+            catch (IOException e) {
+                //
+            }
         }
     }
 
@@ -273,18 +327,28 @@ public class FileUtil {
         String uiLibDirName = tomcatRoot  + File.separator + "webapps" + File.separator +
                 "yawlui" + File.separator + "WEB-INF" + File.separator + "lib" + File.separator;
         String uiLibJarPath = uiLibDirName + yawlLibJarName;
-        
+
         File yawlLibJar = new File(yawlLibJarPath);
         File uiLibJar = new File(uiLibJarPath);
-        
-        if (FileUtils.isFileNewer(yawlLibJar, uiLibJar)) {
-            try {
+
+        try {
+            if (isFileNewer(yawlLibJar, uiLibJar)) {
                 Files.copy(yawlLibJar.toPath(), uiLibJar.toPath());
             }
-            catch (IOException e) {
-                // proceed as normal
-            }
         }
+        catch (IOException e) {
+            // proceed as normal
+        }
+    }
+
+
+    public static boolean isFileNewer(File fileA, File fileB) throws IOException {
+        // Fetch the last modified times for both files
+        FileTime timeA = Files.getLastModifiedTime(fileA.toPath());
+        FileTime timeB = Files.getLastModifiedTime(fileB.toPath());
+
+        // Returns true if A was modified strictly after B
+        return timeA.compareTo(timeB) > 0;
     }
 
 }

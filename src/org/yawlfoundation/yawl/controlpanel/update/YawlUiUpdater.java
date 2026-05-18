@@ -1,6 +1,5 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
-import org.apache.commons.io.FileUtils;
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
@@ -151,44 +150,50 @@ public class YawlUiUpdater {
             File backupDir = new File(tmpDir, "ui-classes");
             File iconDir =  new File(TomcatUtil.getCatalinaHome()
                         + "/webapps/yawlui/icons/");
-            if (updateJar.exists()) {
-                try {
+            try {
+                if (updateJar.exists()) {
 
                     // backup existing files to tmp
-                    FileUtils.moveDirectory(classesDir, backupDir);
+                    FileUtil.resetDirectory(backupDir);
+                    FileUtil.moveDirectory(classesDir, backupDir);
 
                     // unpack jar to classes dir
                     FileUtil.unzip(updateJar, classesDir);
-
-                    FileUtil.unzip(updateLibJar, libDir);
-                    FileUtil.unzip(updateIconJar, iconDir);
 
                     // copy existing application.properties from tmp to classes
                     File oldProps = new File(backupDir, "application.properties");
                     File newProps = new File(classesDir, "application.properties");
                     File merged = mergeProps(oldProps, newProps);
-                    FileUtils.copyFileToDirectory(merged, classesDir);
-
-                    // copy in the newest yawl library
-                    File yawlLibJar = new File(YAWL_LIB_PATH, YAWL_LIB_JAR_NAME);
-                    FileUtils.copyFileToDirectory(yawlLibJar, libDir);
+                    FileUtil.copyFileToDirectory(merged, classesDir);
 
                     // success: delete the tmp dir
-                    FileUtils.deleteDirectory(backupDir);
+                    FileUtil.deleteDirectory(backupDir);
                 }
-                catch (Exception e) {
 
-                    // rollback changes
-                    try {
-                        if (backupDir.exists()) {
-                            FileUtils.deleteDirectory(classesDir);
-                            File classesBackupDir = new File(backupDir, "classes");
-                            FileUtils.moveDirectory(classesBackupDir, classesDir);
-                        }
+                if (updateLibJar.exists()) {
+                    FileUtil.unzip(updateLibJar, libDir);
+                }
+
+                if (updateIconJar.exists()) {
+                    FileUtil.unzip(updateIconJar, iconDir);
+                }
+
+                // copy in the newest yawl library
+                File yawlLibJar = new File(YAWL_LIB_PATH, YAWL_LIB_JAR_NAME);
+                FileUtil.copyFileToDirectory(yawlLibJar, libDir);
+            }
+            catch (Exception e) {
+
+                // rollback changes
+                try {
+                    if (backupDir.exists()) {
+                        FileUtil.deleteDirectory(classesDir);
+                        File classesBackupDir = new File(backupDir, "classes");
+                        FileUtil.moveDirectory(classesBackupDir, classesDir);
                     }
-                    catch (IOException ex) {
-                        //
-                    }
+                }
+                catch (IOException ex) {
+                    //
                 }
             }
         }

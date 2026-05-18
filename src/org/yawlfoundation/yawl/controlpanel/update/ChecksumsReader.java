@@ -113,14 +113,15 @@ public class ChecksumsReader {
 
 
     protected List<XNode> getRequiredLibs(List<String> appNames) {
-        Set<String> requiredLibNames = getRequiredLibNames(appNames);
-        List<XNode> requiredLibs = new ArrayList<XNode>();
-        for (XNode libNode : getLibList()) {
-            if (requiredLibNames.contains(libNode.getAttributeValue("name"))) {
-                requiredLibs.add(libNode);
-            }
-        }
-        return requiredLibs;
+////        Set<String> requiredLibNames = getRequiredLibNames(appNames);
+//        List<XNode> requiredLibs = new ArrayList<XNode>();
+//        for (XNode libNode : getLibList()) {
+// //           if (requiredLibNames.contains(libNode.getAttributeValue("name"))) {
+//                requiredLibs.add(libNode);
+////            }
+//        }
+//        return requiredLibs;
+        return getLibList();
     }
 
 

@@ -2,8 +2,8 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>6.0</version>
-  <timestamp>2026-05-15 19.01.11</timestamp>
-  <lib hash="2ac20f9d4b513be7416a10fb4dc4617f">
+  <timestamp>2026-05-18 17.47.44</timestamp>
+  <lib hash="f553068abee245ca023719ad86a97c5e">
     <file name="okhttp-4.12.0.jar" md5="6acba053af88fed87e710c6c29911d7c" size="789531" timestamp="2025-03-28T08:54:38" path="lib.misc"/>
     <file name="xercesImpl.jar" md5="da09b75b562ca9a8e9a535d2148be8e4" size="1229289" timestamp="2026-04-12T08:04:19" path="lib.misc"/>
     <file name="jaxen-1.1.6.jar" md5="a140517286b56eea981e188dcc3a13f6" size="231882" timestamp="2026-04-12T08:04:19" path="lib.misc"/>
@@ -21,7 +21,9 @@
     <file name="kotlin-stdlib-2.1.0.jar" md5="895fde81aafd572b5853c1b4a250a94d" size="1690048" timestamp="2026-04-12T08:04:19" path="lib.mail.client"/>
     <file name="jackson-datatype-jdk8-2.18.2.jar" md5="54d2dc0c44a7188884e8f22fddd947f6" size="36161" timestamp="2026-04-12T08:04:19" path="lib.mail.client"/>
     <file name="okio-jvm-3.9.1.jar" md5="8017bd41eff99c440380b364e9ad7e5e" size="372276" timestamp="2026-04-12T08:04:19" path="lib.mail.client"/>
+    <file name="azure-identity-1.18.1.jar" md5="e97bf19449e6bd37e4ebbf6e5bf03c37" size="257125" timestamp="2026-04-12T08:04:18" path="lib.mail.client"/>
     <file name="okio-3.9.1.jar" md5="6e0028edc5f85df9bce75393828cf916" size="48109" timestamp="2026-04-12T08:04:19" path="lib.mail.client"/>
+    <file name="azure-core-1.57.0.jar" md5="0d4a713cd952eb3d0c3ebc9cc50ede86" size="872933" timestamp="2026-04-12T08:04:18" path="lib.mail.client"/>
     <file name="jackson-core-2.18.2.jar" md5="bf935e6eca3a57defa13918661905cb0" size="597807" timestamp="2026-04-12T08:04:19" path="lib.mail.client"/>
     <file name="emailaddress-rfc2822-2.1.4.jar" md5="fc493317c5862aafbe8ec738a6b871ec" size="19374" timestamp="2026-04-12T08:04:19" path="lib.mail"/>
     <file name="jboss-logging-3.4.3.Final.jar" md5="b298d4b79e591843c1eb1458ea79f070" size="60782" timestamp="2026-04-12T08:04:19" path="lib.hibernate"/>
@@ -187,11 +189,11 @@
     </documentStore>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-6.0.jar" md5="fd42b1200a4b13a0516dd803841d1371" size="3085490" timestamp="2026-05-15T19:01:08" path="AM"/>
+    <file name="yawl-lib-6.0.jar" md5="a036467a24e10978f89af70935c46847" size="3085490" timestamp="2026-05-18T17:47:43" path="AM"/>
   </yawllib>
   <controlpanel>
-    <build>478</build>
-    <file name="YawlControlPanel-6.0.jar" md5="3da93ac514b5036e274cf07cf5f06c96" size="514598" timestamp="2026-05-12T11:45:12" path="AM"/>
+    <build>489</build>
+    <file name="YawlControlPanel-6.0.jar" md5="cd01b7c707e9a6f548e4e60b5295b41a" size="378629" timestamp="2026-05-18T17:47:44" path="AM"/>
   </controlpanel>
   <paths>
     <path id="host">https://raw.githubusercontent.com/</path>

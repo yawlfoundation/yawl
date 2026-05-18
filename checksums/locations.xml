@@ -82,6 +82,8 @@
             <file name="classmate-1.7.3.jar" path="lib.hibernate"/>
             <file name="byte-buddy-1.18.8.jar" path="lib.hibernate"/>
             <file name="istack-commons-runtime-4.1.1.jar" path="lib.hibernate"/>
+            <file name="azure-core-1.57.0.jar" path="lib.mail.client"/>
+            <file name="azure-identity-1.18.1.jar" path="lib.mail.client"/>
             <file name="jackson-annotations-2.18.2.jar" path="lib.mail.client"/>
             <file name="jackson-core-2.18.2.jar" path="lib.mail.client"/>
             <file name="jackson-databind-2.18.2.jar" path="lib.mail.client"/>

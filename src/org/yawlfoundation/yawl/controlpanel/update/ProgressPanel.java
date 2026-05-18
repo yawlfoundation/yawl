@@ -23,6 +23,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -36,6 +38,7 @@ public class ProgressPanel extends JPanel {
     private JProgressBar _bar;
     private long _downloadSize;
     private String _downloadSizeString;
+    private Timer _timer;
 
 
     public ProgressPanel() {
@@ -57,6 +60,7 @@ public class ProgressPanel extends JPanel {
         else if (indeterminate) {
             _bar.setString("");
         }
+        stopTimedProgress();
         _bar.setIndeterminate(indeterminate);
     }
 
@@ -66,6 +70,38 @@ public class ProgressPanel extends JPanel {
         if (progress > 100) progress = 100;
         _bar.setValue(progress);
         _bar.setString(getProgressString(progress));
+    }
+
+
+    public void startTimedProgress(int step, int delayMsecs) {
+        setIndeterminate(false);
+        _timer = new Timer(delayMsecs, new ActionListener() {
+            private int currentProgress = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                currentProgress += step;
+
+                if (currentProgress >= 100) {
+                    _bar.setValue(100);
+                    _timer.stop();      // Stop the timer when it hits 100%
+                } else {
+                    _bar.setValue(currentProgress);
+                }
+            }
+        });
+    
+        _timer.start();
+    }
+
+
+    public void stopTimedProgress() {
+        if (_timer != null && _timer.isRunning()) _timer.stop();
+    }
+
+    public void close() {
+        stopTimedProgress();   // if any
+        setVisible(false);
     }
 
 
