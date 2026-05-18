@@ -54,7 +54,7 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1849</build>
+      <build>1844</build>
       <files>
         <file name="WEB-INF/classes/version.properties" md5="92d686da4d5210c40abf623fadca6cdb" size="183" timestamp="2026-05-15T19:01:09" path="B"/>
         <file name="WEB-INF/classes/defaultClients.properties" md5="ceb30a8fcaae2bc487972ae3cb104748" size="1106" timestamp="2026-05-15T19:01:09" path="C"/>
