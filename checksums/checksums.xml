@@ -3,7 +3,7 @@
 <checksums>
   <version>6.0</version>
   <timestamp>2026-05-18 17.47.44</timestamp>
-  <lib hash="f553068abee245ca023719ad86a97c5e">
+  <lib hash="2ac20f9d4b513be7416a10fb4dc4617f">
     <file name="okhttp-4.12.0.jar" md5="6acba053af88fed87e710c6c29911d7c" size="789531" timestamp="2025-03-28T08:54:38" path="lib.misc"/>
     <file name="xercesImpl.jar" md5="da09b75b562ca9a8e9a535d2148be8e4" size="1229289" timestamp="2026-04-12T08:04:19" path="lib.misc"/>
     <file name="jaxen-1.1.6.jar" md5="a140517286b56eea981e188dcc3a13f6" size="231882" timestamp="2026-04-12T08:04:19" path="lib.misc"/>
