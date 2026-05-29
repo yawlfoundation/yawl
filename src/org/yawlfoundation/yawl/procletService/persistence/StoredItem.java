@@ -34,7 +34,7 @@ public class StoredItem {
     private String blockID;
     private String emid;
     private boolean selected;
-    private Item itemType;
+    private Item _itemType;
 
     public StoredItem() { }
     
@@ -42,7 +42,7 @@ public class StoredItem {
         this.classID = classID;
         this.procletID = procletID;
         this.blockID = blockID;
-        this.itemType = itemType;
+        this._itemType = itemType;
     }
     
     public StoredItem(String classID, String procletID, String blockID, String emid,
@@ -51,7 +51,7 @@ public class StoredItem {
         this.procletID = procletID;
         this.blockID = blockID;
         this.emid = emid;
-        this.itemType = itemType;
+        this._itemType = itemType;
     }
     
     public StoredItem(WorkItemRecord wir, Item itemType) {
@@ -113,11 +113,11 @@ public class StoredItem {
     }
 
     public Item getItemType() {
-        return itemType;
+        return _itemType;
     }
 
     public void setItemType(Item itemType) {
-        this.itemType = itemType;
+        this._itemType = itemType;
     }
 
     public long getPkey() {
@@ -126,5 +126,14 @@ public class StoredItem {
 
     public void setPkey(long pkey) {
         this.pkey = pkey;
+    }
+
+    // for hibernate
+    private int get_itemType() {
+        return _itemType != null ? _itemType.ordinal() : -1;
+    }
+
+    private void set_itemType(int ordinal) {
+        _itemType = (ordinal == -1) ? null : Item.values()[ordinal];
     }
 }

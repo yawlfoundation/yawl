@@ -74,4 +74,14 @@ public class CostMapping implements XNodeIO {
     public XNodeIO newInstance(XNode node) {
         return new CostMapping(node);
     }
+
+
+    // for hibernate
+    private int getMappingType() {
+        return mappingType != null ? mappingType.ordinal() : -1;
+    }
+
+    private void setMappingType(int ordinal) {
+        mappingType = (ordinal == -1) ? null : FacetAspect.values()[ordinal];
+    }
 }

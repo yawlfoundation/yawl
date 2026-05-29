@@ -183,7 +183,7 @@ public class RunnerMap {
         Query query = Persister.getInstance().createQuery(
                 "from WorkletRunner as wr where " + clause);
         List<?> instances = query.getResultList();
-
+        
         if (instances != null && !instances.isEmpty()) {
             for (Object instance : instances) {
                 WorkletRunner runner = (WorkletRunner) instance;

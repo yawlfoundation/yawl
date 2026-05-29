@@ -99,4 +99,15 @@ public class UnitCost {
         XNode node = new XNodeParser(true).parse(xml);
         fromXNode(node);
     }
+
+
+    // for hibernate
+    private int getFacetStatus() {
+        return facetStatus != null ? facetStatus.ordinal() : FacetStatus.nil.ordinal();
+    }
+
+    private void setFacetStatus(int ordinal) {
+        facetStatus = FacetStatus.values()[ordinal];
+    }
+
 }

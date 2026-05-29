@@ -37,11 +37,7 @@
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"
                      column="conc_id"/>
 
-         <property name="_ruleType" column="ruleType" access="field">
-             <type name="org.hibernate.type.EnumType">
-                 <param name="enumClass">org.yawlfoundation.yawl.worklet.rdr.RuleType</param>
-             </type>
-         </property>
+         <property name="_ruleType" column="ruleType" type="byte"/>
 
         <property name="_ruleNodeId"   column="ruleNodeId" type="long" access="field"/>
         <property name="actionIndex"   column="actionIndex"     type="integer"/>

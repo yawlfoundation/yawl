@@ -23,7 +23,7 @@ import org.yawlfoundation.yawl.util.XNode;
 public class MappingIdentifier {
 
     String id;
-    MappingIdType type;
+    MappingIdType _type;
     String term;
 
     public MappingIdentifier() { }
@@ -36,9 +36,9 @@ public class MappingIdentifier {
 
     public void setId(String id) { this.id = id; }
 
-    public MappingIdType getType() { return type; }
+    public MappingIdType getType() { return _type; }
 
-    public void setType(MappingIdType type) { this.type = type; }
+    public void setType(MappingIdType type) { this._type = type; }
 
     public String getTerm() { return term; }
 
@@ -46,7 +46,7 @@ public class MappingIdentifier {
 
 
     public XNode toXNode() {
-        XNode node = new XNode(type.name());
+        XNode node = new XNode(_type.name());
         node.addAttribute("id", id);
         node.addAttribute("term", term);
         return node;
@@ -54,8 +54,20 @@ public class MappingIdentifier {
 
 
     public void fromXNode(XNode node) {
-        type = MappingIdType.valueOf(node.getName());
+        _type = MappingIdType.valueOf(node.getName());
         id = node.getAttributeValue("id");
         term = node.getAttributeValue("term");
+    }
+
+
+    // for hibernate
+
+    // for hibernate
+    private int get_type() {
+        return _type != null ? _type.ordinal() : -1;
+    }
+
+    private void setFacetStatus(int ordinal) {
+        _type = (ordinal == -1) ? null : MappingIdType.values()[ordinal];
     }
 }

@@ -125,4 +125,8 @@ public class RdrTreeSet {
 
     private void setTreeSet(Set<RdrTree> treeSet) { _treeSet = treeSet; }
 
+    private int get_ruleType() { return _ruleType.ordinal(); }
+
+    private void set_ruleType(int ordinal) { _ruleType = RuleType.values()[ordinal]; }
+
 }

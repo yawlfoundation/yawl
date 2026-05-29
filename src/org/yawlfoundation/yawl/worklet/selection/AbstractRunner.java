@@ -161,5 +161,12 @@ public abstract class AbstractRunner {
         return _wir != null ? _wir.toXML() : null;
     }
 
+    private int get_ruleType() {
+        return _ruleType != null ? _ruleType.ordinal() : -1;
+    }
+
+    private void set_ruleType(int ordinal) {
+        _ruleType = (ordinal == -1) ? null : RuleType.values()[ordinal];
+    }
 
 }

@@ -35,14 +35,7 @@
         <property name="emid"/>
         <property name="selected" type="boolean"/>
 
-        <property name="itemType">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">
-                    org.yawlfoundation.yawl.procletService.persistence.Item
-                </param>
-            </type>
-        </property>
-
+        <property name="_itemType" type="byte"/>
     </class>
 	
 </hibernate-mapping>

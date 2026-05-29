@@ -29,7 +29,7 @@ public class DriverFacet implements XNodeIO {
 
     private long entityID;           // hibernate primary key
     private String id;
-    private FacetAspect facetAspect;
+    private FacetAspect _facetAspect;
     private String name;
     private String value;        // data entity only
     
@@ -53,11 +53,11 @@ public class DriverFacet implements XNodeIO {
     }
 
     public FacetAspect getFacetAspect() {
-        return facetAspect;
+        return _facetAspect;
     }
 
     public void setFacetAspect(FacetAspect facetAspect) {
-        this.facetAspect = facetAspect;
+        this._facetAspect = facetAspect;
     }
 
     public String getName() {
@@ -78,7 +78,7 @@ public class DriverFacet implements XNodeIO {
 
     public void fromXNode(XNode node) {
         id = node.getAttributeValue("id");
-        facetAspect = FacetAspect.valueOf(node.getAttributeValue("aspect"));
+        _facetAspect = FacetAspect.valueOf(node.getAttributeValue("aspect"));
         name = node.getChildText("name");
         value = node.getChildText("value");
     }
@@ -86,7 +86,7 @@ public class DriverFacet implements XNodeIO {
     public XNode toXNode() {
         XNode node = new XNode("facet");
         node.addAttribute("id", id);
-        node.addAttribute("aspect", facetAspect.name());
+        node.addAttribute("aspect", _facetAspect.name());
         node.addChild("name", name);
         if (value != null) node.addChild("value", value);
         return node;
@@ -94,5 +94,15 @@ public class DriverFacet implements XNodeIO {
 
     public XNodeIO newInstance(XNode node) {
         return new DriverFacet(node);
+    }
+
+
+    // for hibernate
+    private int get_facetAspect() {
+        return _facetAspect != null ? _facetAspect.ordinal() : -1;
+    }
+
+    private void set_facetAspect(int ordinal) {
+        _facetAspect = (ordinal == -1) ? null : FacetAspect.values()[ordinal];
     }
 }

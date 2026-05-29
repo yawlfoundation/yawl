@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.worklet.selection;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 
 /**
@@ -34,7 +33,7 @@ public class LaunchEvent {
     private YSpecificationID specId;
     private String taskId;
     private String itemId;
-    private RuleType ruleType;
+    private RuleType _ruleType;
     private String parentCaseId;
     private String launchedCaseId;
     private String data;
@@ -47,7 +46,7 @@ public class LaunchEvent {
         this.specId = specId;
         this.taskId = taskId;
         this.itemId = itemId;
-        this.ruleType = ruleType;
+        this._ruleType = ruleType;
         this.parentCaseId = parentCaseID;
         this.launchedCaseId = launchedCaseId;
         this.data = data;
@@ -80,9 +79,9 @@ public class LaunchEvent {
     public void setItemId(String itemId) { this.itemId = itemId; }
 
 
-    public RuleType getRuleType() { return ruleType; }
+    public RuleType getRuleType() { return _ruleType; }
 
-    public void setRuleType(RuleType ruleType) { this.ruleType = ruleType; }
+    public void setRuleType(RuleType ruleType) { this._ruleType = ruleType; }
 
 
     public String getParentCaseId() { return parentCaseId; }
@@ -98,5 +97,13 @@ public class LaunchEvent {
     public String getData() { return data; }
 
     public void setData(String data) { this.data = data; }
+
+    private int get_ruleType() {
+        return _ruleType != null ? _ruleType.ordinal() : -1;
+    }
+
+    private void set_ruleType(int ordinal) {
+        _ruleType = (ordinal == -1) ? null : RuleType.values()[ordinal];
+    }
 
 }

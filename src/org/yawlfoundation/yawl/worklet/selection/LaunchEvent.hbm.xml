@@ -40,12 +40,7 @@
             <property name="uri" column="specURI"/>
         </component>
 
-        <property name="ruleType">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">org.yawlfoundation.yawl.worklet.rdr.RuleType</param>
-            </type>
-        </property>
-
+        <property name="_ruleType" type="byte"/>
         <property name="taskId"/>
         <property name="itemId"/>
         <property name="parentCaseId"/>

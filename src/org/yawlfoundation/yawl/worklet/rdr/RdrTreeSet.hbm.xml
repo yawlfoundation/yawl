@@ -34,12 +34,8 @@
             <one-to-many class="org.yawlfoundation.yawl.worklet.rdr.RdrTree"/>
         </set>
 
-        <property name="_ruleType" column="ruletype" access="field">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">org.yawlfoundation.yawl.worklet.rdr.RuleType</param>
-            </type>
+        <property name="_ruleType" column="ruletype" type="byte">
         </property>
-
 	</class>
 	
 </hibernate-mapping>
