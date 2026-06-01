@@ -148,9 +148,39 @@ public class FileUtil {
 
 
     public static void moveDirectory(File sourceDir, File targetDir) throws IOException {
-        Files.move(sourceDir.toPath(), targetDir.toPath(), StandardCopyOption.ATOMIC_MOVE);
+        Path source = sourceDir.toPath();
+        Path target = targetDir.toPath();
+        try {
+            Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+        catch (IOException ex) {
+            try (Stream<Path> walk = Files.walk(source)) {
+                walk.forEach(sourcePath -> {
+                    try {
+                        Path targetPath = target.resolve(sourcePath.getFileName());
+                        if (Files.isDirectory(sourcePath)) {
+                            if (!Files.exists(targetPath)) {
+                                Files.createDirectories(targetPath);
+                            }
+                        }
+                        else {
+                            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+                    catch (IOException e) {
+                        throw new RuntimeException("Failed to move directory " + sourcePath, e);
+                    }
+                });
+            }
+            // cleanup
+            try (Stream<Path> walk2 = Files.walk(source)) {
+                walk2.sorted(Comparator.reverseOrder()) // files first
+                        .forEach(p -> p.toFile().delete());
+            }
+        }
     }
 
+    
     public static void deleteDirectory(File dir) throws IOException {
         if (!Files.exists(dir.toPath())) return;
 
@@ -241,35 +271,34 @@ public class FileUtil {
 
     public static void unzip(File source, File target) throws IOException {
         byte[] buffer = new byte[1024];
-        ZipInputStream zis = new ZipInputStream(Files.newInputStream(source.toPath()));
-        ZipEntry zipEntry = zis.getNextEntry();
-        while (zipEntry != null) {
-            File newFile = newFile(target, zipEntry);
-            if (zipEntry.isDirectory()) {
-                if (!newFile.isDirectory() && !newFile.mkdirs()) {
-                    throw new IOException("Failed to create directory " + newFile);
+        try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(source.toPath()))) {
+            ZipEntry zipEntry = zis.getNextEntry();
+            while (zipEntry != null) {
+                File newFile = newFile(target, zipEntry);
+                if (zipEntry.isDirectory()) {
+                    if (!newFile.isDirectory() && !newFile.mkdirs()) {
+                        throw new IOException("Failed to create directory " + newFile);
+                    }
                 }
-            }
-            else {
-                // fix for Windows-created archives
-                File parent = newFile.getParentFile();
-                if (!parent.isDirectory() && !parent.mkdirs()) {
-                    throw new IOException("Failed to create directory " + parent);
-                }
+                else {
+                    // fix for Windows-created archives
+                    File parent = newFile.getParentFile();
+                    if (!parent.isDirectory() && !parent.mkdirs()) {
+                        throw new IOException("Failed to create directory " + parent);
+                    }
 
-                // write file content
-                FileOutputStream fos = new FileOutputStream(newFile);
-                int len;
-                while ((len = zis.read(buffer)) > 0) {
-                    fos.write(buffer, 0, len);
+                    // write file content
+                    try (FileOutputStream fos = new FileOutputStream(newFile)) {
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+                    }
                 }
-                fos.close();
+                zipEntry = zis.getNextEntry();
             }
-            zipEntry = zis.getNextEntry();
+            zis.closeEntry();
         }
-
-        zis.closeEntry();
-        zis.close();
     }
 
 

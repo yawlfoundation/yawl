@@ -309,10 +309,10 @@
             <file name="style.css" path="AO"/>
         </orderfulfillment>
         <yawllib>
-            <file name="yawl-lib-6.0.jar" path="AM"/>
+            <file name="yawl-lib-6.1.jar" path="AM"/>
         </yawllib>
         <controlpanel>
-            <file name="YawlControlPanel-6.0.jar" path="AM"/>
+            <file name="YawlControlPanel-6.1.jar" path="AM"/>
         </controlpanel>
     </files>
 </locations>

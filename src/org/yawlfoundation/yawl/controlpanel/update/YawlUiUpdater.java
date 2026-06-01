@@ -38,7 +38,7 @@ public class YawlUiUpdater {
 
     public boolean hasUpdate() {
         int local = StringUtil.strToInt(getLocalBuildNumber(), -1);
-        int remote = StringUtil.strToInt(getRemoteBuildNumber(), -1) + checkForUpdate();
+        int remote = StringUtil.strToInt(getRemoteBuildNumber(), -1);
         return local != -1 && remote != -1 && local < remote;
     }
 
@@ -88,14 +88,14 @@ public class YawlUiUpdater {
     
 
     private String getLocalBuildNumber(String path) {
-        try {
-            InputStream is = Files.newInputStream(Paths.get(path));
+        try (InputStream is = Files.newInputStream(Paths.get(path))) {
             Properties props = new Properties();
             props.load(is);
             return props.getProperty("ui.service.build", "N/A");
 
         }
         catch (IOException e) {
+            e.printStackTrace();
             return "N/A";
         }
     }
@@ -168,14 +168,17 @@ public class YawlUiUpdater {
 
                     // success: delete the tmp dir
                     FileUtil.deleteDirectory(backupDir);
+                    updateJar.delete();
                 }
 
                 if (updateLibJar.exists()) {
                     FileUtil.unzip(updateLibJar, libDir);
+                    updateLibJar.delete();
                 }
 
                 if (updateIconJar.exists()) {
                     FileUtil.unzip(updateIconJar, iconDir);
+                    updateIconJar.delete();
                 }
 
                 // copy in the newest yawl library
@@ -183,6 +186,7 @@ public class YawlUiUpdater {
                 FileUtil.copyFileToDirectory(yawlLibJar, libDir);
             }
             catch (Exception e) {
+                e.printStackTrace();
 
                 // rollback changes
                 try {
@@ -193,11 +197,12 @@ public class YawlUiUpdater {
                     }
                 }
                 catch (IOException ex) {
-                    //
+                    e.printStackTrace();
                 }
             }
         }
 
+        
         private File mergeProps(File oldProps, File newProps) {
             Path oldPath = oldProps.toPath();
             Path newPath = newProps.toPath();
