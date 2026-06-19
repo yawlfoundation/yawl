@@ -26,7 +26,7 @@
 	<class name="org.yawlfoundation.yawl.worklet.exception.ExletRunner"
            table="ws_ExletRunner" lazy="false">
 
-        <id name="_id" column="rowid" type="long" access="field">
+        <id name="_id" column="rowid" type="long">
             <generator class="native"/>
         </id>
 

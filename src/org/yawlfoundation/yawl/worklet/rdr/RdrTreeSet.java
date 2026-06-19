@@ -30,10 +30,13 @@ import java.util.Set;
  */
 public class RdrTreeSet {
 
-    private long id;
+    private long id = 0;
 
     private RuleType _ruleType;
     private Set<RdrTree> _treeSet;
+
+    private RdrSet rdrSet;                // for hibernate
+
 
     private RdrTreeSet() { }
 
@@ -122,11 +125,19 @@ public class RdrTreeSet {
         return _treeSet;
     }
 
+    private void setId(long id) { this.id = id; }
 
+    private long getId() { return id; }
+    
     private void setTreeSet(Set<RdrTree> treeSet) { _treeSet = treeSet; }
 
     private int get_ruleType() { return _ruleType.ordinal(); }
 
     private void set_ruleType(int ordinal) { _ruleType = RuleType.values()[ordinal]; }
+
+    public RdrSet getRdrSet() { return rdrSet; }
+
+    public void setRdrSet(RdrSet rdrSet) { this.rdrSet = rdrSet; }
+
 
 }

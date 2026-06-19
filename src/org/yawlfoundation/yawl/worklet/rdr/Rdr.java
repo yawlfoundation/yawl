@@ -82,7 +82,7 @@ public class Rdr {
         RdrSet ruleSet = getRdrSet(specID);
         if (ruleSet == null) {
             ruleSet = new RdrSet(specID);
-            Persister.insert(ruleSet);
+            Persister.insert(ruleSet, false);
         }
         return addNode(ruleSet, taskID, rType, node);
     }
@@ -213,6 +213,7 @@ public class Rdr {
             RdrNode root = tree.createRootNode();
             set.addTree(tree, rType);
             addedNode = tree.addNode(node, root, true);
+ //           Persister.insert(tree);
         }
         if (addedNode != null) {
             Persister.update(set);

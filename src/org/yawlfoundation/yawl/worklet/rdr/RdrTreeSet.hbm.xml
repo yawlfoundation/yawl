@@ -18,24 +18,23 @@
   -->
 
 <!DOCTYPE hibernate-mapping
-	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+		PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+		"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
 	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrTreeSet" table="RdrTreeSet">
 
-	    <id name="id" column="rdrtreesetid" type="long" access="field">
-    		<generator class="native"/>
-    	</id>
+		<id name="id" column="rdrtreesetid" type="long">
+			<generator class="native"/>
+		</id>
 
-        <set name="treeSet" cascade="all-delete-orphan" lazy="false">
-            <key column="rdrtreesetid"/>
-            <one-to-many class="org.yawlfoundation.yawl.worklet.rdr.RdrTree"/>
-        </set>
+		<set name="treeSet" cascade="all,delete-orphan" lazy="false">
+		    <key column="rdrtreesetid" not-null="true" update="true"/>
+		    <one-to-many class="org.yawlfoundation.yawl.worklet.rdr.RdrTree"/>
+		</set>
 
-        <property name="_ruleType" column="ruletype" type="byte">
-        </property>
+		<property name="_ruleType" column="ruletype" type="integer"/>
 	</class>
-	
+
 </hibernate-mapping>

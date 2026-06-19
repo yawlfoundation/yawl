@@ -26,20 +26,33 @@
 	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"
            table="RdrConclusion" lazy="false">
 
-	    <id name="id" column="rdrconclusionid" type="long" access="field">
+	    <id name="id" column="rdrconclusionid" type="long">
     		<generator class="native"/>
     	</id>
 
-        <list name="_primitives" access="field" cascade="all-delete-orphan" lazy="false">
+        <list name="_primitives" access="field" cascade="all,delete-orphan" lazy="false">
             <key column="rdrprimitiveid" not-null="true"/>
             <list-index column="listindex"/>
             <composite-element class="org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive">
-                <property name="index" column="primIndex"/>
-                <property name="action"/>
-                <property name="target"/>
+                <property name="index" column="primIndex" type="integer"/>
+
+<!--                <property name="action" column="action">-->
+<!--                    <type name="org.yawlfoundation.yawl.worklet.rdrutil.RawStringifier"/>-->
+<!--                </property>-->
+
+<!--                <property name="target" column="target">-->
+<!--                    <type name="org.yawlfoundation.yawl.worklet.rdrutil.RawStringifier"/>-->
+<!--                </property>-->
+                <property name="action" type="string" access="property">
+                    <column name="action" length="255" not-null="false"/>
+                </property>
+
+                <property name="target" type="string" access="property">
+                    <column name="target" length="255" not-null="false"/>
+                </property>
             </composite-element>
         </list>
-
+        
 	</class>
-	
+
 </hibernate-mapping>

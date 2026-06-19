@@ -83,6 +83,7 @@ public class RdrSet {
     public void refresh() {
         RdrSetLoader loader = new RdrSetLoader();
         RdrSet reloaded = _specID != null ? loader.load(_specID) : loader.load(_processName);
+        Persister.getInstance().commit();
         if (reloaded != null) {
             _ruleSet = reloaded._ruleSet;
         }
@@ -104,8 +105,10 @@ public class RdrSet {
             treeSet = new RdrTreeSet(treeType);
             _ruleSet.add(treeSet);
         }
+        treeSet.setRdrSet(this);
         treeSet.add(tree);
-        Persister.update(this);
+        
+    //    Persister.update(this);
     }
 
 
@@ -282,6 +285,9 @@ public class RdrSet {
             _ruleSet.clear();                // retain hibernate ref
             _ruleSet.addAll(ruleSet);
         }
+        for (RdrTreeSet treeSet : ruleSet) {
+            treeSet.setRdrSet(this);
+        }
     }
 
 //===========================================================================//
@@ -295,5 +301,9 @@ public class RdrSet {
     protected Set<RdrTreeSet> getRuleSet() {
         return _ruleSet;
     }
+
+    private void setId(long id) { this.id = id; }
+
+    private long getId() { return id; }
 
 }

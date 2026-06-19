@@ -25,20 +25,20 @@
 
 	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrNode" table="RdrNode" lazy="false">
 
-	    <id name="id" column="rdrnodeid" type="long" access="field">
+	    <id name="id" column="rdrnodeid" type="long">
     		<generator class="native"/>
     	</id>
 
-        <many-to-one name="parent" cascade="all"
+        <many-to-one name="parent" cascade="persist,merge,save-update"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
                      not-null="false"/>
-        <many-to-one name="trueChild" cascade="all"
+        <many-to-one name="trueChild" cascade="persist,merge,save-update"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
                      not-null="false"/>
-        <many-to-one name="falseChild" cascade="all"
+        <many-to-one name="falseChild" cascade="persist,merge,save-update"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
                      not-null="false"/>
-        <many-to-one name="conclusion" cascade="all"
+        <many-to-one name="conclusion" cascade="persist,merge,save-update"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"/>
 
         <property name="condition" column="ruleCondition"/>

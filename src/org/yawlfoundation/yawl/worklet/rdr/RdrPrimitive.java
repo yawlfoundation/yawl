@@ -29,6 +29,8 @@ public class RdrPrimitive implements Comparable<RdrPrimitive> {
     private ExletTarget target;
     private String worklet;
 
+    private int listIndex;         // for hibernate only
+
     protected RdrPrimitive() { }  // for hibernate
 
 
@@ -105,5 +107,9 @@ public class RdrPrimitive implements Comparable<RdrPrimitive> {
     public String toString() {
         return getAction() + " " + getTarget();
     }
+
+
+    public int getListIndex() { return index; }
+    public void setListIndex(int listIndex) { this.index = listIndex; }
 
 }

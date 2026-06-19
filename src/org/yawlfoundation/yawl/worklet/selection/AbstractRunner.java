@@ -152,6 +152,10 @@ public abstract class AbstractRunner {
 
     private void setID(long id) { _id = id; }
 
+    private void set_id(long id) { _id = id; }
+
+    private long get_id() { return _id; }
+
 
     private void setWirString(String xml) {
         if (xml != null) _wir = Marshaller.unmarshalWorkItem(xml);

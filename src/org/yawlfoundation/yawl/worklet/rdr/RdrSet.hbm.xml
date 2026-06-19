@@ -25,7 +25,7 @@
 
 	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrSet" table="RdrSet">
 
-	    <id name="id" column="rdrsetid" type="long" access="field">
+	    <id name="id" column="rdrsetid" type="long">
     		<generator class="native"/>
     	</id>
 
@@ -41,8 +41,8 @@
 
         <property name="_processName" column="processname" access="field"/>
 
-        <set name="ruleSet" cascade="all-delete-orphan" lazy="false">
-            <key column="rdrsetid"/>
+        <set name="ruleSet" cascade="all,delete-orphan" lazy="false">
+            <key column="rdrsetid" not-null="true" update="true"/>
             <one-to-many class="org.yawlfoundation.yawl.worklet.rdr.RdrTreeSet"/>
         </set>
 

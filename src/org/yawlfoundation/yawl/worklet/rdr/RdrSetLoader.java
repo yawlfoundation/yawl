@@ -98,7 +98,7 @@ public class RdrSetLoader {
             rdrSet = (RdrSet) list.getFirst();
             Hibernate.initialize(rdrSet);
         }
-        Persister.getInstance().commit();
+    //    Persister.getInstance().commit();
 
         return rdrSet;
     }

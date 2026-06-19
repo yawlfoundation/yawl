@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
+import org.apache.logging.log4j.LogManager;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -67,6 +68,7 @@ public class WorkletGateway extends YHttpServlet {
     private Sessions _sessions;            // maintains sessions with external services
 
     public void init() {
+        _log = LogManager.getLogger(this.getClass());
         if (!WorkletConstants.wsInitialised) {
             try {
                 _ws = WorkletService.getInstance();
@@ -517,6 +519,7 @@ public class WorkletGateway extends YHttpServlet {
             WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
             tree = _rdr.getRdrTree(wir, rType);
         }
+        Persister.getInstance().commit();
 
         return tree != null ? tree.toXML() : fail("No rule tree found for parameters.");
     }
@@ -531,7 +534,8 @@ public class WorkletGateway extends YHttpServlet {
         } else if (processName != null) {
             set = _rdr.getRdrSet(processName);
         } else return fail("No specification or process name provided for set");
-
+        Persister.getInstance().commit();
+        
         return set != null ? set.toXML() : fail("No rule set found for specification.");
     }
 
@@ -564,6 +568,7 @@ public class WorkletGateway extends YHttpServlet {
     private String addRdrSet(YSpecificationID specID, String xml) {
         if (! (xml == null || specID == null)) {
             RdrSet exists = new RdrSetLoader().load(specID);
+            Persister.getInstance().commit();
             if (exists == null) {
                 return addRdrSet(new RdrSet(specID), xml);
             }
@@ -576,6 +581,7 @@ public class WorkletGateway extends YHttpServlet {
     private String addRdrSet(String processName, String xml) {
         if (! (xml == null || processName == null)) {
             RdrSet exists = new RdrSetLoader().load(processName);
+            Persister.getInstance().commit();
             if (exists == null) {
                 return addRdrSet(new RdrSet(processName), xml);
             }

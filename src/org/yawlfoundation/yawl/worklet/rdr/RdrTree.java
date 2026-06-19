@@ -338,4 +338,9 @@ public class RdrTree {
         }
     }
 
+    // hibernate
+    private void setId(long id) { this.id = id; }
+
+    private long getId() { return id; }
+
 }
