@@ -31,7 +31,7 @@
         </id>
 
         <property name="id" column="internalID" access="field"/>
-        <property name="_facetAspect" column="facetAspect" type="byte"/>
+        <property name="_facetAspect" column="facetAspect" type="integer"/>
         <property name="name" column="entityName" access="field"/>
         <property name="value" column="entityValue" access="field"/>
 

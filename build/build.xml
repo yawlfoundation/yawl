@@ -1958,6 +1958,8 @@
         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/rsInterface">
             <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
         </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/jsf/comparator"
+              file="${classes.dir}${packageRoot}/resourcing/jsf/comparator/ParticipantNameComparator.class"/>
 
         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
@@ -1981,7 +1983,7 @@
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="JDOMUtil.class StringUtil.class CharsetFilter.class
                                PasswordEncryptor.class XNode*.class
-                               HibernateEngine.class"/>
+                               HibernateEngine.class HibernateRegistry.class"/>
         </copy>
         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
