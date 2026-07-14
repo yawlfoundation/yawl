@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>6.1</version>
-  <timestamp>2026-06-19 15.59.46</timestamp>
+  <timestamp>2026-07-14 14.19.24</timestamp>
   <lib hash="f553068abee245ca023719ad86a97c5e">
     <file name="okhttp-4.12.0.jar" md5="6acba053af88fed87e710c6c29911d7c" size="789531" timestamp="2025-03-28T08:54:38" path="lib.misc"/>
     <file name="xercesImpl.jar" md5="da09b75b562ca9a8e9a535d2148be8e4" size="1229289" timestamp="2026-04-12T08:04:19" path="lib.misc"/>
@@ -125,21 +125,21 @@
       <lib/>
     </workletService>
     <resourceService>
-      <build>4235</build>
+      <build>4236</build>
       <files>
-        <file name="welcome.htm" md5="a3dfe9a0fc668b839258b33667a229bc" size="778" timestamp="2026-06-02T07:15:36" path="Q"/>
-        <file name="WEB-INF/classes/version.properties" md5="09e10519d1c47cb6848af2cdf0820e4d" size="183" timestamp="2026-06-02T07:15:36" path="P"/>
-        <file name="WEB-INF/classes/mail.properties" md5="e90ddf62ce96513696a60e90c5af216f" size="1224" timestamp="2026-06-02T07:15:36" path="P"/>
-        <file name="WEB-INF/classes/LDAPSource.properties" md5="a87b645da531d62420bdbff4b305411a" size="3920" timestamp="2026-06-02T07:15:36" path="S"/>
-        <file name="WEB-INF/web.xml" md5="4309eacf10eb17210121ae7bfd06fc13" size="18510" timestamp="2026-06-02T07:15:36" path="P"/>
-        <file name="graphics/Thumbs.db" md5="eb936b9acc99b18871e86d669ddad40a" size="16384" timestamp="2026-06-02T07:15:36" path="N"/>
-        <file name="graphics/logosmall.jpg" md5="050677df96ab6793a39e4d59f4fe0578" size="2062" timestamp="2026-06-02T07:15:36" path="N"/>
-        <file name="graphics/bg01.gif" md5="45268fa75e5992b96983eed8f9ae9abc" size="82" timestamp="2026-06-02T07:15:36" path="N"/>
-        <file name="graphics/logobig.jpg" md5="8e2e8fe313e7af29c44fa84551297815" size="11662" timestamp="2026-06-02T07:15:36" path="N"/>
-        <file name="graphics/subtext.jpg" md5="af8aae0c419d1945a35ec47b4b95692f" size="1179" timestamp="2026-06-02T07:15:36" path="G"/>
-        <file name="graphics/common.css" md5="cebb397e37f82800b8d96672e1534c55" size="2782" timestamp="2026-06-02T07:15:36" path="G"/>
-        <file name="graphics/wsText.jpg" md5="aaf9275d974ea1b4a30d12dae5e87c03" size="1274" timestamp="2026-06-02T07:15:36" path="N"/>
-        <file name="graphics/yawl.swf" md5="3849953b829c6032dc645cf5b01188e3" size="8660" timestamp="2026-06-02T07:15:36" path="G"/>
+        <file name="welcome.htm" md5="a3dfe9a0fc668b839258b33667a229bc" size="778" timestamp="2026-07-14T14:19:22" path="Q"/>
+        <file name="WEB-INF/classes/version.properties" md5="d4dc6046985d5a3d0e080f56c1f8a5bb" size="183" timestamp="2026-07-14T14:19:22" path="P"/>
+        <file name="WEB-INF/classes/mail.properties" md5="e90ddf62ce96513696a60e90c5af216f" size="1224" timestamp="2026-07-14T14:19:22" path="P"/>
+        <file name="WEB-INF/classes/LDAPSource.properties" md5="a87b645da531d62420bdbff4b305411a" size="3920" timestamp="2026-07-14T14:19:22" path="S"/>
+        <file name="WEB-INF/web.xml" md5="4309eacf10eb17210121ae7bfd06fc13" size="18510" timestamp="2026-07-14T14:19:22" path="P"/>
+        <file name="graphics/Thumbs.db" md5="eb936b9acc99b18871e86d669ddad40a" size="16384" timestamp="2026-07-14T14:19:22" path="N"/>
+        <file name="graphics/logosmall.jpg" md5="050677df96ab6793a39e4d59f4fe0578" size="2062" timestamp="2026-07-14T14:19:22" path="N"/>
+        <file name="graphics/bg01.gif" md5="45268fa75e5992b96983eed8f9ae9abc" size="82" timestamp="2026-07-14T14:19:22" path="N"/>
+        <file name="graphics/logobig.jpg" md5="8e2e8fe313e7af29c44fa84551297815" size="11662" timestamp="2026-07-14T14:19:22" path="N"/>
+        <file name="graphics/subtext.jpg" md5="af8aae0c419d1945a35ec47b4b95692f" size="1179" timestamp="2026-07-14T14:19:22" path="G"/>
+        <file name="graphics/common.css" md5="cebb397e37f82800b8d96672e1534c55" size="2782" timestamp="2026-07-14T14:19:22" path="G"/>
+        <file name="graphics/wsText.jpg" md5="aaf9275d974ea1b4a30d12dae5e87c03" size="1274" timestamp="2026-07-14T14:19:22" path="N"/>
+        <file name="graphics/yawl.swf" md5="3849953b829c6032dc645cf5b01188e3" size="8660" timestamp="2026-07-14T14:19:22" path="G"/>
       </files>
       <lib/>
     </resourceService>
@@ -189,7 +189,7 @@
     </documentStore>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-6.1.jar" md5="2e1e01b9cdfd7e15ab58e80aa3bbb7f0" size="3088760" timestamp="2026-06-19T15:59:44" path="AM"/>
+    <file name="yawl-lib-6.1.jar" md5="628bca963dbd7941023deeda1f62107d" size="3088762" timestamp="2026-07-14T14:19:21" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>495</build>

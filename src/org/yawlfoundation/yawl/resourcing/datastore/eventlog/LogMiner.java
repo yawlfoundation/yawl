@@ -904,7 +904,7 @@ public class LogMiner {
             for (Object row : rows) {
                 ResourceEvent event = (ResourceEvent) row;
                 if (! sameCase(event.get_caseID(), caseID)) {
-                    caseID = event.get_caseID();
+                    caseID = getRootCaseID(event.get_caseID());
                     caseNode = cases.addChild("case");
                     caseNode.addAttribute("id", caseID);
                 }
