@@ -61,13 +61,11 @@ public class MappingIdentifier {
 
 
     // for hibernate
-
-    // for hibernate
     private int get_type() {
         return _type != null ? _type.ordinal() : -1;
     }
 
-    private void setFacetStatus(int ordinal) {
+    private void set_type(int ordinal) {
         _type = (ordinal == -1) ? null : MappingIdType.values()[ordinal];
     }
 }
