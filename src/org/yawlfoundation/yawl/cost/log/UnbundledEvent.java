@@ -59,7 +59,7 @@ class UnbundledEvent {
             else if (key.equals("lifecycle:transition")) {
                 transition = child.getAttributeValue("value");
             }
-            else if (key.equals("lifecycle:instance")) {
+            else if (key.equals("concept:instance")) {
                 instance = child.getAttributeValue("value");
             }
             else if (key.equals("org:resource")) {
