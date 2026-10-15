@@ -26,9 +26,11 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDataGateway;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDataGatewayFactory;
-import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
+import org.yawlfoundation.yawl.elements.e2wfoj.OrJoinStateSpaceEvaluator;
+import org.yawlfoundation.yawl.elements.pdoj.OrJoinEnablementStrategy;
+import org.yawlfoundation.yawl.elements.pdoj.OrJoinEvaluator;
+import org.yawlfoundation.yawl.elements.pdoj.OrJoinTotalOrderEvaluator;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.elements.state.YMarking;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -55,6 +57,7 @@ public final class YNet extends YDecomposition {
     private Map<String, YVariable> _localVariables = new HashMap<String, YVariable>();
     private String _externalDataGateway;
     private YNet _clone;
+    private OrJoinEvaluator _orJoinEvaluator;
 
 
     public YNet(String id, YSpecification specification) {
@@ -354,27 +357,17 @@ public final class YNet extends YDecomposition {
             throw new RuntimeException(orJoinTask + " is not an OR-Join.");
         }
 
-        YMarking actualMarking = new YMarking(caseID);
-        List<YNetElement> locations = new Vector<YNetElement>(actualMarking.getLocations());
-        Set preSet = orJoinTask.getPresetElements();
-        if (locations.containsAll(preSet)) {
-            return true;
-        }
-
-        for (YNetElement element : locations) {
-            if (preSet.contains(element)) {
-                try {
-                    E2WFOJNet e2Net = new E2WFOJNet(this, orJoinTask);
-                    e2Net.restrictNet(actualMarking);
-                    e2Net.restrictNet(orJoinTask);
-                    return e2Net.orJoinEnabled(actualMarking, orJoinTask);
-                } catch (Exception e) {
-                    throw new RuntimeException("Exception in OR-join call:" + e);
-                }
+        if (_orJoinEvaluator == null) {
+            if (OrJoinEnablementStrategy.getSelectedStrategy() ==
+                    OrJoinEnablementStrategy.STATE_SPACE) {
+                _orJoinEvaluator = new OrJoinStateSpaceEvaluator(this);
+            }
+            else {
+                _orJoinEvaluator = new OrJoinTotalOrderEvaluator(this);
             }
         }
-        // or join task has no tokens in preset
-        return false;
+        
+        return _orJoinEvaluator.isOrJoinEnabled(orJoinTask, caseID);
     }
 
 

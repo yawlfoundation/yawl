@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>6.1</version>
-  <timestamp>2026-07-14 14.19.24</timestamp>
+  <timestamp>2026-10-13 14.46.16</timestamp>
   <lib hash="f553068abee245ca023719ad86a97c5e">
     <file name="okhttp-4.12.0.jar" md5="6acba053af88fed87e710c6c29911d7c" size="789531" timestamp="2025-03-28T08:54:38" path="lib.misc"/>
     <file name="xercesImpl.jar" md5="da09b75b562ca9a8e9a535d2148be8e4" size="1229289" timestamp="2026-04-12T08:04:19" path="lib.misc"/>
@@ -54,11 +54,11 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1851</build>
+      <build>1856</build>
       <files>
-        <file name="WEB-INF/classes/version.properties" md5="605297d66f0d8fcee15ab7e485fafb1f" size="183" timestamp="2026-06-02T07:15:31" path="B"/>
-        <file name="WEB-INF/classes/defaultClients.properties" md5="ceb30a8fcaae2bc487972ae3cb104748" size="1106" timestamp="2026-06-02T07:15:31" path="C"/>
-        <file name="WEB-INF/web.xml" md5="ff527423248a31fa3576b348623f0912" size="11889" timestamp="2026-06-02T07:15:31" path="B"/>
+        <file name="WEB-INF/classes/version.properties" md5="5d1455a2ae4e1712541c17c3e3c071cd" size="183" timestamp="2026-10-13T14:46:14" path="B"/>
+        <file name="WEB-INF/classes/defaultClients.properties" md5="ceb30a8fcaae2bc487972ae3cb104748" size="1106" timestamp="2026-10-13T14:46:14" path="C"/>
+        <file name="WEB-INF/web.xml" md5="a4be2b737f119a9b57a74de2975d09ae" size="12379" timestamp="2026-10-13T14:46:14" path="B"/>
       </files>
       <lib/>
     </yawl>
@@ -189,7 +189,7 @@
     </documentStore>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-6.1.jar" md5="628bca963dbd7941023deeda1f62107d" size="3088762" timestamp="2026-07-14T14:19:21" path="AM"/>
+    <file name="yawl-lib-6.1.jar" md5="e048bd3fd0172bb3fa9e74169152baae" size="3098467" timestamp="2026-10-13T14:46:14" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>495</build>

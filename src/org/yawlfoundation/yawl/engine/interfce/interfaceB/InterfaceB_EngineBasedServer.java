@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.yawlfoundation.yawl.elements.data.external.ExternalDataGatewayFactory;
+import org.yawlfoundation.yawl.elements.pdoj.OrJoinEnablementStrategy;
 import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorFactory;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YEngine;
@@ -113,7 +114,11 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
             if (timerLocationConfig != null) {
                 new HolidayLoader(false).startupCheck(timerLocationConfig);
             }
-
+            
+            // set the OR-join enablement strategy
+            int orJoinStrategy = getIntFromContext("OrJoinEnablementStrategy");
+            OrJoinEnablementStrategy.setStrategy(orJoinStrategy);
+            
             // read the current version properties
             _engine.initBuildProperties(context.getResourceAsStream(
                                "/WEB-INF/classes/version.properties"));

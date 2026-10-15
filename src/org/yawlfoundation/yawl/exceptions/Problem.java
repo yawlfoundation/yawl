@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.exceptions;
 
 import java.util.Date;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * 
@@ -52,7 +53,7 @@ public class Problem implements Serializable {
     }
 
     public String getMessageType() {
-        return _messageType;
+        return _messageType != null ? _messageType : EMPTY_RESOURCE_SET_MESSAGETYPE;
     }
 
     public void setMessageType(String messageType) {
@@ -69,13 +70,21 @@ public class Problem implements Serializable {
 
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Problem)) return false;
+        if (!(o instanceof Problem other)) return false;
 
-        final Problem warning = (Problem) o;
-        return _problemTime.equals(warning._problemTime) && _source.equals(warning._source);
+        // null safety checks
+        if (!Objects.equals(_source, other._source)) return false;
+        if (_problemTime == null || other._problemTime == null) {
+            return _problemTime == other._problemTime;
+        }
+        
+        return _problemTime.getTime() == other._problemTime.getTime();
     }
 
+
     public int hashCode() {
-        return 29 * _source.hashCode() + _problemTime.hashCode();
+        int sourceHash = _source != null ? _source.hashCode() : 0;
+        long time = _problemTime != null ? _problemTime.getTime() : 0L;
+        return 29 * sourceHash + Long.hashCode(time);
     }
 }

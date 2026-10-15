@@ -153,6 +153,18 @@
 
     <context-param>
         <description>
+            Sets the algorithm or-joins use to determine enablement. Accepts a value of
+            1, 2 or 3 (any other value will default to 1):
+               1 -> Total Order Semantics
+               2 -> Post-Dominance (without total order priority)
+               3 -> The legacy State-Space approach
+         </description>
+        <param-name>OrJoinEnablementStrategy</param-name>
+        <param-value>1</param-value>
+    </context-param>
+
+    <context-param>
+        <description>
             The RMI registry name of the RMI gateway into the YAWL Engine.
         </description>
         <param-name>RMIServerName</param-name>
