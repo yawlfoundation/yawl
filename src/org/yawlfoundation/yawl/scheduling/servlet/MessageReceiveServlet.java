@@ -139,12 +139,12 @@ public class MessageReceiveServlet extends HttpServlet implements Constants {
 
 		try	{
 			String userName = request.getParameter("userName");
+			action = request.getParameter("action");
 			if (! (action.equals("login") ||
                     rs.isValidSession(userName, request.getParameter("sessionHandle")))) {
 				throw new SchedulingException("msgSessionTimeout");
 			}
 
-            action = request.getParameter("action");
 			if (action.equals("login"))	{
 				responseMap.put("loginResponse", paramsMap);
 				String password = request.getParameter("password");

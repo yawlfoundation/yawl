@@ -55,14 +55,14 @@
         <component name="unitCost"
                    class="org.yawlfoundation.yawl.cost.data.UnitCost" access="field"
                    lazy="false">
-            <property name="unit" column="costUnit"/>
+            <property name="unit" column="costUnit" access="field"/>
             <component name="costValue"
                        class="org.yawlfoundation.yawl.cost.data.CostValue" access="field"
                        lazy="false">
                 <property name="amount" column="costValueAmount"/>
                 <property name="currency" column="costValueCurrency"/>
             </component>
-            <property name="facetStatus" type="byte"/>
+            <property name="facetStatus" type="integer"/>
         </component>
 
     </class>

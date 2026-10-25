@@ -33,7 +33,7 @@
         <component name="cost"
                    class="org.yawlfoundation.yawl.cost.data.MappingIdentifier"
                    access="field" lazy="false">
-            <property name="_type" column="costMappingIDType" type="byte"/>
+            <property name="_type" column="costMappingIDType" type="integer"/>
             <property name="id" column="costID"/>
             <property name="term" column="costTerm"/>
         </component>
@@ -41,12 +41,12 @@
         <component name="workflow"
                    class="org.yawlfoundation.yawl.cost.data.MappingIdentifier"
                    access="field" lazy="false">
-            <property name="_type" column="workflowMappingIDType" type="byte"/>
+            <property name="_type" column="workflowMappingIDType" type="integer"/>
             <property name="id" column="workflowID"/>
             <property name="term" column="workflowTerm"/>
         </component>
 
-        <property name="mappingType" column="mappingType" type="byte"/>
+        <property name="mappingType" column="mappingType" type="integer"/>
 
     </class>
 
