@@ -227,7 +227,7 @@
     </path>
 
     <path id="shared.libs.path">
-        <fileset dir ="${misc.lib.dir}" includes="jdom-*.jar xercesImpl.jar"/>
+        <fileset dir ="${misc.lib.dir}" includes="jdom2-*.jar xercesImpl.jar"/>
         <fileset dir="${commons.lib.dir}" includes="commons-codec-*.jar"/>
     </path>
 
@@ -1389,7 +1389,7 @@
 <!--        <copy todir="${output.dir}/simulator/lib">-->
 <!--            <path refid="log4j.libs.path"/>-->
 <!--            <fileset dir="${commons.dir}" includes="commons-codec-*.jar"/>-->
-<!--            <fileset dir="${misc.dir}" includes="jakarta.servlet-api-*.jar jdom-*.jar-->
+<!--            <fileset dir="${misc.dir}" includes="jakarta.servlet-api-*.jar jdom2-*.jar-->
 <!--                          xercesImpl.jar "/>-->
 <!--        </copy>-->
 
@@ -2463,7 +2463,7 @@
               file="${classes.dir}/log4j2.xml"/>
         <copy todir="${temp.dir}/demoService/WEB-INF/lib">
             <path refid="log4j.libs.path"/>
-            <fileset dir="${misc.lib.dir}" includes="jdom-*.jar xercesImpl.jar"/>
+            <fileset dir="${misc.lib.dir}" includes="jdom2-*.jar xercesImpl.jar"/>
             <fileset dir="${commons.lib.dir}" includes="commons-codec-*.jar"/>
         </copy>
 
