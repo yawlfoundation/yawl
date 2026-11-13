@@ -25,8 +25,8 @@ import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
 public class RdrPrimitive implements Comparable<RdrPrimitive> {
 
     private int index;
-    private ExletAction action;
-    private ExletTarget target;
+    private ExletAction _action;
+    private ExletTarget _target;
     private String worklet;
 
     private int listIndex;         // for hibernate only
@@ -41,42 +41,43 @@ public class RdrPrimitive implements Comparable<RdrPrimitive> {
     }
 
     public RdrPrimitive(int i, ExletAction a, ExletTarget t) {
-        index = i; action = a; target = t;
+        index = i; _action = a; _target = t;
     }
 
 
     public int getIndex() { return index; }
 
-    public String getAction() { return action.toString(); }
+    public String getAction() { return _action.toString(); }
 
     public String getTarget() {
-        return worklet != null ? worklet : target.toString();
+        return worklet != null ? worklet : _target.toString();
     }
 
     public String getWorkletTarget() { return worklet; }
 
 
-    public ExletAction getExletAction() { return action; }
+    public ExletAction getExletAction() { return _action; }
 
-    public ExletTarget getExletTarget() { return target; }
+    public ExletTarget getExletTarget() { return _target; }
 
 
     public void setIndex(int index) { this.index = index; }
 
-    public void setAction(String action) {
-        this.action = ExletAction.fromString(action);
+    public void setAction(String _action) {
+        this._action = ExletAction.fromString(_action);
     }
 
-    public void setTarget(String target) {
-        this.target = ExletTarget.fromString(target);
-        if (this.target == ExletTarget.Invalid && this.action.isWorkletAction()) {
-            worklet = target;
+    public void setTarget(String _target) {
+        this._target = ExletTarget.fromString(_target);
+        if (this._target == ExletTarget.Invalid && this._action != null &&
+                this._action.isWorkletAction()) {
+            worklet = _target;
         }
     }
 
-    public void setExletAction(ExletAction action) { this.action = action; }
+    public void setExletAction(ExletAction action) { this._action = action; }
 
-    public void setExletTarget(ExletTarget target) { this.target = target; }
+    public void setExletTarget(ExletTarget target) { this._target = target; }
 
 
     public boolean isValid() {

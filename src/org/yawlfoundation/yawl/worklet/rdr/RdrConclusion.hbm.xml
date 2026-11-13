@@ -35,14 +35,7 @@
             <list-index column="listindex"/>
             <composite-element class="org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive">
                 <property name="index" column="primIndex" type="integer"/>
-
-<!--                <property name="action" column="action">-->
-<!--                    <type name="org.yawlfoundation.yawl.worklet.rdrutil.RawStringifier"/>-->
-<!--                </property>-->
-
-<!--                <property name="target" column="target">-->
-<!--                    <type name="org.yawlfoundation.yawl.worklet.rdrutil.RawStringifier"/>-->
-<!--                </property>-->
+                
                 <property name="action" type="string" access="property">
                     <column name="action" length="255" not-null="false"/>
                 </property>
