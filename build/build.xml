@@ -1908,7 +1908,8 @@
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="JDOMUtil.class StringUtil.class PasswordEncryptor.class 
             	              MailSettings.class Sessions.class
-            	              Sessions$InterfaceAClient.class XNode*.class"/>
+            	              Sessions$InterfaceAClient.class XNode*.class
+                              Shutdown*.class"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
