@@ -2205,7 +2205,8 @@
         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="StringUtil.class CharsetFilter.class Sessions*.class
-                          JDOMUtil.class PasswordEncryptor.class HibernateEngine.class"/>
+	    JDOMUtil.class PasswordEncryptor.class HibernateEngine.class
+		    HibernateRegistry.class Shutdown*.class"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF">
             <fileset file="${build.dir}/${docStore.app.name}/web.xml"/>
