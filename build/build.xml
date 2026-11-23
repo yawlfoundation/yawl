@@ -1389,7 +1389,7 @@
 <!--        <copy todir="${output.dir}/simulator/lib">-->
 <!--            <path refid="log4j.libs.path"/>-->
 <!--            <fileset dir="${commons.dir}" includes="commons-codec-*.jar"/>-->
-<!--            <fileset dir="${misc.dir}" includes="jakarta.servlet-api-*.jar jdom-*.jar-->
+<!--            <fileset dir="${misc.dir}" includes="jakarta.servlet-api-*.jar jdom2-*.jar-->
 <!--                          xercesImpl.jar "/>-->
 <!--        </copy>-->
 
@@ -1908,7 +1908,8 @@
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="JDOMUtil.class StringUtil.class PasswordEncryptor.class 
             	              MailSettings.class Sessions.class
-            	              Sessions$InterfaceAClient.class XNode*.class"/>
+            	              Sessions$InterfaceAClient.class XNode*.class
+                              Shutdown*.class"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
