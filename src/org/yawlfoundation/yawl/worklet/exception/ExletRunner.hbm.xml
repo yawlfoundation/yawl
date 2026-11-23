@@ -37,7 +37,7 @@
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"
                      column="conc_id"/>
 
-         <property name="_ruleType" column="ruleType" type="byte"/>
+         <property name="_ruleType" column="ruleType" type="integer"/>
 
         <property name="_ruleNodeId"   column="ruleNodeId" type="long" access="field"/>
         <property name="actionIndex"   column="actionIndex"     type="integer"/>

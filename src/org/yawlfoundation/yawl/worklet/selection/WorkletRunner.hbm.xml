@@ -57,7 +57,7 @@
             <property name="uri" column="parentSpecURI"/>
         </component>
 
-        <property name="_ruleType" column="ruleType" type="byte"/>
+        <property name="_ruleType" column="ruleType" type="integer"/>
 
         <property name="wirString" type="text" length="2147483647"/>
 

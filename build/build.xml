@@ -227,7 +227,7 @@
     </path>
 
     <path id="shared.libs.path">
-        <fileset dir ="${misc.lib.dir}" includes="jdom-*.jar xercesImpl.jar"/>
+        <fileset dir ="${misc.lib.dir}" includes="jdom2-*.jar xercesImpl.jar"/>
         <fileset dir="${commons.lib.dir}" includes="commons-codec-*.jar"/>
     </path>
 
@@ -2463,7 +2463,7 @@
               file="${classes.dir}/log4j2.xml"/>
         <copy todir="${temp.dir}/demoService/WEB-INF/lib">
             <path refid="log4j.libs.path"/>
-            <fileset dir="${misc.lib.dir}" includes="jdom-*.jar xercesImpl.jar"/>
+            <fileset dir="${misc.lib.dir}" includes="jdom2-*.jar xercesImpl.jar"/>
             <fileset dir="${commons.lib.dir}" includes="commons-codec-*.jar"/>
         </copy>
 
