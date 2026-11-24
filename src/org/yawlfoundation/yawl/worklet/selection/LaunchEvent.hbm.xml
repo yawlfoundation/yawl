@@ -40,7 +40,7 @@
             <property name="uri" column="specURI"/>
         </component>
 
-        <property name="_ruleType" type="byte"/>
+        <property name="_ruleType" type="integer"/>
         <property name="taskId"/>
         <property name="itemId"/>
         <property name="parentCaseId"/>
